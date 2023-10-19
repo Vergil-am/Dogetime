@@ -18,6 +18,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.rememberAsyncImagePainter
 import com.example.kotlinmovieapp.ui.theme.KotlinMovieAppTheme
+import com.example.kotlinmovieapp.ui.theme.components.Carousel
 
 @Composable
 fun Home() {
@@ -25,16 +26,13 @@ fun Home() {
     modifier = Modifier.padding(vertical = 20.dp)
     ) {
 
-        Text(text = "Latest", modifier = Modifier.padding(bottom = 10.dp))
-        Card (
+        Text(text = "Trending", modifier = Modifier.padding(bottom = 10.dp))
+        Carousel(
             modifier = Modifier
-                .fillMaxWidth()
                 .padding(10.dp)
-        ) {
-            Image(painter = rememberAsyncImagePainter(
-                "https://image.tmdb.org/t/p/original/mRGmNnh6pBAGGp6fMBMwI8iTBUO.jpg"),
-                contentDescription = "The nun")
-        }
+                .fillMaxWidth()
+                .height(209.5.dp)
+        )
         Row (
             modifier = Modifier
                 .horizontalScroll(rememberScrollState())
