@@ -17,7 +17,6 @@ import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -29,7 +28,11 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.example.kotlinmovieapp.ui.theme.screens.Account
+import com.example.kotlinmovieapp.ui.theme.screens.Favorites
+import com.example.kotlinmovieapp.ui.theme.screens.Home
 import com.example.kotlinmovieapp.ui.theme.KotlinMovieAppTheme
+import com.example.kotlinmovieapp.ui.theme.screens.Search
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -91,16 +94,16 @@ fun Main() {
             startDestination = "Home",
             modifier = Modifier.padding(innerPadding)  ) {
             composable("Home") {
-                Screen("Home")
+                Home()
             }
             composable("Search") {
-                Screen(title = "Search")
+                Search()
             }
             composable("Favorites") {
-                Screen(title = "Favorites")
+                Favorites()
             }
             composable("Account") {
-                Screen(title = "Account")
+                Account()
             }
 
 
@@ -108,10 +111,6 @@ fun Main() {
     }
 }
 
-@Composable
-fun Screen(title: String) {
-    Text(text = title)
-}
 @Preview(showBackground = true)
 @Composable
 fun GreetingPreview() {
