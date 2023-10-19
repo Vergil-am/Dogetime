@@ -19,11 +19,16 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.NavDestination.Companion.hierarchy
+import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.compose.rememberNavController
 import com.example.kotlinmovieapp.ui.theme.KotlinMovieAppTheme
 
 class MainActivity : ComponentActivity() {
@@ -54,18 +59,24 @@ val Items = listOf(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Main() {
-    val selectedItem = remember { mutableStateOf(0) }
-
+    val navController = rememberNavController()
     Scaffold (
-
         bottomBar = {
-            NavigationBar (
-            ) {
-                Items.forEachIndexed { index, item: Item ->
+            NavigationBar {
+                val navBackStackEntry by navController.currentBackStackEntryAsState()
+                val currentDestination = navBackStackEntry?.destination
+                Items.forEach {item: Item ->
                     NavigationBarItem(
-                        selected = selectedItem.value == index,
+                        selected = currentDestination?.hierarchy?.any { it.route == item.title} == true ,
                         onClick = {
-                            selectedItem.value = index
+                            navController.navigate(route = item.title) {
+                               popUpTo(navController.graph.findStartDestination().id) {
+                                   saveState = true
+                               }
+                                launchSingleTop = true
+                                restoreState = true
+
+                            }
                         },
                         label = {item.title},
                         icon = { Icon(item.icon, item.title)})
@@ -75,15 +86,32 @@ fun Main() {
         }
     )
     {innerPadding ->
-        Text(
-            text = "Test",
-            modifier = Modifier
-                .padding(innerPadding)
-        )
+        NavHost(
+            navController = navController,
+            startDestination = "Home",
+            modifier = Modifier.padding(innerPadding)  ) {
+            composable("Home") {
+                Screen("Home")
+            }
+            composable("Search") {
+                Screen(title = "Search")
+            }
+            composable("Favorites") {
+                Screen(title = "Favorites")
+            }
+            composable("Account") {
+                Screen(title = "Account")
+            }
 
+
+        }
     }
 }
 
+@Composable
+fun Screen(title: String) {
+    Text(text = title)
+}
 @Preview(showBackground = true)
 @Composable
 fun GreetingPreview() {
