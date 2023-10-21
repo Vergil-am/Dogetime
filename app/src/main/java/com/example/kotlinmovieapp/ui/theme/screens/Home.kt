@@ -24,20 +24,38 @@ import com.example.kotlinmovieapp.ui.theme.components.Carousel
 import com.example.kotlinmovieapp.ui.theme.components.Filters
 
 
-class Movie(val imageURL: String)
+class Movie(val imageURL: String, val title: String)
 val Movies = listOf(
-    Movie("https://www.themoviedb.org/t/p/w600_and_h900_bestv2/b16RAVwj2QN6RAs752UJNzQ9Of0.jpg"),
-    Movie("https://www.themoviedb.org/t/p/w600_and_h900_bestv2/5gzzkR7y3hnY8AD1wXjCnVlHba5.jpg"),
-    Movie("https://www.themoviedb.org/t/p/w600_and_h900_bestv2/voHUmluYmKyleFkTu3lOXQG702u.jpg"),
-    Movie("https://www.themoviedb.org/t/p/w600_and_h900_bestv2/isb2Qow76GpqYmsSyfdMfsYAjts.jpg"),
+    Movie(imageURL = "https://www.themoviedb.org/t/p/w600_and_h900_bestv2/b16RAVwj2QN6RAs752UJNzQ9Of0.jpg",
+   title = "Saw x"
+    ),
+    Movie(imageURL = "https://www.themoviedb.org/t/p/w600_and_h900_bestv2/5gzzkR7y3hnY8AD1wXjCnVlHba5.jpg",
+        title = "The nun 2"
+    ),
+    Movie(imageURL ="https://www.themoviedb.org/t/p/w600_and_h900_bestv2/voHUmluYmKyleFkTu3lOXQG702u.jpg",
+        title = "Loki"),
+    Movie(imageURL ="https://www.themoviedb.org/t/p/w600_and_h900_bestv2/isb2Qow76GpqYmsSyfdMfsYAjts.jpg",
+        title = "Corpse and bride"
+        ),
 )
 
 val Shows = listOf(
-    Movie("https://www.themoviedb.org/t/p/w600_and_h900_bestv2/gdIrmf2DdY5mgN6ycVP0XlzKzbE.jpg"),
-    Movie("https://www.themoviedb.org/t/p/w600_and_h900_bestv2/uKvVjHNqB5VmOrdxqAt2F7J78ED.jpg"),
-    Movie("https://www.themoviedb.org/t/p/w600_and_h900_bestv2/x8ZQyxAFjz9jtCGivbOMYUC4Tp3.jpg"),
-    Movie("https://www.themoviedb.org/t/p/w600_and_h900_bestv2/1X4h40fcB4WWUmIBK0auT4zRBAV.jpg"),
-    Movie("https://www.themoviedb.org/t/p/w600_and_h900_bestv2/cZ0d3rtvXPVvuiX22sP79K3Hmjz.jpg")
+    Movie("https://www.themoviedb.org/t/p/w600_and_h900_bestv2/gdIrmf2DdY5mgN6ycVP0XlzKzbE.jpg"
+        , title = "Rick and morty"
+
+    ),
+    Movie("https://www.themoviedb.org/t/p/w600_and_h900_bestv2/uKvVjHNqB5VmOrdxqAt2F7J78ED.jpg"
+        , title = "The Last of us"
+    ),
+    Movie("https://www.themoviedb.org/t/p/w600_and_h900_bestv2/x8ZQyxAFjz9jtCGivbOMYUC4Tp3.jpg"
+        , title = "Goblin slayer"
+    ),
+    Movie("https://www.themoviedb.org/t/p/w600_and_h900_bestv2/1X4h40fcB4WWUmIBK0auT4zRBAV.jpg"
+        , title = "House of dragon"
+    ),
+    Movie("https://www.themoviedb.org/t/p/w600_and_h900_bestv2/cZ0d3rtvXPVvuiX22sP79K3Hmjz.jpg"
+        , title = "The witcher"
+    )
 
     )
 
@@ -77,7 +95,7 @@ fun Home(
                         .height(200.dp)
                         .width(133.5.dp),
                     onClick = {
-                        navController.navigate("Movie/123") {
+                        navController.navigate("Movie/${movie.title}") {
 
                             popUpTo(navController.graph.findStartDestination().id) {
                                 saveState = true
@@ -117,6 +135,16 @@ fun Home(
                         .padding(horizontal = 5.dp)
                         .height(200.dp)
                         .width(133.5.dp),
+                    onClick = {
+                        navController.navigate("Movie/${show.title}") {
+
+                            popUpTo(navController.graph.findStartDestination().id) {
+                                saveState = true
+                            }
+                            launchSingleTop = true
+                            restoreState = true
+                        }
+                    }
                 ) {
 
                     Image(
