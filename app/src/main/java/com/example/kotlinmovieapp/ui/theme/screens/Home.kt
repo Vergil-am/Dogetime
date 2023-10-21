@@ -105,14 +105,13 @@ fun Home(
                         }
                     }
                 ) {
-
                     Image(
                         modifier = Modifier
                             .fillMaxSize(),
                         painter = rememberAsyncImagePainter(
                             movie.imageURL
                         ),
-                        contentDescription = "john wick"
+                        contentDescription = movie.title
                     )
                 }
             }
@@ -153,7 +152,7 @@ fun Home(
                         painter = rememberAsyncImagePainter(
                             show.imageURL
                         ),
-                        contentDescription = "john wick"
+                        contentDescription = show.title
                     )
                 }
             }
