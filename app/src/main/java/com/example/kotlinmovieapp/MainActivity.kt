@@ -32,6 +32,7 @@ import com.example.kotlinmovieapp.ui.theme.screens.Account
 import com.example.kotlinmovieapp.ui.theme.screens.Favorites
 import com.example.kotlinmovieapp.ui.theme.screens.Home
 import com.example.kotlinmovieapp.ui.theme.KotlinMovieAppTheme
+import com.example.kotlinmovieapp.ui.theme.screens.Movie
 import com.example.kotlinmovieapp.ui.theme.screens.Search
 
 class MainActivity : ComponentActivity() {
@@ -94,7 +95,9 @@ fun Main() {
             startDestination = "Home",
             modifier = Modifier.padding(innerPadding)  ) {
             composable("Home") {
-                Home()
+                Home(
+                    navController
+                )
             }
             composable("Search") {
                 Search()
@@ -105,8 +108,12 @@ fun Main() {
             composable("Account") {
                 Account()
             }
+            composable("Movie/{id}") {
+                navBackStackEntry ->
+                val id = navBackStackEntry.arguments?.getString("id")
 
-
+                Movie( id = id)
+            }
         }
     }
 }
