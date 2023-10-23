@@ -1,6 +1,7 @@
 package com.example.kotlinmovieapp.data.remote.dto
 
-import com.example.kotlinmovieapp.ui.theme.screens.Movie
+import com.example.kotlinmovieapp.domain.model.Movie
+
 data class MoviesDTO(
     val page: Int,
     val results: List<Movie>,
