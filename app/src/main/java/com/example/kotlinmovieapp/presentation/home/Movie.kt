@@ -1,4 +1,4 @@
-package com.example.kotlinmovieapp.ui.theme.screens
+package com.example.kotlinmovieapp.presentation.home
 
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable

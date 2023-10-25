@@ -1,4 +1,4 @@
-package com.example.kotlinmovieapp.ui.theme.screens
+package com.example.kotlinmovieapp.presentation.home
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.horizontalScroll
@@ -65,7 +65,7 @@ val Shows = listOf(
 fun Home(
     navController: NavController
 ) {
-    val viewModel = viewModel<HomeViewModel>()
+    val viewModel: HomeViewModel = viewModel()
     Column (
     modifier = Modifier
         .padding(vertical = 20.dp)
@@ -122,6 +122,7 @@ fun Home(
             .padding(horizontal = 10.dp)
             .padding(top = 10.dp)
         )
+
         Filters()
         Row (
             modifier = Modifier

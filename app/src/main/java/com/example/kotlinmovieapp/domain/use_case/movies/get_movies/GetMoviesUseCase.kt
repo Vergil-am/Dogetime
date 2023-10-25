@@ -12,13 +12,13 @@ import javax.inject.Inject
 class GetMoviesUseCase @Inject constructor(
     private val repo : MovieRepository
 ) {
-    operator fun invoke(): Flow<MoviesDTO> = flow {
+    fun getTrending(): Flow<MoviesDTO> = flow {
         try {
-            val movies = repo.getTrending().results
+            repo.getTrending()
         } catch (_: HttpException) {
-
+            print("http exception")
         } catch (_: IOException) {
-
+            print("IO exception")
         }
     }
 }

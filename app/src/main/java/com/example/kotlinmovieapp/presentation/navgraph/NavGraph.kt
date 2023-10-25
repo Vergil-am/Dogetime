@@ -23,8 +23,8 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.kotlinmovieapp.ui.theme.screens.Account
 import com.example.kotlinmovieapp.ui.theme.screens.Favorites
-import com.example.kotlinmovieapp.ui.theme.screens.Home
-import com.example.kotlinmovieapp.ui.theme.screens.Movie
+import com.example.kotlinmovieapp.presentation.home.Home
+import com.example.kotlinmovieapp.presentation.home.Movie
 import com.example.kotlinmovieapp.ui.theme.screens.Search
 
 
@@ -76,7 +76,7 @@ fun NavGraph (
         ) {
             composable(route = Route.Home.route) {
                 Home(
-                    navController
+                    navController,
                 )
             }
             composable(route = Route.Search.route) {
@@ -92,8 +92,7 @@ fun NavGraph (
             composable(Route.MovieDetails.route) {
                     navBackStackEntry ->
                 val id = navBackStackEntry.arguments?.getString("id")
-
-                Movie( id = id)
+                Movie(id = id)
             }
 
 
