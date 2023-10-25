@@ -17,12 +17,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import coil.compose.rememberAsyncImagePainter
-import com.example.kotlinmovieapp.domain.use_case.movies.MoviesUseCase
 import com.example.kotlinmovieapp.ui.theme.components.Carousel
 import com.example.kotlinmovieapp.ui.theme.components.Filters
 
@@ -67,6 +65,7 @@ val Shows = listOf(
 fun Home(
     navController: NavController
 ) {
+    val viewModel = viewModel<HomeViewModel>()
     Column (
     modifier = Modifier
         .padding(vertical = 20.dp)

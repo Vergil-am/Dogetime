@@ -11,7 +11,8 @@ import javax.inject.Inject
 @HiltViewModel
 class MainViewModel @Inject constructor()
     : ViewModel() {
-
     var startDestination by mutableStateOf(Route.Home.route)
         private set
+
+
 }
