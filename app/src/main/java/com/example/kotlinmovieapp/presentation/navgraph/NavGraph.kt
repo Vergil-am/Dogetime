@@ -21,11 +21,12 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.example.kotlinmovieapp.presentation.details.Details
+import com.example.kotlinmovieapp.presentation.details.DetailsViewModel
 import com.example.kotlinmovieapp.ui.theme.screens.Account
 import com.example.kotlinmovieapp.ui.theme.screens.Favorites
 import com.example.kotlinmovieapp.presentation.home.Home
 import com.example.kotlinmovieapp.presentation.home.HomeViewModel
-import com.example.kotlinmovieapp.presentation.home.Movie
 import com.example.kotlinmovieapp.ui.theme.screens.Search
 
 
@@ -42,7 +43,8 @@ val Items = listOf(
 @Composable
 fun NavGraph (
     startDestination: String,
-    homeViewModel: HomeViewModel
+    homeViewModel: HomeViewModel,
+    detailsViewModel: DetailsViewModel
 ) {
    val navController = rememberNavController()
     Scaffold (
@@ -95,7 +97,12 @@ fun NavGraph (
             composable(Route.MovieDetails.route) {
                     navBackStackEntry ->
                 val id = navBackStackEntry.arguments?.getString("id")
-                Movie(id = id)
+                if (id != null) {
+                    Details(
+                        id = id.toInt(),
+                        viewModel = detailsViewModel
+                    )
+                }
             }
 
 
