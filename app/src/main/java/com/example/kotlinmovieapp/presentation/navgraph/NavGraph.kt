@@ -24,6 +24,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.kotlinmovieapp.ui.theme.screens.Account
 import com.example.kotlinmovieapp.ui.theme.screens.Favorites
 import com.example.kotlinmovieapp.presentation.home.Home
+import com.example.kotlinmovieapp.presentation.home.HomeViewModel
 import com.example.kotlinmovieapp.presentation.home.Movie
 import com.example.kotlinmovieapp.ui.theme.screens.Search
 
@@ -40,7 +41,8 @@ val Items = listOf(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NavGraph (
-    startDestination: String
+    startDestination: String,
+    homeViewModel: HomeViewModel
 ) {
    val navController = rememberNavController()
     Scaffold (
@@ -77,6 +79,7 @@ fun NavGraph (
             composable(route = Route.Home.route) {
                 Home(
                     navController,
+                    viewModel = homeViewModel
                 )
             }
             composable(route = Route.Search.route) {

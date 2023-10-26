@@ -9,20 +9,19 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import coil.compose.rememberAsyncImagePainter
+import com.example.kotlinmovieapp.domain.model.Movie
+import com.example.kotlinmovieapp.util.Constants.IMAGE_BASE_URL
 
 
-val Images = listOf(
-    "https://image.tmdb.org/t/p/original/mRGmNnh6pBAGGp6fMBMwI8iTBUO.jpg",
-    "https://image.tmdb.org/t/p/original/jP3FatCTHc460ZGW57q9ypTdBqu.jpg",
-    "https://image.tmdb.org/t/p/original/ctMserH8g2SeOAnCw5gFjdQF8mo.jpg"
-)
+
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun Carousel (
-    modifier: Modifier
+    modifier: Modifier,
+    movies: List<Movie>?
 ) {
     val pagerState = rememberPagerState (
-        pageCount = {Images.count()}
+        pageCount = { movies?.count() ?: 0 }
     )
 
     Card(
@@ -33,8 +32,9 @@ fun Carousel (
 
         ) {page ->
             Card () {
-               Image(painter = rememberAsyncImagePainter(Images[page]),
-                   contentDescription = "The nun",
+               Image(painter =
+               rememberAsyncImagePainter("${IMAGE_BASE_URL}/original${movies?.get(page)?.backdrop_path}"),
+                   contentDescription = movies?.get(page)?.title,
                    contentScale = ContentScale.FillBounds
                )
             }

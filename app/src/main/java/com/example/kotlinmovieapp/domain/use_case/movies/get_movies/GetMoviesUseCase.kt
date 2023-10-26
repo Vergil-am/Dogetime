@@ -1,5 +1,6 @@
 package com.example.kotlinmovieapp.domain.use_case.movies.get_movies
 
+import android.util.Log
 import com.example.kotlinmovieapp.data.remote.dto.MoviesDTO
 import com.example.kotlinmovieapp.domain.repository.MovieRepository
 import kotlinx.coroutines.flow.Flow
@@ -14,11 +15,13 @@ class GetMoviesUseCase @Inject constructor(
 ) {
     fun getTrending(): Flow<MoviesDTO> = flow {
         try {
-            repo.getTrending()
+            val movies = repo.getTrending()
+            emit(movies)
         } catch (_: HttpException) {
-            print("http exception")
+            Log.e("Movies Repo", "Http exception")
         } catch (_: IOException) {
-            print("IO exception")
+            Log.e("Movies Repo", "Http exception")
+
         }
     }
 }

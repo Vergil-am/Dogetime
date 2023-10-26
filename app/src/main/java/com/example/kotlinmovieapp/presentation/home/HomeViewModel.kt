@@ -13,8 +13,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class HomeViewModel @Inject constructor (
-    // TODO paasing anything to the constructor makes it crash i need to fix it
-    private val getMoviesUseCase : GetMoviesUseCase
+    private val getMoviesUseCase: GetMoviesUseCase
 ): ViewModel() {
     private val _state = mutableStateOf(MovieListState())
     val state : State<MovieListState> = _state
@@ -22,10 +21,13 @@ class HomeViewModel @Inject constructor (
     init {
         getTrending()
     }
-    private fun getTrending () {
-        _state.value = MovieListState(loading = true)
+
+    private fun getTrending() {
         getMoviesUseCase.getTrending().onEach {
-            result -> _state.value = MovieListState(loading = false, movies = result.results)
+            moviesDTO -> _state.value = MovieListState(loading = false, movies = moviesDTO)
         }.launchIn(viewModelScope)
+
+    }
 }
-}
+
+

@@ -1,7 +1,7 @@
 package com.example.kotlinmovieapp.di
 
 import com.example.kotlinmovieapp.data.remote.MoviesAPI
-import com.example.kotlinmovieapp.data.repository.MovieRepoImlementation
+import com.example.kotlinmovieapp.data.repository.MovieRepoImplementation
 import com.example.kotlinmovieapp.domain.repository.MovieRepository
 import com.example.kotlinmovieapp.util.Constants.BASE_URL
 import dagger.Module
@@ -28,6 +28,8 @@ object AppModule {
     @Provides
     @Singleton
     fun provideMovieRepository(api: MoviesAPI) : MovieRepository {
-        return MovieRepoImlementation(api)
+        return MovieRepoImplementation(api)
     }
+
+
 }

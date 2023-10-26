@@ -6,7 +6,7 @@ import com.example.kotlinmovieapp.data.remote.dto.MoviesDTO
 import com.example.kotlinmovieapp.domain.repository.MovieRepository
 import javax.inject.Inject
 
-class MovieRepoImlementation @Inject constructor(
+class MovieRepoImplementation @Inject constructor(
     private val api : MoviesAPI
 ): MovieRepository {
     override suspend fun getTrending(): MoviesDTO {
