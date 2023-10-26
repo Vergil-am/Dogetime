@@ -15,11 +15,12 @@ class GetMovieUseCase @Inject constructor(
     fun getMovieDetails(id: Int): Flow<MovieDetailsDTO> = flow {
         try {
             val movie = repo.getMovie(movieId = id)
+            Log.d("MOVIE REPO", movie.toString())
             emit(movie)
-                } catch (_: HttpException) {
-            Log.e("Movies Repo", "Http exception")
-        } catch (_: IOException) {
-            Log.e("Movies Repo", "Http exception")
+        } catch (e : HttpException) {
+            Log.e("MOVIE REPO", e.toString() )
+        } catch (e: IOException) {
+            Log.e("MOVIE REPO", e.toString() )
 
         }
     }

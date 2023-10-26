@@ -16,6 +16,7 @@ interface MoviesAPI {
 
     @GET("movie/{movie_id}")
     suspend fun getMovie (
-        @Path("movie_id") movieId: Int
+        @Path("movie_id") movieId: Int,
+        @Query("api_key") apiKey: String = API_KEY
     ) : MovieDetailsDTO
 }
