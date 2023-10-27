@@ -98,6 +98,7 @@ fun NavGraph (
                     navBackStackEntry ->
                 val id = navBackStackEntry.arguments?.getString("id")
                 if (id != null) {
+                    detailsViewModel.state.value.id = id.toInt()
                     Details(
                         id = id.toInt(),
                         viewModel = detailsViewModel
