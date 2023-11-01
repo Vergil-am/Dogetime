@@ -8,5 +8,5 @@ data class MovieState(
     val isLoading: Boolean = false,
     val movie: MovieDetailsDTO? = null,
     val show: ShowDetailsDTO? = null,
-    val type: String? = null
+    val type: String = "movie"
 )

@@ -98,8 +98,7 @@ fun NavGraph (
                     navBackStackEntry ->
                 val id = navBackStackEntry.arguments?.getString("id")
                 if (id != null) {
-                    //detailsViewModel.state = MovieState(isLoading = true, movie = null, show = null, id = id.toInt())
-                    detailsViewModel.updateId(id.toInt(), type = "show")
+                    detailsViewModel.updateId(id.toInt(), type = "movie")
                     Details(
                         viewModel = detailsViewModel
                     )

@@ -28,6 +28,7 @@ class GetMovieUseCase @Inject constructor(
     fun getShow(id: Int): Flow<ShowDetailsDTO> = flow {
         try {
             val  show = repo.getShow(id)
+            Log.e("SHOW REPO", show.toString() )
             emit(show)
         }catch (e : HttpException) {
             Log.e("MOVIE REPO", e.toString() )

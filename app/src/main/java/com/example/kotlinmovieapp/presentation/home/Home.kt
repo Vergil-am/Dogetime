@@ -67,7 +67,6 @@ fun Home(
                         .width(133.5.dp),
                     onClick = {
                         navController.navigate("Movie/${movie.id}") {
-
                             popUpTo(navController.graph.findStartDestination().id) {
                                 saveState = true
                             }
