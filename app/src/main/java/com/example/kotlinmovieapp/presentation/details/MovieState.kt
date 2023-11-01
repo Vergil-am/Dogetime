@@ -4,8 +4,9 @@ import com.example.kotlinmovieapp.data.remote.dto.MovieDetailsDTO
 import com.example.kotlinmovieapp.data.remote.dto.ShowDetailsDTO
 
 data class MovieState(
-    var id : Int? = null,
+    val id : Int? = null,
     val isLoading: Boolean = false,
     val movie: MovieDetailsDTO? = null,
-    val show: ShowDetailsDTO? = null
+    val show: ShowDetailsDTO? = null,
+    val type: String? = null
 )

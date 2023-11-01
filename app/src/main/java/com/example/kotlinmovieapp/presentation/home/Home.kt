@@ -107,7 +107,7 @@ fun Home(
                         .height(200.dp)
                         .width(133.5.dp),
                     onClick = {
-                        navController.navigate("Movie/${show.title}") {
+                        navController.navigate("Show/${show.id}") {
                             popUpTo(navController.graph.findStartDestination().id) {
                                 saveState = true
                             }

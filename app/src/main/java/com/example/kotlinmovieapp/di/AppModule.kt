@@ -1,5 +1,7 @@
 package com.example.kotlinmovieapp.di
 
+import androidx.navigation.NavController
+import com.example.kotlinmovieapp.MainActivity
 import com.example.kotlinmovieapp.data.remote.MoviesAPI
 import com.example.kotlinmovieapp.data.repository.MovieRepoImplementation
 import com.example.kotlinmovieapp.domain.repository.MovieRepository
@@ -29,6 +31,12 @@ object AppModule {
     @Singleton
     fun provideMovieRepository(api: MoviesAPI) : MovieRepository {
         return MovieRepoImplementation(api)
+    }
+
+    @Provides
+    @Singleton
+    fun provideNavController(activity: MainActivity): NavController{
+        return NavController(activity)
     }
 
 
