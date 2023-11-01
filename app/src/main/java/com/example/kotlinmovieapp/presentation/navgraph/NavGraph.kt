@@ -23,6 +23,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.kotlinmovieapp.presentation.details.Details
 import com.example.kotlinmovieapp.presentation.details.DetailsViewModel
+import com.example.kotlinmovieapp.presentation.details.MovieState
 import com.example.kotlinmovieapp.ui.theme.screens.Account
 import com.example.kotlinmovieapp.ui.theme.screens.Favorites
 import com.example.kotlinmovieapp.presentation.home.Home
@@ -100,12 +101,24 @@ fun NavGraph (
                 if (id != null) {
                     detailsViewModel.state.value.id = id.toInt()
                     Details(
+                        type = "movie",
                         id = id.toInt(),
                         viewModel = detailsViewModel
                     )
                 }
             }
-
+            composable(Route.ShowDetails.route) {
+                    navBackStackEntry ->
+                val id = navBackStackEntry.arguments?.getString("id")
+                if (id != null) {
+                    detailsViewModel.state.value.id = id.toInt()
+                    Details(
+                        type = "show",
+                        id = id.toInt(),
+                        viewModel = detailsViewModel
+                    )
+                }
+            }
 
     }
 

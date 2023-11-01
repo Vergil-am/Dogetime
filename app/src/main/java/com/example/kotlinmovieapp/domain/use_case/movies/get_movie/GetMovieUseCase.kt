@@ -2,6 +2,7 @@ package com.example.kotlinmovieapp.domain.use_case.movies.get_movie
 
 import android.util.Log
 import com.example.kotlinmovieapp.data.remote.dto.MovieDetailsDTO
+import com.example.kotlinmovieapp.data.remote.dto.ShowDetailsDTO
 import com.example.kotlinmovieapp.domain.repository.MovieRepository
 import kotlinx.coroutines.flow.flow
 import okio.IOException
@@ -18,6 +19,17 @@ class GetMovieUseCase @Inject constructor(
             Log.d("MOVIE REPO", movie.toString())
             emit(movie)
         } catch (e : HttpException) {
+            Log.e("MOVIE REPO", e.toString() )
+        } catch (e: IOException) {
+            Log.e("MOVIE REPO", e.toString() )
+
+        }
+    }
+    fun getShow(id: Int): Flow<ShowDetailsDTO> = flow {
+        try {
+            val  show = repo.getShow(id)
+            emit(show)
+        }catch (e : HttpException) {
             Log.e("MOVIE REPO", e.toString() )
         } catch (e: IOException) {
             Log.e("MOVIE REPO", e.toString() )

@@ -2,6 +2,7 @@ package com.example.kotlinmovieapp.domain.repository
 
 import com.example.kotlinmovieapp.data.remote.dto.MovieDetailsDTO
 import com.example.kotlinmovieapp.data.remote.dto.MoviesDTO
+import com.example.kotlinmovieapp.data.remote.dto.ShowDetailsDTO
 
 interface MovieRepository {
 
@@ -13,4 +14,6 @@ interface MovieRepository {
 
 
     suspend fun getMovie(movieId: Int) : MovieDetailsDTO
+
+    suspend fun getShow(showId: Int) : ShowDetailsDTO
 }

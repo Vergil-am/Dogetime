@@ -12,4 +12,6 @@ sealed class Route (
     object Account : Route("Account")
 
     object MovieDetails: Route("Movie/{id}")
+
+    object ShowDetails: Route("Show/{id}")
 }

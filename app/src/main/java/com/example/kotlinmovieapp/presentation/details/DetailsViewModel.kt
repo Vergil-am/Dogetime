@@ -5,6 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.kotlinmovieapp.data.remote.dto.ShowDetailsDTO
 import com.example.kotlinmovieapp.domain.use_case.movies.get_movie.GetMovieUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.launchIn
@@ -16,12 +17,18 @@ class DetailsViewModel @Inject constructor(
     private val getMovieUseCase: GetMovieUseCase,
 ): ViewModel()  {
     private val _state = mutableStateOf(MovieState(movie = null))
-    val state : State<MovieState> = _state
+    var state : State<MovieState> = _state
 
 
-    fun getMovie(id: Int) {
-            getMovieUseCase.getMovieDetails(id = id).onEach { movieDetailsDTO ->
-                state.value.movie = movieDetailsDTO
+    fun getMovie(id: Int, type: String) {
+        when (type) {
+            "movie" ->             getMovieUseCase.getMovieDetails(id = id).onEach { movieDetailsDTO ->
+                MovieState(isLoading = false, movie = movieDetailsDTO, id = null)
             }.launchIn(viewModelScope)
+            "show" -> getMovieUseCase.getShow(id).onEach {showDetailsDTO ->
+                MovieState(isLoading = false, id = null, show = showDetailsDTO)
+            }
+        }
+
     }
 }

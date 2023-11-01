@@ -2,6 +2,7 @@ package com.example.kotlinmovieapp.data.remote
 
 import com.example.kotlinmovieapp.data.remote.dto.MovieDetailsDTO
 import com.example.kotlinmovieapp.data.remote.dto.MoviesDTO
+import com.example.kotlinmovieapp.data.remote.dto.ShowDetailsDTO
 import com.example.kotlinmovieapp.util.Constants.API_KEY
 import retrofit2.http.GET
 import retrofit2.http.Path
@@ -22,6 +23,12 @@ interface MoviesAPI {
         @Path("movie_id") movieId: Int,
         @Query("api_key") apiKey: String = API_KEY
     ) : MovieDetailsDTO
+
+    @GET("tv/{show_id}")
+    suspend fun getShow(
+        @Path("show_id") movieId: Int,
+        @Query("api_key") apiKey: String = API_KEY
+    ) : ShowDetailsDTO
 
     @GET("tv/popular")
     suspend fun getShows(

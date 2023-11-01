@@ -18,10 +18,11 @@ import coil.compose.rememberAsyncImagePainter
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Details(
+    type: String,
     id : Int,
     viewModel: DetailsViewModel
 ) {
-    viewModel.getMovie(id)
+    viewModel.getMovie(id, type)
 
     val movie = viewModel.state.value.movie
     Column (
