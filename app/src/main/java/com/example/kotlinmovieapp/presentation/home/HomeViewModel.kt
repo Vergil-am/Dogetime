@@ -19,15 +19,23 @@ class HomeViewModel @Inject constructor (
     val state : State<MovieListState> = _state
 
     init {
-        getTrending()
+        getAll()
+
     }
 
-    private fun getTrending() {
+    private fun getAll() {
         getMoviesUseCase.getTrending().onEach {
-            moviesDTO -> _state.value = MovieListState(loading = false, movies = moviesDTO)
+            moviesDTO -> _state.value = MovieListState(movies = state.value.movies, trending = moviesDTO, shows = state.value.shows )
         }.launchIn(viewModelScope)
-
+        getMoviesUseCase.getPopular().onEach {
+                moviesDTO ->  _state.value = MovieListState(movies = moviesDTO, trending = state.value.trending, shows = state.value.shows )
+        }.launchIn(viewModelScope)
+        getMoviesUseCase.getShows().onEach {
+                moviesDTO ->  _state.value = MovieListState(movies = state.value.movies, trending = state.value.trending, shows = moviesDTO)
+        }.launchIn(viewModelScope)
     }
+
+
 }
 
 

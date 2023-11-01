@@ -4,6 +4,8 @@ import com.example.kotlinmovieapp.data.remote.dto.MoviesDTO
 
 data class MovieListState(
     val loading: Boolean = false,
-    val movies: MoviesDTO? = null
+    val movies: MoviesDTO? = null,
+    val trending: MoviesDTO? = null,
+    val shows: MoviesDTO? = null
 
 )

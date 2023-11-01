@@ -21,5 +21,9 @@ class MovieRepoImplementation @Inject constructor(
         return api.getMovie(movieId)
     }
 
+    override suspend fun getShows(page: Int): MoviesDTO {
+        return api.getShows(page)
+    }
+
 
 }

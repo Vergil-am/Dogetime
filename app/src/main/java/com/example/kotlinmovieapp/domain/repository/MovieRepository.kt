@@ -9,5 +9,8 @@ interface MovieRepository {
     suspend fun getPopular(page : Int) : MoviesDTO
 
 
+    suspend fun getShows(page : Int) : MoviesDTO
+
+
     suspend fun getMovie(movieId: Int) : MovieDetailsDTO
 }

@@ -25,28 +25,7 @@ import com.example.kotlinmovieapp.ui.theme.components.Filters
 import com.example.kotlinmovieapp.util.Constants
 
 
-class Movie(val imageURL: String, val title: String)
 
-
-val Shows = listOf(
-    Movie("https://www.themoviedb.org/t/p/w600_and_h900_bestv2/gdIrmf2DdY5mgN6ycVP0XlzKzbE.jpg"
-        , title = "Rick and morty"
-
-    ),
-    Movie("https://www.themoviedb.org/t/p/w600_and_h900_bestv2/uKvVjHNqB5VmOrdxqAt2F7J78ED.jpg"
-        , title = "The Last of us"
-    ),
-    Movie("https://www.themoviedb.org/t/p/w600_and_h900_bestv2/x8ZQyxAFjz9jtCGivbOMYUC4Tp3.jpg"
-        , title = "Goblin slayer"
-    ),
-    Movie("https://www.themoviedb.org/t/p/w600_and_h900_bestv2/1X4h40fcB4WWUmIBK0auT4zRBAV.jpg"
-        , title = "House of dragon"
-    ),
-    Movie("https://www.themoviedb.org/t/p/w600_and_h900_bestv2/cZ0d3rtvXPVvuiX22sP79K3Hmjz.jpg"
-        , title = "The witcher"
-    )
-
-    )
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -68,7 +47,7 @@ fun Home(
                 .padding(10.dp)
                 .fillMaxWidth()
                 .height(209.5.dp),
-            movies = state.movies?.results
+            movies = state.trending?.results
         )
         Text(text = "Movies", modifier = Modifier
             .padding(horizontal = 10.dp))
@@ -120,7 +99,7 @@ fun Home(
                 .padding(horizontal = 10.dp)
             ,
         ) {
-            Shows.forEach { show ->
+            state.shows?.results?.forEach { show ->
                 Card (
                     modifier = Modifier
 
@@ -129,7 +108,6 @@ fun Home(
                         .width(133.5.dp),
                     onClick = {
                         navController.navigate("Movie/${show.title}") {
-
                             popUpTo(navController.graph.findStartDestination().id) {
                                 saveState = true
                             }
@@ -143,7 +121,8 @@ fun Home(
                         modifier = Modifier
                             .fillMaxSize(),
                         painter = rememberAsyncImagePainter(
-                            show.imageURL
+
+                            "${Constants.IMAGE_BASE_URL}/w200${show.poster_path}"
                         ),
                         contentDescription = show.title
                     )

@@ -12,11 +12,20 @@ interface MoviesAPI {
     suspend fun getTrending( @Query("api_key") apiKey : String = API_KEY ) : MoviesDTO
 
     @GET("movie/popular")
-    suspend fun getPopular ( @Query("page") page: Int ) : MoviesDTO
+    suspend fun getPopular (
+        @Query("page") page: Int,
+        @Query("api_key") apiKey : String = API_KEY
+    ) : MoviesDTO
 
     @GET("movie/{movie_id}")
     suspend fun getMovie (
         @Path("movie_id") movieId: Int,
         @Query("api_key") apiKey: String = API_KEY
     ) : MovieDetailsDTO
+
+    @GET("tv/popular")
+    suspend fun getShows(
+        @Query("page") page: Int,
+        @Query("api_key") apiKey : String = API_KEY
+    ) : MoviesDTO
 }

@@ -18,10 +18,30 @@ class GetMoviesUseCase @Inject constructor(
             val movies = repo.getTrending()
             emit(movies)
         } catch (_: HttpException) {
-            Log.e("Movies Repo", "Http exception")
+            Log.e("TRENDING", "Http exception")
         } catch (_: IOException) {
-            Log.e("Movies Repo", "Http exception")
+            Log.e("TRENDING", "Http exception")
 
         }
+    }
+    fun getPopular(): Flow<MoviesDTO> = flow {
+        try {
+            val movies = repo.getPopular(page = 1)
+            emit(movies)
+        } catch (_: HttpException) {
+            Log.e("POPULAR", "Http exception")
+        } catch (_: IOException) {
+            Log.e("POPULAR", "Http exception")
+
+        }
+    }
+    fun getShows() : Flow<MoviesDTO> = flow {
+        try {
+            val shows = repo.getShows(1)
+            emit(shows)
+        } catch (_: HttpException) {
+
+        } catch (_: IOException) {}
+
     }
 }
