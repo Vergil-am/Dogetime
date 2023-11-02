@@ -1,4 +1,4 @@
-package com.example.kotlinmovieapp.ui.theme.components
+package com.example.kotlinmovieapp.presentation.components
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image

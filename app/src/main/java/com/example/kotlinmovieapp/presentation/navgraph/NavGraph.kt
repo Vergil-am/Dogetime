@@ -94,6 +94,7 @@ fun NavGraph (
                 Account()
             }
 
+
             composable(Route.MovieDetails.route) {
                     navBackStackEntry ->
                 val id = navBackStackEntry.arguments?.getString("id")

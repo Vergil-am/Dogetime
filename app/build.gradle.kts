@@ -63,7 +63,7 @@ dependencies {
     implementation("androidx.compose.ui:ui-tooling-preview")
     implementation("androidx.compose.material3:material3")
     // Navigation
-    implementation("androidx.navigation:navigation-compose:2.7.4")
+    implementation("androidx.navigation:navigation-compose:2.7.5")
     // Coil Image loading library
     implementation("io.coil-kt:coil-compose:2.4.0")
 
@@ -75,6 +75,11 @@ dependencies {
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
     // Json converter for retrofit
     implementation("com.squareup.retrofit2:converter-gson:2.5.0")
+
+    // Media player
+    implementation("androidx.media3:media3-exoplayer:1.1.1")
+    implementation("androidx.media3:media3-exoplayer-dash:1.1.1")
+    implementation("androidx.media3:media3-ui:1.1.1")
 
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")

@@ -4,14 +4,15 @@ sealed class Route (
     val route: String
 
 ) {
-    object Home : Route("Home")
-    object Search : Route("Search")
+    object Home : Route("home")
+    object Search : Route("search")
 
-    object Favorites : Route("Favorites")
+    object Favorites : Route("favorites")
 
-    object Account : Route("Account")
+    object Account : Route("account")
 
-    object MovieDetails: Route("Movie/{id}")
+    object MovieDetails: Route("movie/{id}")
 
-    object ShowDetails: Route("Show/{id}")
+    object ShowDetails: Route("show/{id}")
+
 }

@@ -1,4 +1,4 @@
-package com.example.kotlinmovieapp.ui.theme.components
+package com.example.kotlinmovieapp.presentation.components
 
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Row
