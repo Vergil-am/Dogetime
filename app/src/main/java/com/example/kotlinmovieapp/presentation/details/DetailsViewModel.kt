@@ -17,10 +17,6 @@ class DetailsViewModel @Inject constructor(
     private val _state = MutableStateFlow(MovieState())
     var state : StateFlow<MovieState> = _state
 
-    fun updateId(id: Int, type: String) {
-       _state.value = MovieState(id = id, movie = state.value.movie, show = state.value.show, isLoading = true, type = type)
-    }
-
     fun getMovie(id: Int) {
             getMovieUseCase.getMovieDetails(id).onEach { movieDetailsDTO ->
 
