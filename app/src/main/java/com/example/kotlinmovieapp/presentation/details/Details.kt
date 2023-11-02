@@ -8,13 +8,18 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.AssistChip
+import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
 import com.example.kotlinmovieapp.util.Constants
 
@@ -22,6 +27,7 @@ import com.example.kotlinmovieapp.util.Constants
 @Composable
 @androidx.annotation.OptIn(androidx.media3.common.util.UnstableApi::class)
 fun  Details(
+    navController: NavController,
     viewModel: DetailsViewModel,
     id: Int,
     type: String
@@ -74,10 +80,20 @@ when (type ) {
                 ) {
                     it.genres.forEach{
                         genre -> AssistChip(
-                        onClick = { /*TODO*/ },
+                        onClick = {},
                         label = { Text(text = genre.name)}
                         )
                     }
+                }
+                Button(onClick = {
+                    navController.navigate("video_player/${it.imdb_id}")
+                }) {
+                    Text(text = "Play")
+                    Icon(
+                        imageVector = Icons.Filled.PlayArrow,
+                        contentDescription = "Play"
+                    )
+
                 }
 
             }

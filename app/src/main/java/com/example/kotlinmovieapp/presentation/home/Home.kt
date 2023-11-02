@@ -41,6 +41,7 @@ fun Home(
         state.movies?.let { MovieRow(data = it.results, type ="movie" , navController = navController) }
         state.shows?.let { MovieRow(data = it.results, type = "show", navController = navController) }
 
+
     }
 }
 

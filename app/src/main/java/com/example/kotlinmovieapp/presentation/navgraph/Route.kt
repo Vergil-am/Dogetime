@@ -11,6 +11,8 @@ sealed class Route (
 
     object Account : Route("account")
 
+    object VideoPlayer: Route("video_player/{id}")
+
     object MovieDetails: Route("movie/{id}")
 
     object ShowDetails: Route("show/{id}")

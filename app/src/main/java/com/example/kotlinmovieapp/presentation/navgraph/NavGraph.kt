@@ -27,6 +27,7 @@ import com.example.kotlinmovieapp.ui.theme.screens.Account
 import com.example.kotlinmovieapp.ui.theme.screens.Favorites
 import com.example.kotlinmovieapp.presentation.home.Home
 import com.example.kotlinmovieapp.presentation.home.HomeViewModel
+import com.example.kotlinmovieapp.presentation.video_player.VideoPlayer
 import com.example.kotlinmovieapp.ui.theme.screens.Search
 
 
@@ -94,12 +95,21 @@ fun NavGraph (
                 Account()
             }
 
+            composable(route = Route.VideoPlayer.route) {
+                navBackStackEntry ->
+                val id = navBackStackEntry.arguments?.getString("id")
+                if (id != null) {
+                    VideoPlayer(id)
+                }
+            }
+
 
             composable(Route.MovieDetails.route) {
                     navBackStackEntry ->
                 val id = navBackStackEntry.arguments?.getString("id")
                 if (id != null) {
                     Details(
+                        navController = navController,
                         viewModel = detailsViewModel,
                         id = id.toInt(),
                         type = "movie"
@@ -111,6 +121,7 @@ fun NavGraph (
                 val id = navBackStackEntry.arguments?.getString("id")
                 if (id != null) {
                     Details(
+                        navController = navController,
                         viewModel = detailsViewModel,
                         id = id.toInt(),
                         type = "show"
