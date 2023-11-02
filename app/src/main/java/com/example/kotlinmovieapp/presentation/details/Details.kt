@@ -14,48 +14,53 @@ import com.example.kotlinmovieapp.util.Constants
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Details(
-    viewModel: DetailsViewModel
+    viewModel: DetailsViewModel,
+    id: Int,
+    type: String
+
 ) {
     val state = viewModel.state.collectAsState()
-if (state.value.type == "movie") {
-            state.value.id?.let { viewModel.getMovie(it) }
-                Column(
+when (type ) {
+    "movie" -> {
+        viewModel.getMovie(id)
+        Column(
+            modifier = Modifier
+        ) {
+            state.value.movie?.let {
+                Text(text = it.title)
+                Image(
                     modifier = Modifier
-                ) {
-                    state.value.movie?.let { Text(text = it.title)
-                        Image(
-                            modifier = Modifier
-                                .fillMaxSize(),
-                            painter = rememberAsyncImagePainter(
+                        .fillMaxSize(),
+                    painter = rememberAsyncImagePainter(
 
-                                "${Constants.IMAGE_BASE_URL}/w200${it.backdrop_path}"
-                            ),
-                            contentDescription = it.title
-                        )
-                    }
-                }
+                        "${Constants.IMAGE_BASE_URL}/w200${it.backdrop_path}"
+                    ),
+                    contentDescription = it.title
+                )
+            }
         }
-    else if (state.value.type == "show") {
-
-            state.value.id?.let { viewModel.getShow(it) }
-                Column(
+    }
+    "show" -> {
+        viewModel.getShow(id)
+        Column(
+            modifier = Modifier
+        ) {
+            state.value.show?.let {
+                Text(text = it.name)
+                Image(
                     modifier = Modifier
-                ) {
-                    state.value.show?.let {
-                        Text(text = it.name)
-                        Image(
-                            modifier = Modifier
-                                .fillMaxSize(),
-                            painter = rememberAsyncImagePainter(
+                        .fillMaxSize(),
+                    painter = rememberAsyncImagePainter(
 
-                                "${Constants.IMAGE_BASE_URL}/w200${it.backdrop_path}"
-                            ),
-                            contentDescription = it.name
-                        )
-                    }
-                }
+                        "${Constants.IMAGE_BASE_URL}/w200${it.backdrop_path}"
+                    ),
+                    contentDescription = it.name
+                )
+            }
+        }
+}
+
 
         }
     }
-
 

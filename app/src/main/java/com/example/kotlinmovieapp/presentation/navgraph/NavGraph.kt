@@ -100,7 +100,9 @@ fun NavGraph (
                 if (id != null) {
                     detailsViewModel.updateId(id.toInt(), type = "movie")
                     Details(
-                        viewModel = detailsViewModel
+                        viewModel = detailsViewModel,
+                        id = id.toInt(),
+                        type = "movie"
                     )
                 }
             }
@@ -108,9 +110,11 @@ fun NavGraph (
                     navBackStackEntry ->
                 val id = navBackStackEntry.arguments?.getString("id")
                 if (id != null) {
-                    detailsViewModel.updateId(id.toInt(), type = "show")
                     Details(
-                        viewModel = detailsViewModel
+                        viewModel = detailsViewModel,
+                        id = id.toInt(),
+                        type = "show"
+
                     )
                 }
             }
