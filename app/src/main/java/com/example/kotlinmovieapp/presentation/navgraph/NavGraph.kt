@@ -19,7 +19,7 @@ import com.example.kotlinmovieapp.ui.theme.screens.Favorites
 import com.example.kotlinmovieapp.presentation.home.Home
 import com.example.kotlinmovieapp.presentation.home.HomeViewModel
 import com.example.kotlinmovieapp.presentation.video_player.VideoPlayer
-import com.example.kotlinmovieapp.ui.theme.screens.Search
+import com.example.kotlinmovieapp.presentation.search.Search
 
 
 class Item(val icon: ImageVector, val title: String)

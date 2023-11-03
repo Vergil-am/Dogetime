@@ -27,19 +27,18 @@ fun MovieRow(
 ) {
     when (type) {
         "movie" -> {
-            Text(text = "Movies", modifier = Modifier
+            Text(text = "Trending - Movies", modifier = Modifier
                 .padding(horizontal = 10.dp)
                 .padding(top = 10.dp)
             )
         }
         "show" -> {
-            Text(text = "TV Shows" , modifier = Modifier
+            Text(text = "Trending - Series" , modifier = Modifier
                 .padding(horizontal = 10.dp)
                 .padding(top = 10.dp)
             )
         }
     }
-    Filters()
     LazyRow(
         modifier = Modifier
             .padding(horizontal = 10.dp)
