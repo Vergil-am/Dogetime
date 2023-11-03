@@ -1,26 +1,17 @@
 package com.example.kotlinmovieapp.presentation.navgraph
 
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.Search
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
-import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.navigation.NavDestination.Companion.hierarchy
-import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.example.kotlinmovieapp.presentation.layouts.HomeLayout
 import com.example.kotlinmovieapp.presentation.details.Details
 import com.example.kotlinmovieapp.presentation.details.DetailsViewModel
 import com.example.kotlinmovieapp.ui.theme.screens.Account
@@ -40,59 +31,40 @@ val Items = listOf(
 
     )
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NavGraph (
     startDestination: String,
     homeViewModel: HomeViewModel,
     detailsViewModel: DetailsViewModel
 ) {
-   val navController = rememberNavController()
-    Scaffold (
-        bottomBar = {
-            NavigationBar {
-                val navBackStackEntry by navController.currentBackStackEntryAsState()
-                val currentDestination = navBackStackEntry?.destination
-                Items.forEach { item ->
-                    NavigationBarItem(
-                        selected = currentDestination?.hierarchy?.any { it.route == item.title} == true ,
-                        onClick = {
-                            navController.navigate(route = item.title) {
-                                popUpTo(navController.graph.findStartDestination().id) {
-                                    saveState = true
-                                }
-                                launchSingleTop = true
-                                restoreState = true
-
-                            }
-                        },
-                        label = {item.title},
-                        icon = { Icon(item.icon, item.title) })
-
-                }
-            }
-        }
-    ) {
-        paddingValues ->
-        NavHost(
+    val navController = rememberNavController()
+    NavHost(
             navController = navController,
             startDestination = startDestination,
-            modifier = Modifier.padding(paddingValues)
+            modifier = Modifier
         ) {
             composable(route = Route.Home.route) {
-                Home(
-                    navController,
-                    viewModel = homeViewModel
-                )
+                HomeLayout(navController = navController) {
+                    Home(navController = navController, viewModel = homeViewModel)
+                }
             }
             composable(route = Route.Search.route) {
-                Search()
+
+                HomeLayout(navController = navController) {
+                    Search()
+                }
             }
             composable(route = Route.Favorites.route) {
-                Favorites()
+
+                HomeLayout(navController = navController) {
+                    Favorites()
+                }
             }
             composable(route = Route.Account.route) {
-                Account()
+
+                HomeLayout(navController = navController) {
+                    Account()
+                }
             }
 
             composable(route = Route.VideoPlayer.route) {
@@ -133,5 +105,3 @@ fun NavGraph (
     }
 
     }
-
-}

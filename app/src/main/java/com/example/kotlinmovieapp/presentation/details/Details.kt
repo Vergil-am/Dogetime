@@ -8,6 +8,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.AssistChip
@@ -40,8 +42,10 @@ when (type ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
+                .verticalScroll(rememberScrollState())
             ,
             verticalArrangement = Arrangement.Top
+
 
         ) {
             state.value.movie?.let {
@@ -105,15 +109,47 @@ when (type ) {
             modifier = Modifier
         ) {
             state.value.show?.let {
-                Image(
+                                Image(
                     modifier = Modifier
-                        .fillMaxSize(),
-                    painter = rememberAsyncImagePainter(
+                        .fillMaxWidth()
+                        .height(220.dp)
 
+                    ,
+                    painter = rememberAsyncImagePainter(
                         "${Constants.IMAGE_BASE_URL}/w500${it.backdrop_path}"
                     ),
                     contentDescription = it.name
                 )
+                Text(text = it.name)
+                Text(text = it.tagline)
+                Row (
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(20.dp)
+                    ,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text(text = "TV Show")
+                    Text(text = it.first_air_date.split("-")[0])
+                    Text(text = "${it.episode_run_time} min")
+                    Text(text = it.vote_average.toString().format("%.f"))
+                }
+                Text(text = it.overview)
+                Row (
+                    modifier = Modifier
+                        .fillMaxWidth()
+                    ,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+
+                ) {
+                    it.genres.forEach{
+                        genre -> AssistChip(
+                        onClick = {},
+                        label = { Text(text = genre.name)}
+                        )
+                    }
+                }
+
             }
         }
 }
