@@ -3,6 +3,7 @@ package com.example.kotlinmovieapp.data.repository
 import com.example.kotlinmovieapp.data.remote.MoviesAPI
 import com.example.kotlinmovieapp.data.remote.dto.MovieDetailsDTO
 import com.example.kotlinmovieapp.data.remote.dto.MoviesDTO
+import com.example.kotlinmovieapp.data.remote.dto.SeasonDTO
 import com.example.kotlinmovieapp.data.remote.dto.ShowDetailsDTO
 import com.example.kotlinmovieapp.domain.repository.MovieRepository
 import javax.inject.Inject
@@ -26,7 +27,10 @@ class MovieRepoImplementation @Inject constructor(
         return api.getShows(page)
     }
 
-    override suspend fun getShow(id: Int): ShowDetailsDTO{
-        return api.getShow(id)
+    override suspend fun getShow(showId: Int): ShowDetailsDTO{
+        return api.getShow(showId)
+    }
+    override suspend fun getSeason(seasonId : Int, season: Int): SeasonDTO {
+       return api.getSeason(id = seasonId, season = season)
     }
 }

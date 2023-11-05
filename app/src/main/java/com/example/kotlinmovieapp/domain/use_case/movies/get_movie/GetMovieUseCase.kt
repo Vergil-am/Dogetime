@@ -2,6 +2,7 @@ package com.example.kotlinmovieapp.domain.use_case.movies.get_movie
 
 import android.util.Log
 import com.example.kotlinmovieapp.data.remote.dto.MovieDetailsDTO
+import com.example.kotlinmovieapp.data.remote.dto.SeasonDTO
 import com.example.kotlinmovieapp.data.remote.dto.ShowDetailsDTO
 import com.example.kotlinmovieapp.domain.repository.MovieRepository
 import kotlinx.coroutines.flow.flow
@@ -36,6 +37,20 @@ class GetMovieUseCase @Inject constructor(
             Log.e("MOVIE REPO", e.toString() )
 
         }
+    }
+
+    fun getSeason(id: Int, season: Int): Flow<SeasonDTO> = flow {
+        try {
+            val  Season = repo.getSeason(id, season)
+            Log.e("SHOW REPO", season.toString() )
+            emit(Season)
+        }catch (e : HttpException) {
+            Log.e("MOVIE REPO", e.toString() )
+        } catch (e: IOException) {
+            Log.e("MOVIE REPO", e.toString() )
+
+        }
+
     }
 
 }

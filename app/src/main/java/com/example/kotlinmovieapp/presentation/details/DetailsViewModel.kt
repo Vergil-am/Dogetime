@@ -31,5 +31,10 @@ class DetailsViewModel @Inject constructor(
             }.launchIn(viewModelScope)
     }
 
+    fun getSeason(id: Int, season: Int) {
+        getMovieUseCase.getSeason(id, season).onEach {seasonDTO ->
+            _state.value = MovieState(movie = null, show = state.value.show, isLoading = false, seasons = seasonDTO)
+        }.launchIn(viewModelScope)
+    }
 
 }

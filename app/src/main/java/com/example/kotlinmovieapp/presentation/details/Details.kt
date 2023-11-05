@@ -23,6 +23,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
+import com.example.kotlinmovieapp.presentation.components.SeasonsTabs
 import com.example.kotlinmovieapp.util.Constants
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -149,6 +150,11 @@ when (type ) {
                         )
                     }
                 }
+                SeasonsTabs(
+                    id = it.id,
+                    seasons = it.seasons,
+                    viewModel = viewModel
+                )
 
             }
         }

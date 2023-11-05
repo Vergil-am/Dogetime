@@ -10,11 +10,13 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.kotlinmovieapp.presentation.navgraph.Items
+import com.example.kotlinmovieapp.ui.theme.SecondaryBG
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -24,7 +26,11 @@ fun HomeLayout(
 ) {
     Scaffold (
         bottomBar = {
-            NavigationBar {
+            NavigationBar (
+                containerColor = SecondaryBG,
+                contentColor = Color.White,
+
+            ) {
                 val navBackStackEntry by navController.currentBackStackEntryAsState()
                 val currentDestination = navBackStackEntry?.destination
                 Items.forEach { item ->
