@@ -11,10 +11,16 @@ import androidx.compose.ui.viewinterop.AndroidView
 @SuppressLint("SetJavaScriptEnabled")
 @Composable
 fun VideoPlayer(
-   id: String
+   id: String,
+   season: Int?,
+   episode: Int?
 ) {
    Text(text = "Video player")
-   val url = "https://vidsrc.to/embed/movie/$id"
+   val url: String = if (season != null && episode != null) {
+      "https://vidsrc.to/embed/tv/$id/$season/$episode"
+   } else {
+      "https://vidsrc.to/embed/movie/$id"
+   }
    AndroidView(factory = {
     WebView(it).apply {
        layoutParams = ViewGroup.LayoutParams(

@@ -153,8 +153,9 @@ when (type ) {
                 SeasonsTabs(
                     id = it.id,
                     seasons = it.seasons,
-                    viewModel = viewModel
-                )
+                    viewModel = viewModel,
+                    navController = navController
+                    )
 
             }
         }
@@ -163,4 +164,5 @@ when (type ) {
 
         }
     }
+
 

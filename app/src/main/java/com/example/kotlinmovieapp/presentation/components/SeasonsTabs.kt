@@ -16,6 +16,7 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.navigation.NavController
 import com.example.kotlinmovieapp.domain.model.Season
 import com.example.kotlinmovieapp.presentation.details.DetailsViewModel
 
@@ -24,7 +25,8 @@ import com.example.kotlinmovieapp.presentation.details.DetailsViewModel
 fun SeasonsTabs(
     seasons: List<Season>,
     id: Int,
-    viewModel: DetailsViewModel
+    viewModel: DetailsViewModel,
+    navController: NavController
 ) {
     var selectedTab by remember { mutableIntStateOf(0) }
     val pagerState = rememberPagerState (
@@ -63,7 +65,8 @@ fun SeasonsTabs(
                 Episodes(
                     seasons[page],
                     viewModel,
-                    id
+                    id,
+                    navController
                     )
 
 

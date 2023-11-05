@@ -70,8 +70,10 @@ fun NavGraph (
             composable(route = Route.VideoPlayer.route) {
                 navBackStackEntry ->
                 val id = navBackStackEntry.arguments?.getString("id")
+                val season = navBackStackEntry.arguments?.getString("season")?.toInt()
+                val episode = navBackStackEntry.arguments?.getString("episode")?.toInt()
                 if (id != null) {
-                    VideoPlayer(id)
+                    VideoPlayer(id, season, episode)
                 }
             }
 
