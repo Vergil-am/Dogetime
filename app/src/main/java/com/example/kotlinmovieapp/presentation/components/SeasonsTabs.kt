@@ -11,7 +11,6 @@ import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
@@ -37,7 +36,6 @@ fun SeasonsTabs(
     LaunchedEffect(pagerState.currentPage) {
         selectedTab = pagerState.currentPage
     }
-    val state = viewModel.state.collectAsState()
     ScrollableTabRow(
         selectedTabIndex = selectedTab,
         modifier = Modifier.fillMaxWidth(),
@@ -60,11 +58,13 @@ fun SeasonsTabs(
             modifier = Modifier.fillMaxSize()
         ) {
                 page ->
-            Box(modifier = Modifier
+            Box(modifier = Modifier.fillMaxSize()
             ) {
-                val season = seasons[page]
-                viewModel.getSeason(id, season.season_number)
-
+                Episodes(
+                    seasons[page],
+                    viewModel,
+                    id
+                    )
 
 
             }
