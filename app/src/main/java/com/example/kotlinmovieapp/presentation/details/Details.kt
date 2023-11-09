@@ -110,6 +110,7 @@ when (type ) {
         val show = state.value.show
         Column(
             modifier = Modifier
+                .verticalScroll(rememberScrollState())
         ) {
             show?.let {
                                 Image(
