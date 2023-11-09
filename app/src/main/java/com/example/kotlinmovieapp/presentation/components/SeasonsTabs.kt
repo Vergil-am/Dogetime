@@ -48,7 +48,6 @@ fun SeasonsTabs(
                 selected = index == selectedTab,
                 onClick = {
                     selectedTab = index
-                    viewModel.getSeason(id, season.season_number)
                 }
             ) {
                 Text(text = season.season_number.toString())

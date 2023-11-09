@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.view.ViewGroup
 import android.webkit.WebView
 import android.webkit.WebViewClient
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.viewinterop.AndroidView
 
@@ -15,8 +14,7 @@ fun VideoPlayer(
    season: Int?,
    episode: Int?
 ) {
-   Text(text = "Video player")
-   val url: String = if (season != null && episode != null) {
+   val url: String = if (season != 0 && episode != 0) {
       "https://vidsrc.to/embed/tv/$id/$season/$episode"
    } else {
       "https://vidsrc.to/embed/movie/$id"

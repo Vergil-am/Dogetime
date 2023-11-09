@@ -40,6 +40,7 @@ fun  Details(
 when (type ) {
     "movie" -> {
         viewModel.getMovie(id)
+        val movie = state.value.movie
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -49,7 +50,7 @@ when (type ) {
 
 
         ) {
-            state.value.movie?.let {
+            movie?.let {
                 Image(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -91,7 +92,7 @@ when (type ) {
                     }
                 }
                 Button(onClick = {
-                    navController.navigate("video_player/${it.imdb_id}")
+                    navController.navigate("video_player/${it.imdb_id}/0/0")
                 }) {
                     Text(text = "Play")
                     Icon(
@@ -106,10 +107,11 @@ when (type ) {
     }
     "show" -> {
         viewModel.getShow(id)
+        val show = state.value.show
         Column(
             modifier = Modifier
         ) {
-            state.value.show?.let {
+            show?.let {
                                 Image(
                     modifier = Modifier
                         .fillMaxWidth()

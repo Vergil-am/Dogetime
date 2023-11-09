@@ -19,7 +19,6 @@ class DetailsViewModel @Inject constructor(
 
     fun getMovie(id: Int) {
             getMovieUseCase.getMovieDetails(id).onEach { movieDetailsDTO ->
-
                 _state.value = MovieState(movie = movieDetailsDTO, show = null, isLoading = false)
             }.launchIn(viewModelScope)
 
@@ -33,7 +32,7 @@ class DetailsViewModel @Inject constructor(
 
     fun getSeason(id: Int, season: Int) {
         getMovieUseCase.getSeason(id, season).onEach {seasonDTO ->
-            _state.value = MovieState(movie = null, show = state.value.show, isLoading = false, seasons = seasonDTO)
+            _state.value = MovieState(movie = null, show = state.value.show, isLoading = false, season = seasonDTO)
         }.launchIn(viewModelScope)
     }
 

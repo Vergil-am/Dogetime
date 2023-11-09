@@ -67,13 +67,13 @@ fun NavGraph (
                 }
             }
 
-            composable(route = Route.VideoPlayer.route) {
+            composable(Route.VideoPlayer.route) {
                 navBackStackEntry ->
                 val id = navBackStackEntry.arguments?.getString("id")
-                val season = navBackStackEntry.arguments?.getString("season")?.toInt()
-                val episode = navBackStackEntry.arguments?.getString("episode")?.toInt()
-                if (id != null) {
-                    VideoPlayer(id, season, episode)
+                val season = navBackStackEntry.arguments?.getString("season")
+                val episode = navBackStackEntry.arguments?.getString("episode")
+                if (id != null && episode != null && season != null) {
+                    VideoPlayer(id = id, season = season.toInt(), episode = episode.toInt())
                 }
             }
 
