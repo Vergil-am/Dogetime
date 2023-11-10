@@ -2,6 +2,7 @@ package com.example.kotlinmovieapp.presentation.components
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -11,6 +12,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -48,7 +50,12 @@ fun Episodes(
                 onClick = {navController.navigate("video_player/$id/${season.season_number}/${episode.episode_number}")},
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(100.dp)
+                    .height(120.dp)
+                    .padding(10.dp)
+                ,
+                colors = CardDefaults.cardColors(
+                    containerColor = Color.Transparent
+                )
             ) {
                 Row {
                     Box (
@@ -74,7 +81,10 @@ fun Episodes(
                         }
                     }
 
-                    Column {
+                    Column (
+                        modifier = Modifier.fillMaxSize(),
+                        verticalArrangement = Arrangement.SpaceBetween
+                    ) {
                         Text(text = episode.name)
                         Text(text = episode.air_date)
                         Text(text = "${episode.runtime} min")
