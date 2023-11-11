@@ -3,11 +3,13 @@ package com.example.kotlinmovieapp.presentation.browse
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.outlined.Search
@@ -44,7 +46,6 @@ fun Browse(
     var opened by remember {
         mutableStateOf("")
     }
-//    viewModel.getMovies()
    Scaffold (
        topBar = {
            TopAppBar(
@@ -59,14 +60,15 @@ fun Browse(
                )
        }
    ) { paddingValues ->
-       Column (
-           modifier = Modifier.padding(paddingValues)
+       Column(
+           modifier = Modifier
+               .padding(paddingValues)
        ) {
            Row {
 
 
                Box(modifier = Modifier) {
-                   OutlinedButton(onClick = { opened = "type"}) {
+                   OutlinedButton(onClick = { opened = "type" }) {
                        Text(text = state.value.type)
                        Icon(imageVector = Icons.Filled.ArrowDropDown, contentDescription = "")
                    }
@@ -88,45 +90,77 @@ fun Browse(
                            opened = ""
                        })
                    }
-
                }
+               Box(modifier = Modifier) {
+                   OutlinedButton(onClick = { opened = "catalog"}) {
+                       Text(text = state.value.catalog)
+                       Icon(imageVector = Icons.Filled.ArrowDropDown, contentDescription = "")
+                   }
+                   DropdownMenu(
+                       expanded = opened == "catalog",
+                       onDismissRequest = {
+                           opened = ""
+                       }) {
+                       DropdownMenuItem(text = {
+                           Text(text = "Popular")
+                       }, onClick = {
+                           state.value.type = "popular"
+                           opened = ""
+                           viewModel.getMovies("popular")
+                       })
+                       DropdownMenuItem(text = {
+                           Text(text = "Top Rated")
+                       }, onClick = {
+                           state.value.type = "top_rated"
+                           opened = ""
+                           viewModel.getMovies("top_rated")
+                       })
+                       DropdownMenuItem(text = {
+                           Text(text = "Now playing")
+                       }, onClick = {
+                           state.value.type = "now_playing"
+                           opened = ""
+                           viewModel.getMovies("now_playing")
+                       })
+                   }
 
                }
 
            }
            val movies = state.value.movies
+
+           LazyVerticalGrid(
+               columns = GridCells.Fixed(3),
+               contentPadding = PaddingValues(10.dp)
+           ) {
            movies?.results?.forEach { movie ->
-          Card (
-                    modifier = Modifier
-                        .padding(horizontal = 5.dp)
-                        .height(200.dp)
-                        .width(133.5.dp),
-//                    onClick = {
-//                        navController.navigate("$type/${movie.id}") {
-//                            popUpTo(navController.graph.findStartDestination().id) {
-//                                saveState = true
-//                            }
-//                            launchSingleTop = true
-//                            restoreState = true
-//                        }
-//                    }
-                ) {
+               item {
+                   Card(
+                       modifier = Modifier
+                           .padding(10.dp)
+                           .height(155.dp),
+                       onClick = {
+                           navController.navigate("movie/${movie.id}")
+                       }
+                       ) {
+                       Image(
+                           modifier = Modifier
+                               .fillMaxSize(),
 
-                    Image(
-                        modifier = Modifier
-                            .fillMaxSize(),
-                        painter = rememberAsyncImagePainter(
-
-                            "${Constants.IMAGE_BASE_URL}/w200${movie.poster_path}"
-                        ),
-                        contentDescription = movie.title
-                    )
-                }
-
+                           painter = rememberAsyncImagePainter(
+                               "${Constants.IMAGE_BASE_URL}/w200${movie.poster_path}"),
+                           contentDescription = movie.title
+                       )
+                   }
+               }
            }
+           }
+       }
+
 
        }
    }
+
 
 
 

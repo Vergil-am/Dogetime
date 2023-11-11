@@ -24,17 +24,17 @@ class GetMoviesUseCase @Inject constructor(
 
         }
     }
-//    fun getMovies(catalog: String): Flow<MoviesDTO> = flow {
-//        try {
-//            val movies = repo.getMovies(page = 1, catalog)
-//            emit(movies)
-//        } catch (_: HttpException) {
-//            Log.e("POPULAR", "Http exception")
-//        } catch (_: IOException) {
-//            Log.e("POPULAR", "Http exception")
-//
-//        }
-//    }
+    fun getMovies(catalog: String): Flow<MoviesDTO> = flow {
+        try {
+            val movies = repo.getMovies(page = 1, catalog)
+            emit(movies)
+        } catch (_: HttpException) {
+            Log.e("POPULAR", "Http exception")
+        } catch (_: IOException) {
+            Log.e("POPULAR", "Http exception")
+
+        }
+    }
     fun getShows() : Flow<MoviesDTO> = flow {
         try {
             val shows = repo.getShows(1)

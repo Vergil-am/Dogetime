@@ -15,9 +15,9 @@ class MovieRepoImplementation @Inject constructor(
         return api.getTrending()
     }
 
-//    override suspend fun getMovies(page : Int, catalog: String): MoviesDTO {
-//        return api.getMovies(catalog, page)
-//    }
+    override suspend fun getMovies(page : Int, catalog: String): MoviesDTO {
+        return api.getMovies(catalog, page)
+    }
 
     override suspend fun getMovie(movieId: Int): MovieDetailsDTO {
         return api.getMovie(movieId)
