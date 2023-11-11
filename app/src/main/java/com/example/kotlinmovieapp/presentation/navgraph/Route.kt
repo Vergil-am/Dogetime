@@ -7,6 +7,8 @@ sealed class Route (
     object Home : Route("home")
     object Search : Route("search")
 
+    object Browse : Route("browse")
+
     object Favorites : Route("favorites")
 
     object Account : Route("account")

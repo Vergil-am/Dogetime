@@ -3,14 +3,15 @@ package com.example.kotlinmovieapp.presentation.navgraph
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material.icons.outlined.Home
+import androidx.compose.material.icons.outlined.Menu
 import androidx.compose.material.icons.outlined.Person
-import androidx.compose.material.icons.outlined.Search
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.kotlinmovieapp.presentation.browse.Browse
 import com.example.kotlinmovieapp.presentation.layouts.HomeLayout
 import com.example.kotlinmovieapp.presentation.details.Details
 import com.example.kotlinmovieapp.presentation.details.DetailsViewModel
@@ -25,7 +26,7 @@ import com.example.kotlinmovieapp.presentation.search.Search
 class Item(val icon: ImageVector, val title: String)
 val Items = listOf(
     Item(icon = Icons.Outlined.Home, Route.Home.route),
-    Item(icon = Icons.Outlined.Search,Route.Search.route),
+    Item(icon = Icons.Outlined.Menu , Route.Browse.route),
     Item(icon = Icons.Outlined.FavoriteBorder, Route.Favorites.route),
     Item(icon = Icons.Outlined.Person, Route.Account.route),
 
@@ -48,10 +49,20 @@ fun NavGraph (
                     Home(navController = navController, viewModel = homeViewModel)
                 }
             }
+        composable(route = Route.Browse.route) {
+
+            HomeLayout(navController = navController) {
+                Browse(
+                    navController
+                )
+            }
+        }
             composable(route = Route.Search.route) {
 
                 HomeLayout(navController = navController) {
-                    Search()
+                    Search(
+                        navController
+                    )
                 }
             }
             composable(route = Route.Favorites.route) {
