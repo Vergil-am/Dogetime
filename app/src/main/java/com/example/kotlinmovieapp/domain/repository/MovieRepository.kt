@@ -8,7 +8,7 @@ import com.example.kotlinmovieapp.data.remote.dto.ShowDetailsDTO
 interface MovieRepository {
 
     suspend fun getTrending() : MoviesDTO
-    suspend fun getPopular(page : Int) : MoviesDTO
+//    suspend fun getMovies(page : Int, catalog: String) : MoviesDTO
 
 
     suspend fun getShows(page : Int) : MoviesDTO

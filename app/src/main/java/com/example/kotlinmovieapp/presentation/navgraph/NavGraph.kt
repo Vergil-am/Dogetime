@@ -12,6 +12,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.kotlinmovieapp.presentation.browse.Browse
+import com.example.kotlinmovieapp.presentation.browse.BrowseViewModel
 import com.example.kotlinmovieapp.presentation.layouts.HomeLayout
 import com.example.kotlinmovieapp.presentation.details.Details
 import com.example.kotlinmovieapp.presentation.details.DetailsViewModel
@@ -36,7 +37,8 @@ val Items = listOf(
 fun NavGraph (
     startDestination: String,
     homeViewModel: HomeViewModel,
-    detailsViewModel: DetailsViewModel
+    detailsViewModel: DetailsViewModel,
+    browseViewModel: BrowseViewModel
 ) {
     val navController = rememberNavController()
     NavHost(
@@ -53,7 +55,8 @@ fun NavGraph (
 
             HomeLayout(navController = navController) {
                 Browse(
-                    navController
+                    navController,
+                    browseViewModel
                 )
             }
         }

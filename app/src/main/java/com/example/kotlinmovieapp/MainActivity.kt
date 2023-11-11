@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
+import com.example.kotlinmovieapp.presentation.browse.BrowseViewModel
 import com.example.kotlinmovieapp.presentation.details.DetailsViewModel
 import com.example.kotlinmovieapp.presentation.home.HomeViewModel
 import com.example.kotlinmovieapp.presentation.navgraph.NavGraph
@@ -19,6 +20,7 @@ class MainActivity : ComponentActivity() {
     private val viewModel by viewModels<MainViewModel> ()
     private val homeViewModel : HomeViewModel by viewModels()
     private val detailsViewModel: DetailsViewModel by viewModels()
+    private val browseViewModel: BrowseViewModel by viewModels()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -30,7 +32,8 @@ class MainActivity : ComponentActivity() {
                     NavGraph(
                         startDestination = viewModel.startDestination,
                         homeViewModel = homeViewModel,
-                        detailsViewModel = detailsViewModel
+                        detailsViewModel = detailsViewModel,
+                        browseViewModel = browseViewModel
                     )
                 }
             }
