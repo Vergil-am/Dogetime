@@ -86,11 +86,20 @@ fun Search(
             ){
                 state.result?.results?.forEach { movie ->
                     item {
-
                         Card(
                             modifier = Modifier
                                 .padding(10.dp)
-                                .height(155.dp)
+                                .height(155.dp),
+                            onClick = {
+                                if (
+                                    movie.media_type == "movie"
+                                ) {
+
+                                    navController.navigate("movie/${movie.id}")
+                                } else if (movie.media_type == "tv") {
+                                    navController.navigate("show/${movie.id}")
+                                }
+                            }
                         ) {
                             Image(
                                 modifier = Modifier
