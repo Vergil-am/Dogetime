@@ -2,6 +2,7 @@ package com.example.kotlinmovieapp.presentation.video_player
 
 import android.annotation.SuppressLint
 import android.view.ViewGroup
+import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.compose.runtime.Composable
@@ -25,7 +26,14 @@ fun VideoPlayer(
           ViewGroup.LayoutParams.MATCH_PARENT,
           ViewGroup.LayoutParams.MATCH_PARENT
        )
-       webViewClient = WebViewClient()
+       webViewClient = object : WebViewClient() {
+          override fun shouldOverrideUrlLoading(
+             view: WebView?,
+             request: WebResourceRequest?
+          ): Boolean {
+             return true
+          }
+       }
        loadUrl(url)
     }
    },
