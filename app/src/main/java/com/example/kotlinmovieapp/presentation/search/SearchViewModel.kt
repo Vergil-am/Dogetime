@@ -18,7 +18,7 @@ class SearchViewModel @Inject constructor(
 
     fun getSearch(query: String) {
         search.getSearch(query).onEach {searchDTO ->
-            SearchState(search = state.value.search , result = searchDTO)
+            _state.value = SearchState(search = state.value.search , result = searchDTO)
 
         }.launchIn(viewModelScope)
     }
