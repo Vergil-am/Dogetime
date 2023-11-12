@@ -69,7 +69,7 @@ fun Browse(
 
                Box(modifier = Modifier) {
                    OutlinedButton(onClick = { opened = "type" }) {
-                       Text(text = state.value.type)
+                       Text(text = state.value.type.title)
                        Icon(imageVector = Icons.Filled.ArrowDropDown, contentDescription = "")
                    }
                    DropdownMenu(
@@ -77,23 +77,22 @@ fun Browse(
                        onDismissRequest = {
                            opened = ""
                        }) {
-                       DropdownMenuItem(text = {
-                           Text(text = "Movies")
-                       }, onClick = {
-                           state.value.type = "Movies"
-                           opened = ""
-                       })
-                       DropdownMenuItem(text = {
-                           Text(text = "Series")
-                       }, onClick = {
-                           state.value.type = "Series"
-                           opened = ""
-                       })
+                       Types.forEach {type ->
+                           DropdownMenuItem(text = {
+                               Text(text = type.title)
+                           }, onClick = {
+                               state.value.type = type
+                               opened = ""
+                               viewModel.getMovies(type = type.value, catalog = "popular")
+                           })
+                       }
+
+
                    }
                }
                Box(modifier = Modifier) {
                    OutlinedButton(onClick = { opened = "catalog"}) {
-                       Text(text = state.value.catalog)
+                       Text(text = state.value.catalog.title)
                        Icon(imageVector = Icons.Filled.ArrowDropDown, contentDescription = "")
                    }
                    DropdownMenu(
@@ -101,27 +100,16 @@ fun Browse(
                        onDismissRequest = {
                            opened = ""
                        }) {
-                       DropdownMenuItem(text = {
-                           Text(text = "Popular")
-                       }, onClick = {
-                           state.value.type = "popular"
-                           opened = ""
-                           viewModel.getMovies("popular")
-                       })
-                       DropdownMenuItem(text = {
-                           Text(text = "Top Rated")
-                       }, onClick = {
-                           state.value.type = "top_rated"
-                           opened = ""
-                           viewModel.getMovies("top_rated")
-                       })
-                       DropdownMenuItem(text = {
-                           Text(text = "Now playing")
-                       }, onClick = {
-                           state.value.type = "now_playing"
-                           opened = ""
-                           viewModel.getMovies("now_playing")
-                       })
+                       state.value.type.catalog.forEach {item ->
+                           DropdownMenuItem(text = {
+                               Text(text = item.title)
+                           }, onClick = {
+                               state.value.catalog = item
+                               opened = ""
+                               viewModel.getMovies(state.value.type.value ,item.value)
+                           })
+
+                       }
                    }
 
                }
@@ -140,7 +128,14 @@ fun Browse(
                            .padding(10.dp)
                            .height(155.dp),
                        onClick = {
-                           navController.navigate("movie/${movie.id}")
+                           if (
+                               state.value.type.value == "movies"
+                           ) {
+
+                               navController.navigate("movie/${movie.id}")
+                           } else {
+                               navController.navigate("show/${movie.id}")
+                           }
                        }
                        ) {
                        Image(

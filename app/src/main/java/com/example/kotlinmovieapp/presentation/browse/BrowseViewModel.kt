@@ -16,11 +16,19 @@ class BrowseViewModel @Inject constructor(
     var state = _state
 
     init {
-        getMovies(state.value.catalog)
+        getMovies(state.value.type.value ,state.value.catalog.value)
     }
-    fun getMovies(catalog: String) {
-        getMoviesUseCase.getMovies(catalog).onEach {movies ->
-            _state.value = BrowseState(movies = movies, type = state.value.type, catalog = state.value.catalog, genre = state.value.genre)
-        }.launchIn(viewModelScope)
+    fun getMovies(type: String , catalog: String) {
+        if (type == "movies") {
+            getMoviesUseCase.getMovies(catalog).onEach {movies ->
+                _state.value = BrowseState(movies = movies, type = state.value.type, catalog = state.value.catalog, genre = state.value.genre)
+            }.launchIn(viewModelScope)
+
+        } else if (type == "tv") {
+            getMoviesUseCase.getShows(catalog, 1).onEach { shows ->
+                _state.value = BrowseState(movies = shows, type = state.value.type, catalog = state.value.catalog, genre = state.value.genre)
+            }.launchIn(viewModelScope)
+        }
     }
+
 }

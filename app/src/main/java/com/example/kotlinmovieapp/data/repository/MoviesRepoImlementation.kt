@@ -11,10 +11,15 @@ import javax.inject.Inject
 class MovieRepoImplementation @Inject constructor(
     private val api : MoviesAPI
 ): MovieRepository {
+    // Trending
     override suspend fun getTrending(): MoviesDTO {
         return api.getTrending()
     }
+    override suspend fun getTrendingShows(page: Int): MoviesDTO {
+        return api.getTrendingShows(page)
+    }
 
+    // Movies
     override suspend fun getMovies(page : Int, catalog: String): MoviesDTO {
         return api.getMovies(catalog, page)
     }
@@ -23,10 +28,12 @@ class MovieRepoImplementation @Inject constructor(
         return api.getMovie(movieId)
     }
 
-    override suspend fun getShows(page: Int): MoviesDTO {
-        return api.getShows(page)
-    }
 
+    // Shows
+
+    override suspend fun getShows(page: Int, catalog: String): MoviesDTO {
+        return api.getShows(catalog, page)
+    }
     override suspend fun getShow(showId: Int): ShowDetailsDTO{
         return api.getShow(showId)
     }

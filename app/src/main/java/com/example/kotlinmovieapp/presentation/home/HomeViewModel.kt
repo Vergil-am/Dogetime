@@ -28,7 +28,7 @@ class HomeViewModel @Inject constructor (
             moviesDTO -> _state.value = MovieListState(movies = moviesDTO, trending = moviesDTO, shows = state.value.shows )
         }.launchIn(viewModelScope)
 
-        getMoviesUseCase.getShows().onEach {
+        getMoviesUseCase.getTrendingShows().onEach {
                 moviesDTO ->  _state.value = MovieListState(movies = state.value.movies, trending = state.value.trending, shows = moviesDTO)
         }.launchIn(viewModelScope)
     }
