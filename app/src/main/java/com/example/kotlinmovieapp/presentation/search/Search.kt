@@ -1,7 +1,10 @@
 package com.example.kotlinmovieapp.presentation.search
 
+import android.util.Log
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.ArrowBack
 import androidx.compose.material.icons.outlined.Search
@@ -14,6 +17,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -26,11 +30,14 @@ import com.example.kotlinmovieapp.presentation.navgraph.Route
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Search(
-    navController: NavController
+    navController: NavController,
+    viewModel: SearchViewModel
 ) {
-    var searchValue by remember {
+    var search by remember {
         mutableStateOf("")
     }
+    val state = viewModel.state.collectAsState().value
+
     Scaffold (
         topBar = {
             TopAppBar(
@@ -42,15 +49,20 @@ fun Search(
                         Icon(imageVector = Icons.Outlined.ArrowBack, contentDescription = "Search" )
                     }
                     OutlinedTextField(
-                        value = searchValue,
+                        value = search,
                         placeholder = { Text(text = "Search")},
                         singleLine = true,
+                        keyboardActions = KeyboardActions(onDone = {
+                            viewModel.getSearch(search)
+                            Log.d("DONE", search)
+                        }),
                         trailingIcon = { Icon(imageVector = Icons.Outlined.Search, contentDescription = "Search Icon" )},
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(10.dp)
                         ,
-                        onValueChange = {value -> searchValue = value})
+                        onValueChange = {value -> search = value })
+
 
                 }
             )
@@ -60,7 +72,16 @@ fun Search(
         Surface (
             modifier = Modifier.padding(paddingValues)
         ) {
+            Text(text = "Test")
+            Row {
+                state.result?.results?.forEach { movie ->
+                    Text(text = movie.original_title)
+
+                }
+            }
+
         }
     }
 }
+
 

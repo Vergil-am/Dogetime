@@ -22,6 +22,7 @@ import com.example.kotlinmovieapp.presentation.home.Home
 import com.example.kotlinmovieapp.presentation.home.HomeViewModel
 import com.example.kotlinmovieapp.presentation.video_player.VideoPlayer
 import com.example.kotlinmovieapp.presentation.search.Search
+import com.example.kotlinmovieapp.presentation.search.SearchViewModel
 
 
 class Item(val icon: ImageVector, val title: String)
@@ -38,7 +39,8 @@ fun NavGraph (
     startDestination: String,
     homeViewModel: HomeViewModel,
     detailsViewModel: DetailsViewModel,
-    browseViewModel: BrowseViewModel
+    browseViewModel: BrowseViewModel,
+    searchViewModel: SearchViewModel
 ) {
     val navController = rememberNavController()
     NavHost(
@@ -64,7 +66,8 @@ fun NavGraph (
 
                 HomeLayout(navController = navController) {
                     Search(
-                        navController
+                        navController,
+                        searchViewModel
                     )
                 }
             }

@@ -12,6 +12,7 @@ import com.example.kotlinmovieapp.presentation.browse.BrowseViewModel
 import com.example.kotlinmovieapp.presentation.details.DetailsViewModel
 import com.example.kotlinmovieapp.presentation.home.HomeViewModel
 import com.example.kotlinmovieapp.presentation.navgraph.NavGraph
+import com.example.kotlinmovieapp.presentation.search.SearchViewModel
 import com.example.kotlinmovieapp.ui.theme.KotlinMovieAppTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -21,6 +22,7 @@ class MainActivity : ComponentActivity() {
     private val homeViewModel : HomeViewModel by viewModels()
     private val detailsViewModel: DetailsViewModel by viewModels()
     private val browseViewModel: BrowseViewModel by viewModels()
+    private val searchViewModel: SearchViewModel by viewModels()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -33,7 +35,8 @@ class MainActivity : ComponentActivity() {
                         startDestination = viewModel.startDestination,
                         homeViewModel = homeViewModel,
                         detailsViewModel = detailsViewModel,
-                        browseViewModel = browseViewModel
+                        browseViewModel = browseViewModel,
+                        searchViewModel = searchViewModel
                     )
                 }
             }

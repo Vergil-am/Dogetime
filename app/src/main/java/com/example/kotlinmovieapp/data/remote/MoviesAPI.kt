@@ -2,6 +2,7 @@ package com.example.kotlinmovieapp.data.remote
 
 import com.example.kotlinmovieapp.data.remote.dto.MovieDetailsDTO
 import com.example.kotlinmovieapp.data.remote.dto.MoviesDTO
+import com.example.kotlinmovieapp.data.remote.dto.SearchDTO
 import com.example.kotlinmovieapp.data.remote.dto.SeasonDTO
 import com.example.kotlinmovieapp.data.remote.dto.ShowDetailsDTO
 import com.example.kotlinmovieapp.util.Constants.API_KEY
@@ -59,4 +60,11 @@ interface MoviesAPI {
         @Path("season") season: Int,
         @Query("api_key") apiKey : String = API_KEY
     ) : SeasonDTO
+
+    // Search
+    @GET("search/multi")
+    suspend fun getSearch(
+        @Query("query") query: String,
+        @Query("api_key") apiKey : String = API_KEY
+    ) : SearchDTO
 }

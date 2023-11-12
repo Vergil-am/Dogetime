@@ -3,6 +3,7 @@ package com.example.kotlinmovieapp.data.repository
 import com.example.kotlinmovieapp.data.remote.MoviesAPI
 import com.example.kotlinmovieapp.data.remote.dto.MovieDetailsDTO
 import com.example.kotlinmovieapp.data.remote.dto.MoviesDTO
+import com.example.kotlinmovieapp.data.remote.dto.SearchDTO
 import com.example.kotlinmovieapp.data.remote.dto.SeasonDTO
 import com.example.kotlinmovieapp.data.remote.dto.ShowDetailsDTO
 import com.example.kotlinmovieapp.domain.repository.MovieRepository
@@ -39,5 +40,10 @@ class MovieRepoImplementation @Inject constructor(
     }
     override suspend fun getSeason(seasonId : Int, season: Int): SeasonDTO {
        return api.getSeason(id = seasonId, season = season)
+    }
+
+    // Search
+    override suspend fun getSearch(query: String): SearchDTO {
+        return api.getSearch(query)
     }
 }
