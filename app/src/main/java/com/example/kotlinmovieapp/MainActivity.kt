@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -25,8 +26,10 @@ class MainActivity : ComponentActivity() {
     private val detailsViewModel: DetailsViewModel by viewModels()
     private val browseViewModel: BrowseViewModel by viewModels()
     private val searchViewModel: SearchViewModel by viewModels()
+    @RequiresApi(34)
     override fun onCreate(savedInstanceState: Bundle?) {
-        WindowCompat.getInsetsController(window, window.decorView).hide(WindowInsetsCompat.Type.systemBars())
+        val windowCompat = WindowCompat.getInsetsController(window, window.decorView)
+        windowCompat.show(WindowInsetsCompat.Type.systemBars())
         super.onCreate(savedInstanceState)
         setContent {
             KotlinMovieAppTheme {
@@ -39,7 +42,8 @@ class MainActivity : ComponentActivity() {
                         homeViewModel = homeViewModel,
                         detailsViewModel = detailsViewModel,
                         browseViewModel = browseViewModel,
-                        searchViewModel = searchViewModel
+                        searchViewModel = searchViewModel,
+                        windowCompat = windowCompat
                     )
                 }
             }

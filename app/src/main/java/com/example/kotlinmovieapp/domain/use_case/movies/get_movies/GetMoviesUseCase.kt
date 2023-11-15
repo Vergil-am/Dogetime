@@ -2,6 +2,7 @@ package com.example.kotlinmovieapp.domain.use_case.movies.get_movies
 
 import android.util.Log
 import com.example.kotlinmovieapp.data.remote.dto.MoviesDTO
+import com.example.kotlinmovieapp.domain.model.Movie
 import com.example.kotlinmovieapp.domain.repository.MovieRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -35,10 +36,10 @@ class GetMoviesUseCase @Inject constructor(
 
     }
     // Movies
-    fun getMovies(catalog: String): Flow<MoviesDTO> = flow {
+    fun getMovies(catalog: String, page: Int): Flow<List<Movie>> = flow {
         try {
-            val movies = repo.getMovies(page = 1, catalog)
-            emit(movies)
+            val movies = repo.getMovies(page = page, catalog)
+            emit(movies.results)
         } catch (_: HttpException) {
             Log.e("POPULAR", "Http exception")
         } catch (_: IOException) {
@@ -47,10 +48,10 @@ class GetMoviesUseCase @Inject constructor(
         }
     }
     // Shows
-    fun getShows(catalog: String, page: Int): Flow<MoviesDTO> = flow {
+    fun getShows(catalog: String, page: Int): Flow<List<Movie>> = flow {
         try {
-            val shows = repo.getShows(page = 1, catalog)
-            emit(shows)
+            val shows = repo.getShows(page = page, catalog)
+            emit(shows.results)
         } catch (_: HttpException) {
             Log.e("POPULAR", "Http exception")
         } catch (_: IOException) {

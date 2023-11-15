@@ -16,7 +16,6 @@ import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.kotlinmovieapp.presentation.navgraph.Items
-import com.example.kotlinmovieapp.ui.theme.SecondaryBG
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -27,7 +26,6 @@ fun HomeLayout(
     Scaffold (
         bottomBar = {
             NavigationBar (
-                containerColor = SecondaryBG,
                 contentColor = Color.White,
 
             ) {

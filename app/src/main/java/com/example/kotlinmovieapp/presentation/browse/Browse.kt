@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.outlined.Search
@@ -83,7 +84,7 @@ fun Browse(
                            }, onClick = {
                                state.value.type = type
                                opened = ""
-                               viewModel.getMovies(type = type.value, catalog = "popular")
+                               viewModel.getMovies(type = type.value, catalog = "popular", 1)
                            })
                        }
 
@@ -106,7 +107,7 @@ fun Browse(
                            }, onClick = {
                                state.value.catalog = item
                                opened = ""
-                               viewModel.getMovies(state.value.type.value ,item.value)
+                               viewModel.getMovies(state.value.type.value ,item.value, page = 1)
                            })
 
                        }
@@ -118,37 +119,38 @@ fun Browse(
            val movies = state.value.movies
 
            LazyVerticalGrid(
+               state = rememberLazyGridState(),
                columns = GridCells.Fixed(3),
                contentPadding = PaddingValues(10.dp)
            ) {
-           movies?.results?.forEach { movie ->
-               item {
-                   Card(
-                       modifier = Modifier
-                           .padding(10.dp)
-                           .height(155.dp),
-                       onClick = {
-                           if (
-                               state.value.type.value == "movies"
-                           ) {
-
-                               navController.navigate("movie/${movie.id}")
-                           } else {
-                               navController.navigate("show/${movie.id}")
-                           }
-                       }
-                       ) {
-                       Image(
+               movies.forEachIndexed { index , movie ->
+                   item {
+                       Card(
                            modifier = Modifier
-                               .fillMaxSize(),
+                               .padding(10.dp)
+                               .height(155.dp),
+                           onClick = {
+                               if (
+                                   state.value.type.value == "movies"
+                               ) {
 
-                           painter = rememberAsyncImagePainter(
-                               "${Constants.IMAGE_BASE_URL}/w200${movie.poster_path}"),
-                           contentDescription = movie.title
-                       )
+                                   navController.navigate("movie/${movie.id}")
+                               } else {
+                                   navController.navigate("show/${movie.id}")
+                               }
+                           }
+                       ) {
+                           Image(
+                               modifier = Modifier
+                                   .fillMaxSize(),
+
+                               painter = rememberAsyncImagePainter(
+                                   "${Constants.IMAGE_BASE_URL}/w200${movie.poster_path}"),
+                               contentDescription = movie.title
+                           )
+                       }
                    }
                }
-           }
            }
        }
 

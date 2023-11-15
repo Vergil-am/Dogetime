@@ -1,5 +1,6 @@
 package com.example.kotlinmovieapp.presentation.navgraph
 
+import androidx.annotation.RequiresApi
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material.icons.outlined.Home
@@ -8,6 +9,7 @@ import androidx.compose.material.icons.outlined.Person
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.core.view.WindowInsetsControllerCompat
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -34,13 +36,15 @@ val Items = listOf(
 
     )
 
+@RequiresApi(34)
 @Composable
 fun NavGraph (
     startDestination: String,
     homeViewModel: HomeViewModel,
     detailsViewModel: DetailsViewModel,
     browseViewModel: BrowseViewModel,
-    searchViewModel: SearchViewModel
+    searchViewModel: SearchViewModel,
+    windowCompat: WindowInsetsControllerCompat
 ) {
     val navController = rememberNavController()
     NavHost(
@@ -90,7 +94,11 @@ fun NavGraph (
                 val season = navBackStackEntry.arguments?.getString("season")
                 val episode = navBackStackEntry.arguments?.getString("episode")
                 if (id != null && episode != null && season != null) {
-                    VideoPlayer(id = id, season = season.toInt(), episode = episode.toInt())
+                    VideoPlayer(
+                        id = id, season = season.toInt(),
+                        episode = episode.toInt(),
+                        windowCompat = windowCompat
+                    )
                 }
             }
 

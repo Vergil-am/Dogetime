@@ -16,17 +16,27 @@ class BrowseViewModel @Inject constructor(
     var state = _state
 
     init {
-        getMovies(state.value.type.value ,state.value.catalog.value)
+        getMovies(state.value.type.value ,state.value.catalog.value, 1)
     }
-    fun getMovies(type: String , catalog: String) {
+    fun getMovies(type: String , catalog: String , page: Int) {
         if (type == "movies") {
-            getMoviesUseCase.getMovies(catalog).onEach {movies ->
-                _state.value = BrowseState(movies = movies, type = state.value.type, catalog = state.value.catalog, genre = state.value.genre)
+            getMoviesUseCase.getMovies(catalog, page).onEach {movies ->
+                if (page == 1) {
+                    _state.value = BrowseState(movies = movies, type = state.value.type, catalog = state.value.catalog, genre = state.value.genre)
+                } else if (page > 1) {
+                    _state.value = BrowseState(movies = state.value.movies.plus(movies), type = state.value.type, catalog = state.value.catalog, genre = state.value.genre)
+
+                }
             }.launchIn(viewModelScope)
 
         } else if (type == "tv") {
-            getMoviesUseCase.getShows(catalog, 1).onEach { shows ->
-                _state.value = BrowseState(movies = shows, type = state.value.type, catalog = state.value.catalog, genre = state.value.genre)
+            getMoviesUseCase.getShows(catalog, page).onEach { shows ->
+                if (page == 1) {
+                    _state.value = BrowseState(movies = shows, type = state.value.type, catalog = state.value.catalog, genre = state.value.genre)
+                } else if (page > 1) {
+                    _state.value = BrowseState(movies = state.value.movies.plus(shows), type = state.value.type, catalog = state.value.catalog, genre = state.value.genre)
+
+                }
             }.launchIn(viewModelScope)
         }
     }
