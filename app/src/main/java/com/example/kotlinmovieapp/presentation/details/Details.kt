@@ -1,7 +1,5 @@
 package com.example.kotlinmovieapp.presentation.details
 
-import android.app.Activity
-import android.content.pm.ActivityInfo
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -26,7 +24,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -48,8 +45,6 @@ fun  Details(
     type: String
 
 ) {
-    val activity = LocalView.current.context as Activity
-    activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
     val state = viewModel.state.collectAsState()
 when (type ) {
     "movie" -> {

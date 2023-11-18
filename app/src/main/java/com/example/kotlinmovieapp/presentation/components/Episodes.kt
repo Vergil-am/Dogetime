@@ -85,8 +85,8 @@ fun Episodes(
                         modifier = Modifier.fillMaxSize(),
                         verticalArrangement = Arrangement.SpaceBetween
                     ) {
-                        Text(text = episode.name)
-                        Text(text = episode.air_date)
+                        episode.name?.let { Text(text = it) }
+                        episode.air_date?.let { Text(text = it) }
                         Text(text = "${episode.runtime} min")
                         
                     }

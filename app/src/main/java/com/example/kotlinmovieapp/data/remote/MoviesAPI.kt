@@ -15,11 +15,17 @@ interface MoviesAPI {
 
     //Trending
     @GET("trending/movie/day")
-    suspend fun getTrending( @Query("api_key") apiKey : String = API_KEY ) : MoviesDTO
+    suspend fun getTrending(
+        @Query("language") language: String = "en-US",
+        @Query("with_original_language") orLang: String = "en",
+        @Query("api_key") apiKey : String = API_KEY
+    ) : MoviesDTO
 
     @GET("trending/tv/day")
     suspend fun getTrendingShows(
         @Query("page") page: Int,
+        @Query("language") language: String = "en-US",
+        @Query("with_original_language") orLang: String = "en",
         @Query("api_key") apiKey : String = API_KEY
     ) : MoviesDTO
 
@@ -28,7 +34,9 @@ interface MoviesAPI {
     @GET("movie/{catalog}")
     suspend fun getMovies(
         @Path("catalog") catalog: String = "popular",
+        @Query("language") language: String = "en-US",
         @Query("page") page: Int,
+        @Query("with_original_language") orLang: String = "en",
         @Query("api_key") apiKey : String = API_KEY
     ) : MoviesDTO
 
@@ -65,6 +73,8 @@ interface MoviesAPI {
     @GET("search/multi")
     suspend fun getSearch(
         @Query("query") query: String,
+        @Query("language") language: String = "en-US",
+        @Query("with_original_language") orLang: String = "en",
         @Query("api_key") apiKey : String = API_KEY
     ) : SearchDTO
 }

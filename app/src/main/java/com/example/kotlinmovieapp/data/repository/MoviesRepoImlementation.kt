@@ -22,7 +22,7 @@ class MovieRepoImplementation @Inject constructor(
 
     // Movies
     override suspend fun getMovies(page : Int, catalog: String): MoviesDTO {
-        return api.getMovies(catalog, page)
+        return api.getMovies(catalog, page = page)
     }
 
     override suspend fun getMovie(movieId: Int): MovieDetailsDTO {
@@ -33,7 +33,7 @@ class MovieRepoImplementation @Inject constructor(
     // Shows
 
     override suspend fun getShows(page: Int, catalog: String): MoviesDTO {
-        return api.getShows(catalog, page)
+        return api.getShows(catalog, page = page)
     }
     override suspend fun getShow(showId: Int): ShowDetailsDTO{
         return api.getShow(showId)

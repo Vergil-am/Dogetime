@@ -1,5 +1,8 @@
 package com.example.kotlinmovieapp.presentation.navgraph
 
+import android.annotation.SuppressLint
+import android.app.Activity
+import android.content.pm.ActivityInfo
 import androidx.annotation.RequiresApi
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.FavoriteBorder
@@ -9,6 +12,7 @@ import androidx.compose.material.icons.outlined.Person
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -36,6 +40,7 @@ val Items = listOf(
 
     )
 
+@SuppressLint("SourceLockedOrientationActivity")
 @RequiresApi(34)
 @Composable
 fun NavGraph (
@@ -47,6 +52,8 @@ fun NavGraph (
     windowCompat: WindowInsetsControllerCompat
 ) {
     val navController = rememberNavController()
+    val activity = LocalView.current.context as Activity
+    activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
     NavHost(
             navController = navController,
             startDestination = startDestination,

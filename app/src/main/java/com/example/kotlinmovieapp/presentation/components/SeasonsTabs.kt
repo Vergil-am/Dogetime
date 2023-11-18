@@ -67,8 +67,6 @@ fun SeasonsTabs(
                     id,
                     navController
                     )
-
-
             }
         }
 

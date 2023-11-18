@@ -22,7 +22,7 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 
 @RequiresApi(34)
-@SuppressLint("SetJavaScriptEnabled")
+@SuppressLint("SetJavaScriptEnabled", "SourceLockedOrientationActivity")
 @Composable
 fun VideoPlayer(
    id: String,
@@ -44,7 +44,7 @@ fun VideoPlayer(
    DisposableEffect(key1 = activity ) {
       activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
       onDispose {
-         activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
+         activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
       }
    }
 
