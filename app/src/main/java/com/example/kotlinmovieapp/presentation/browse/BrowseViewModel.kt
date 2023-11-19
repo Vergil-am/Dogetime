@@ -16,15 +16,15 @@ class BrowseViewModel @Inject constructor(
     var state = _state
 
     init {
-        getMovies(state.value.type.value ,state.value.catalog.value, 1)
+        getMovies(state.value.type.value ,state.value.catalog.value, _state.value.page)
     }
     fun getMovies(type: String , catalog: String , page: Int) {
         if (type == "movies") {
             getMoviesUseCase.getMovies(catalog, page).onEach {movies ->
                 if (page == 1) {
-                    _state.value = BrowseState(movies = movies, type = state.value.type, catalog = state.value.catalog, genre = state.value.genre)
+                    _state.value = BrowseState(movies = movies, type = state.value.type, catalog = state.value.catalog, genre = state.value.genre, page = state.value.page)
                 } else if (page > 1) {
-                    _state.value = BrowseState(movies = state.value.movies.plus(movies), type = state.value.type, catalog = state.value.catalog, genre = state.value.genre)
+                    _state.value = BrowseState(movies = state.value.movies.plus(movies), type = state.value.type, catalog = state.value.catalog, genre = state.value.genre, page = state.value.page + 1)
 
                 }
             }.launchIn(viewModelScope)
@@ -34,7 +34,7 @@ class BrowseViewModel @Inject constructor(
                 if (page == 1) {
                     _state.value = BrowseState(movies = shows, type = state.value.type, catalog = state.value.catalog, genre = state.value.genre)
                 } else if (page > 1) {
-                    _state.value = BrowseState(movies = state.value.movies.plus(shows), type = state.value.type, catalog = state.value.catalog, genre = state.value.genre)
+                    _state.value = BrowseState(movies = state.value.movies.plus(shows), type = state.value.type, catalog = state.value.catalog, genre = state.value.genre, page = state.value.page + 1)
 
                 }
             }.launchIn(viewModelScope)

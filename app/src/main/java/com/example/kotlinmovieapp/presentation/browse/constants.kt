@@ -7,7 +7,7 @@ class Item(
 
 class Type(
     val title: String,
-    val value: String,
+    var value: String,
     val catalog: List<Item>
 )
 

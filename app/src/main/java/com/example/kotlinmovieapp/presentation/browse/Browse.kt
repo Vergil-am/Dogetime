@@ -26,6 +26,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -44,6 +45,21 @@ fun Browse(
     viewModel: BrowseViewModel
 ) {
     val state = viewModel.state.collectAsState()
+    val gridState = rememberLazyGridState()
+    val hasReachedLastItem by remember {
+        derivedStateOf {
+            gridState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ==
+                    gridState.layoutInfo.totalItemsCount - 1
+        }
+    }
+
+    if (hasReachedLastItem) {
+        viewModel.getMovies(
+            type = state.value.type.value,
+            catalog = state.value.catalog.value,
+            page = state.value.page + 1
+        )
+    }
     var opened by remember {
         mutableStateOf("")
     }
@@ -66,8 +82,6 @@ fun Browse(
                .padding(paddingValues)
        ) {
            Row {
-
-
                Box(modifier = Modifier) {
                    OutlinedButton(onClick = { opened = "type" }) {
                        Text(text = state.value.type.title)
@@ -119,7 +133,7 @@ fun Browse(
            val movies = state.value.movies
 
            LazyVerticalGrid(
-               state = rememberLazyGridState(),
+               state = gridState,
                columns = GridCells.Fixed(3),
                contentPadding = PaddingValues(10.dp)
            ) {
