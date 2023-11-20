@@ -99,6 +99,7 @@ fun Browse(
                                state.value.type = type
                                opened = ""
                                viewModel.getMovies(type = type.value, catalog = "popular", 1)
+                               viewModel.getGenres(type = type.value)
                            })
                        }
 
@@ -127,6 +128,28 @@ fun Browse(
                        }
                    }
 
+               }
+               Box(modifier = Modifier) {
+                   OutlinedButton(onClick = { opened = "genres" }) {
+                       Text(text = state.value.genre?.name ?: "all")
+                       Icon(imageVector = Icons.Filled.ArrowDropDown, contentDescription = "")
+                   }
+                   DropdownMenu(
+                       expanded = opened == "genres",
+                       onDismissRequest = {
+                           opened = ""
+                       }) {
+                       state.value.genres?.genres?.forEach { genre ->
+                           DropdownMenuItem(text = {
+                               Text(text = genre.name)
+                           }, onClick = {
+                               state.value.genre = genre
+                               opened = ""
+                           })
+                       }
+
+
+                   }
                }
 
            }

@@ -1,5 +1,6 @@
 package com.example.kotlinmovieapp.data.remote
 
+import com.example.kotlinmovieapp.data.remote.dto.GenresDTO
 import com.example.kotlinmovieapp.data.remote.dto.MovieDetailsDTO
 import com.example.kotlinmovieapp.data.remote.dto.MoviesDTO
 import com.example.kotlinmovieapp.data.remote.dto.SearchDTO
@@ -77,4 +78,11 @@ interface MoviesAPI {
         @Query("with_original_language") orLang: String = "en",
         @Query("api_key") apiKey : String = API_KEY
     ) : SearchDTO
+
+    // Get genres
+    @GET("genre/{type}/list")
+    suspend fun getGenres(
+        @Path("type") type : String,
+        @Query("language") language: String = "en"
+    ): GenresDTO
 }

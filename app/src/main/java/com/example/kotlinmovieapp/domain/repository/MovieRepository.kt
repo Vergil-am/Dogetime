@@ -1,5 +1,6 @@
 package com.example.kotlinmovieapp.domain.repository
 
+import com.example.kotlinmovieapp.data.remote.dto.GenresDTO
 import com.example.kotlinmovieapp.data.remote.dto.MovieDetailsDTO
 import com.example.kotlinmovieapp.data.remote.dto.MoviesDTO
 import com.example.kotlinmovieapp.data.remote.dto.SearchDTO
@@ -25,4 +26,7 @@ interface MovieRepository {
 
     // Search
     suspend fun getSearch(query: String) : SearchDTO
+
+    // Genres
+    suspend fun getGenres(type: String) : GenresDTO
 }

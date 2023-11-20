@@ -18,11 +18,14 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedIconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.blur
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -63,35 +66,69 @@ when (type ) {
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(220.dp)
+                        .height(300.dp)
 
                 ) {
                     Image(
                         modifier = Modifier
-                            .fillMaxSize(),
+                            .fillMaxSize()
+                            .blur(10.dp) ,
                         painter = rememberAsyncImagePainter(
                             "${Constants.IMAGE_BASE_URL}/w500${it.backdrop_path}"
                         ),
                         contentDescription = it.title
                     )
-                    Text(text = toUpperCase(it.title),
-                        style = TextStyle(
-                            fontSize = 50.sp,
-                            fontWeight = FontWeight(500)
-                        ),
-                        modifier = Modifier.align(Alignment.BottomCenter)
+                    Row (
+                        modifier = Modifier
+                            .align(Alignment.BottomCenter)
+                            .padding(10.dp)
+                            .fillMaxWidth()
+                            ,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Image(
+                            modifier = Modifier,
+                            painter = rememberAsyncImagePainter(
+                                "${Constants.IMAGE_BASE_URL}/w300${it.poster_path}"
+                            ),
+                            contentDescription = it.title
                         )
+                        Column (
+                            modifier = Modifier.padding(10.dp)
+                        ) {
+                            Text(text = toUpperCase(it.title),
+                                style = MaterialTheme.typography.titleMedium
+                            )
+                            Text(text = it.status,
+                                style =
+                                MaterialTheme.typography.labelLarge)
+                            Text(
+                                text = it.tagline,
+                                style = MaterialTheme.typography.headlineSmall,
+//                                style = TextStyle(
+//                                    fontSize = 16.sp,
+//                                    fontWeight = FontWeight(300),
+//                                    color = Color.Black,
+//                                ),
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                            )
+                            OutlinedIconButton(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(10.dp)
+                                ,
+                                onClick = { /*TODO*/ }
+                                ) {
+                               Text(text = "ADD TO WATCHLIST")
+                            }
+
+                        }
+
+                    }
+
                 }
-                Text(text = it.tagline,
-                    style = TextStyle(
-                        fontSize = 24.sp,
-                        fontWeight = FontWeight(300),
-                        color = Color.Gray,
-                        textAlign = TextAlign.Center
-                    ),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                    )
+
                 Row (
                     modifier = Modifier
                         .fillMaxWidth()
