@@ -1,0 +1,26 @@
+package com.example.kotlinmovieapp.domain.use_case.auth
+
+import android.util.Log
+import com.example.kotlinmovieapp.data.remote.dto.RequestTokenDTO
+import com.example.kotlinmovieapp.domain.repository.AuthRepository
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
+import okio.IOException
+import retrofit2.HttpException
+import javax.inject.Inject
+
+class reqTokenUseCase @Inject constructor(
+    private val repo: AuthRepository
+) {
+    fun generateReqToken(): Flow<RequestTokenDTO>  = flow{
+            try {
+                val res = repo.generateToken()
+                emit(res)
+            }catch (e : HttpException) {
+                Log.e("MOVIE REPO", e.toString() )
+            } catch (e: IOException) {
+                Log.e("MOVIE REPO", e.toString() )
+
+            }
+    }
+}

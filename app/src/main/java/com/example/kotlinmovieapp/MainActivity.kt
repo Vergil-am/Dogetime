@@ -11,6 +11,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
+import com.example.kotlinmovieapp.presentation.account.AccountViewModel
 import com.example.kotlinmovieapp.presentation.browse.BrowseViewModel
 import com.example.kotlinmovieapp.presentation.details.DetailsViewModel
 import com.example.kotlinmovieapp.presentation.home.HomeViewModel
@@ -26,6 +27,7 @@ class MainActivity : ComponentActivity() {
     private val detailsViewModel: DetailsViewModel by viewModels()
     private val browseViewModel: BrowseViewModel by viewModels()
     private val searchViewModel: SearchViewModel by viewModels()
+    private val accountViewModel: AccountViewModel by viewModels()
     @RequiresApi(34)
     override fun onCreate(savedInstanceState: Bundle?) {
         val windowCompat = WindowCompat.getInsetsController(window, window.decorView)
@@ -43,6 +45,7 @@ class MainActivity : ComponentActivity() {
                         detailsViewModel = detailsViewModel,
                         browseViewModel = browseViewModel,
                         searchViewModel = searchViewModel,
+                        accountViewModel= accountViewModel,
                         windowCompat = windowCompat
                     )
                 }

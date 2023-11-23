@@ -19,4 +19,5 @@ sealed class Route (
 
     object ShowDetails: Route("show/{id}")
 
+
 }

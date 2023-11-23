@@ -1,7 +1,10 @@
 package com.example.kotlinmovieapp.di
 
+import com.example.kotlinmovieapp.data.remote.AuthAPI
 import com.example.kotlinmovieapp.data.remote.MoviesAPI
+import com.example.kotlinmovieapp.data.repository.AuthRepoImplementation
 import com.example.kotlinmovieapp.data.repository.MovieRepoImplementation
+import com.example.kotlinmovieapp.domain.repository.AuthRepository
 import com.example.kotlinmovieapp.domain.repository.MovieRepository
 import com.example.kotlinmovieapp.util.Constants.BASE_URL
 import dagger.Module
@@ -32,5 +35,19 @@ object AppModule {
     }
 
 
+    @Provides
+    @Singleton
+    fun provideAuthAPI() : AuthAPI {
+        return Retrofit.Builder()
+            .baseUrl(BASE_URL)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+            .create(AuthAPI::class.java)
+    }
 
+    @Provides
+    @Singleton
+    fun provideAuthRepo(api: AuthAPI): AuthRepository {
+        return AuthRepoImplementation(api)
+    }
 }

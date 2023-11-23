@@ -22,7 +22,8 @@ import com.example.kotlinmovieapp.presentation.browse.BrowseViewModel
 import com.example.kotlinmovieapp.presentation.layouts.HomeLayout
 import com.example.kotlinmovieapp.presentation.details.Details
 import com.example.kotlinmovieapp.presentation.details.DetailsViewModel
-import com.example.kotlinmovieapp.ui.theme.screens.Account
+import com.example.kotlinmovieapp.presentation.account.Account
+import com.example.kotlinmovieapp.presentation.account.AccountViewModel
 import com.example.kotlinmovieapp.ui.theme.screens.Favorites
 import com.example.kotlinmovieapp.presentation.home.Home
 import com.example.kotlinmovieapp.presentation.home.HomeViewModel
@@ -49,6 +50,7 @@ fun NavGraph (
     detailsViewModel: DetailsViewModel,
     browseViewModel: BrowseViewModel,
     searchViewModel: SearchViewModel,
+    accountViewModel: AccountViewModel,
     windowCompat: WindowInsetsControllerCompat
 ) {
     val navController = rememberNavController()
@@ -59,11 +61,11 @@ fun NavGraph (
             startDestination = startDestination,
             modifier = Modifier
         ) {
-            composable(route = Route.Home.route) {
-                HomeLayout(navController = navController) {
-                    Home(navController = navController, viewModel = homeViewModel)
-                }
+        composable(route = Route.Home.route) {
+            HomeLayout(navController = navController) {
+                Home(navController = navController, viewModel = homeViewModel)
             }
+        }
         composable(route = Route.Browse.route) {
 
             HomeLayout(navController = navController) {
@@ -73,69 +75,67 @@ fun NavGraph (
                 )
             }
         }
-            composable(route = Route.Search.route) {
+        composable(route = Route.Search.route) {
 
-                HomeLayout(navController = navController) {
-                    Search(
-                        navController,
-                        searchViewModel
-                    )
-                }
+            HomeLayout(navController = navController) {
+                Search(
+                    navController,
+                    searchViewModel
+                )
             }
-            composable(route = Route.Favorites.route) {
+        }
+        composable(route = Route.Favorites.route) {
 
-                HomeLayout(navController = navController) {
-                    Favorites()
-                }
+            HomeLayout(navController = navController) {
+                Favorites()
             }
-            composable(route = Route.Account.route) {
+        }
+        composable(route = Route.Account.route) {
 
-                HomeLayout(navController = navController) {
-                    Account()
-                }
+            HomeLayout(navController = navController) {
+                Account(
+                    accountViewModel
+                )
             }
+        }
 
-            composable(Route.VideoPlayer.route) {
-                navBackStackEntry ->
-                val id = navBackStackEntry.arguments?.getString("id")
-                val season = navBackStackEntry.arguments?.getString("season")
-                val episode = navBackStackEntry.arguments?.getString("episode")
-                if (id != null && episode != null && season != null) {
-                    VideoPlayer(
-                        id = id, season = season.toInt(),
-                        episode = episode.toInt(),
-                        windowCompat = windowCompat
-                    )
-                }
+        composable(Route.VideoPlayer.route) { navBackStackEntry ->
+            val id = navBackStackEntry.arguments?.getString("id")
+            val season = navBackStackEntry.arguments?.getString("season")
+            val episode = navBackStackEntry.arguments?.getString("episode")
+            if (id != null && episode != null && season != null) {
+                VideoPlayer(
+                    id = id, season = season.toInt(),
+                    episode = episode.toInt(),
+                    windowCompat = windowCompat
+                )
             }
+        }
 
 
-            composable(Route.MovieDetails.route) {
-                    navBackStackEntry ->
-                val id = navBackStackEntry.arguments?.getString("id")
-                if (id != null) {
-                    Details(
-                        navController = navController,
-                        viewModel = detailsViewModel,
-                        id = id.toInt(),
-                        type = "movie"
-                    )
-                }
+        composable(Route.MovieDetails.route) { navBackStackEntry ->
+            val id = navBackStackEntry.arguments?.getString("id")
+            if (id != null) {
+                Details(
+                    navController = navController,
+                    viewModel = detailsViewModel,
+                    id = id.toInt(),
+                    type = "movie"
+                )
             }
-            composable(Route.ShowDetails.route) {
-                    navBackStackEntry ->
-                val id = navBackStackEntry.arguments?.getString("id")
-                if (id != null) {
-                    Details(
-                        navController = navController,
-                        viewModel = detailsViewModel,
-                        id = id.toInt(),
-                        type = "show"
+        }
+        composable(Route.ShowDetails.route) { navBackStackEntry ->
+            val id = navBackStackEntry.arguments?.getString("id")
+            if (id != null) {
+                Details(
+                    navController = navController,
+                    viewModel = detailsViewModel,
+                    id = id.toInt(),
+                    type = "show"
 
-                    )
-                }
+                )
             }
+        }
 
     }
-
-    }
+}
