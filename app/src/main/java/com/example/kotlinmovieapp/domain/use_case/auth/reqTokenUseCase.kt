@@ -2,6 +2,7 @@ package com.example.kotlinmovieapp.domain.use_case.auth
 
 import android.util.Log
 import com.example.kotlinmovieapp.data.remote.dto.RequestTokenDTO
+import com.example.kotlinmovieapp.data.remote.dto.SessionDTO
 import com.example.kotlinmovieapp.domain.repository.AuthRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -22,5 +23,18 @@ class reqTokenUseCase @Inject constructor(
                 Log.e("MOVIE REPO", e.toString() )
 
             }
+    }
+
+    fun createSessionId(token: String): Flow<SessionDTO> = flow {
+        try {
+            val res = repo.getSessionId(token)
+            Log.e("SESSION ID", res.toString())
+            emit(res)
+        }catch (e : HttpException) {
+            Log.e("MOVIE REPO", e.toString() )
+        } catch (e: IOException) {
+            Log.e("MOVIE REPO", e.toString() )
+
+        }
     }
 }
