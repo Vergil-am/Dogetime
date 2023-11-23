@@ -1,5 +1,6 @@
 package com.example.kotlinmovieapp.presentation.account
 
+import android.util.Log
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -20,4 +21,11 @@ class AccountViewModel @Inject constructor(
             res -> state.value = accountState(res.request_token)
         }.launchIn(viewModelScope)
     }
+
+    fun getSessionId(token: String) {
+        reqTokenUseCase.createSessionId(token).onEach {
+           res -> Log.e("Response is: ",res.toString())
+        }.launchIn(viewModelScope)
+    }
+
 }
