@@ -2,8 +2,8 @@ package com.example.kotlinmovieapp.presentation.account
 
 import android.content.Intent
 import android.net.Uri
+import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.Button
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
@@ -16,7 +16,7 @@ fun Account (
     val context = LocalContext.current
     val state = viewModel.state.value
     val url = "https://www.themoviedb.org/authenticate/${state.token}"
-    Surface {
+    Column {
         Text(text = "Account")
         Button(onClick = {
             if (state.token != null) {

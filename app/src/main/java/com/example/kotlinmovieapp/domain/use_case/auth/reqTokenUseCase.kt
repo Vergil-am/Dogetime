@@ -31,9 +31,9 @@ class reqTokenUseCase @Inject constructor(
             Log.e("SESSION ID", res.toString())
             emit(res)
         }catch (e : HttpException) {
-            Log.e("MOVIE REPO", e.toString() )
+            Log.e("Auth REPO", e.toString() )
         } catch (e: IOException) {
-            Log.e("MOVIE REPO", e.toString() )
+            Log.e("Auth REPO", e.toString() )
 
         }
     }
