@@ -17,6 +17,7 @@ import com.example.kotlinmovieapp.presentation.details.DetailsViewModel
 import com.example.kotlinmovieapp.presentation.home.HomeViewModel
 import com.example.kotlinmovieapp.presentation.navgraph.NavGraph
 import com.example.kotlinmovieapp.presentation.search.SearchViewModel
+import com.example.kotlinmovieapp.presentation.watchlist.ListViewModel
 import com.example.kotlinmovieapp.ui.theme.KotlinMovieAppTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -28,6 +29,7 @@ class MainActivity : ComponentActivity() {
     private val browseViewModel: BrowseViewModel by viewModels()
     private val searchViewModel: SearchViewModel by viewModels()
     private val accountViewModel: AccountViewModel by viewModels()
+    private val listViewModel: ListViewModel by viewModels()
     @RequiresApi(34)
     override fun onCreate(savedInstanceState: Bundle?) {
         val windowCompat = WindowCompat.getInsetsController(window, window.decorView)
@@ -46,6 +48,7 @@ class MainActivity : ComponentActivity() {
                         browseViewModel = browseViewModel,
                         searchViewModel = searchViewModel,
                         accountViewModel= accountViewModel,
+                        listViewModel = listViewModel,
                         windowCompat = windowCompat
                     )
                 }

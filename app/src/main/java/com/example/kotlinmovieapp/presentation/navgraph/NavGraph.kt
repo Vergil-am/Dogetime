@@ -24,19 +24,20 @@ import com.example.kotlinmovieapp.presentation.details.Details
 import com.example.kotlinmovieapp.presentation.details.DetailsViewModel
 import com.example.kotlinmovieapp.presentation.account.Account
 import com.example.kotlinmovieapp.presentation.account.AccountViewModel
-import com.example.kotlinmovieapp.ui.theme.screens.Favorites
 import com.example.kotlinmovieapp.presentation.home.Home
 import com.example.kotlinmovieapp.presentation.home.HomeViewModel
 import com.example.kotlinmovieapp.presentation.video_player.VideoPlayer
 import com.example.kotlinmovieapp.presentation.search.Search
 import com.example.kotlinmovieapp.presentation.search.SearchViewModel
+import com.example.kotlinmovieapp.presentation.watchlist.ListViewModel
+import com.example.kotlinmovieapp.presentation.watchlist.WatchList
 
 
 class Item(val icon: ImageVector, val title: String)
 val Items = listOf(
     Item(icon = Icons.Outlined.Home, Route.Home.route),
     Item(icon = Icons.Outlined.Menu , Route.Browse.route),
-    Item(icon = Icons.Outlined.FavoriteBorder, Route.Favorites.route),
+    Item(icon = Icons.Outlined.FavoriteBorder, Route.WatchList.route),
     Item(icon = Icons.Outlined.Person, Route.Account.route),
 
     )
@@ -51,6 +52,7 @@ fun NavGraph (
     browseViewModel: BrowseViewModel,
     searchViewModel: SearchViewModel,
     accountViewModel: AccountViewModel,
+    listViewModel: ListViewModel,
     windowCompat: WindowInsetsControllerCompat
 ) {
     val navController = rememberNavController()
@@ -84,10 +86,13 @@ fun NavGraph (
                 )
             }
         }
-        composable(route = Route.Favorites.route) {
+        composable(route = Route.WatchList.route) {
 
             HomeLayout(navController = navController) {
-                Favorites()
+                WatchList(
+                    listViewModel,
+                    navController
+                )
             }
         }
         composable(route = Route.Account.route) {

@@ -69,6 +69,7 @@ dependencies {
 
     // dagger hilt dependency injection library
     implementation("com.google.dagger:hilt-android:2.44")
+    implementation("com.google.android.engage:engage-core:1.3.1")
     kapt("com.google.dagger:hilt-android-compiler:2.44")
 
     // Retrofit HTTP library

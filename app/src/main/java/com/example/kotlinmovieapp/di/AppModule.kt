@@ -1,10 +1,13 @@
 package com.example.kotlinmovieapp.di
 
 import com.example.kotlinmovieapp.data.remote.AuthAPI
+import com.example.kotlinmovieapp.data.remote.ListAPI
 import com.example.kotlinmovieapp.data.remote.MoviesAPI
 import com.example.kotlinmovieapp.data.repository.AuthRepoImplementation
+import com.example.kotlinmovieapp.data.repository.ListRepoImplementation
 import com.example.kotlinmovieapp.data.repository.MovieRepoImplementation
 import com.example.kotlinmovieapp.domain.repository.AuthRepository
+import com.example.kotlinmovieapp.domain.repository.ListRepository
 import com.example.kotlinmovieapp.domain.repository.MovieRepository
 import com.example.kotlinmovieapp.util.Constants.BASE_URL
 import dagger.Module
@@ -49,5 +52,20 @@ object AppModule {
     @Singleton
     fun provideAuthRepo(api: AuthAPI): AuthRepository {
         return AuthRepoImplementation(api)
+    }
+
+    @Provides
+    @Singleton
+    fun provideListAPI() : ListAPI{
+        return Retrofit.Builder()
+            .baseUrl(BASE_URL)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+            .create(ListAPI::class.java)
+    }
+    @Provides
+    @Singleton
+    fun provideListAPIRepo(api: ListAPI): ListRepository{
+        return ListRepoImplementation(api)
     }
 }
