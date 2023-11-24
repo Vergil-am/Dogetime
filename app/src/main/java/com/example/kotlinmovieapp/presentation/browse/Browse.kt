@@ -160,7 +160,7 @@ fun Browse(
                columns = GridCells.Fixed(3),
                contentPadding = PaddingValues(10.dp)
            ) {
-               movies.forEachIndexed { index , movie ->
+               movies.forEachIndexed { _ , movie ->
                    item {
                        Card(
                            modifier = Modifier

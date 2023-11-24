@@ -9,7 +9,7 @@ sealed class Route (
 
     object Browse : Route("browse")
 
-    object Favorites : Route("favorites")
+    object WatchList: Route("watchlist")
 
     object Account : Route("account")
 

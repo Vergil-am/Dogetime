@@ -17,7 +17,11 @@ fun Account (
     val state = viewModel.state.value
     val url = "https://www.themoviedb.org/authenticate/${state.token}"
     Column {
-        Text(text = "Account")
+        if (state.sessionId != null) {
+            Text(text = state.sessionId)
+        } else {
+            Text(text = "Account")
+        }
         Button(onClick = {
             if (state.token != null) {
                 val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
