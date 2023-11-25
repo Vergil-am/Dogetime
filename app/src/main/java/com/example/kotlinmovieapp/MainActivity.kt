@@ -29,7 +29,7 @@ class MainActivity : ComponentActivity() {
     private val browseViewModel: BrowseViewModel by viewModels()
     private val searchViewModel: SearchViewModel by viewModels()
     private val accountViewModel: AccountViewModel by viewModels()
-    private val listViewModel: ListViewModel by viewModels()
+    private val listViewModel by viewModels<ListViewModel >()
     @RequiresApi(34)
     override fun onCreate(savedInstanceState: Bundle?) {
         val windowCompat = WindowCompat.getInsetsController(window, window.decorView)

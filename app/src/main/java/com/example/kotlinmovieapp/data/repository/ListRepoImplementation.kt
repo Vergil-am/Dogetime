@@ -8,8 +8,8 @@ import javax.inject.Inject
 class ListRepoImplementation @Inject constructor(
     private val api: ListAPI
 ) : ListRepository{
-    override suspend fun getWatchList(): MoviesDTO {
-        return api.getWatchList()
+    override suspend fun getWatchList(type: String): MoviesDTO {
+        return api.getWatchList(type = type)
     }
 
     override suspend fun getFavorites(type: String): MoviesDTO {

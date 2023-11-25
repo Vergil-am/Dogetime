@@ -8,15 +8,15 @@ import retrofit2.http.Query
 interface ListAPI {
 
     @GET("account/{account_id}/watchlist/{type}")
-    fun getWatchList(
+    suspend fun getWatchList(
         @Path("account_id") accountId: Int = Constants.ACCOUNT_ID,
-        @Path("type") type: String = "movies",
+        @Path("type") type: String,
         @Query("session_id") sessionId: String = Constants.SESSION_ID,
         @Query("api_key") apiKey: String = Constants.API_KEY
     ): MoviesDTO
 
     @GET("account/{account_id}/favorite/{type}")
-    fun getFavorites(
+    suspend fun getFavorites(
         @Path("account_id") accountId: Int = Constants.ACCOUNT_ID,
         @Path("type") type: String = "tv",
         @Query("session_id") sessionId: String = Constants.SESSION_ID,

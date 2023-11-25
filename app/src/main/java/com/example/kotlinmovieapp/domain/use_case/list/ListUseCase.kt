@@ -14,7 +14,7 @@ class ListUseCase  @Inject constructor(
 ){
    fun getWatchList(type: String) : Flow<MoviesDTO> = flow {
         try {
-            val res = repo.getWatchList()
+            val res = repo.getWatchList(type)
             Log.e("LIST USE CASE", res.toString())
             emit(res)
         }catch (e : HttpException) {
