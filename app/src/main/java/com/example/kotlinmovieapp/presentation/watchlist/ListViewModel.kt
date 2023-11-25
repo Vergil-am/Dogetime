@@ -1,5 +1,4 @@
 package com.example.kotlinmovieapp.presentation.watchlist
-
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.kotlinmovieapp.domain.use_case.list.ListUseCase
@@ -16,12 +15,12 @@ class ListViewModel @Inject constructor(
     private val _state = MutableStateFlow(ListState())
     var state = _state
     init {
-//       getWatchList("movies")
-        getFavorites("movies")
+       getWatchList("tv")
+//        getFavorites("movies")
     }
 
     fun getWatchList(type: String) {
-        list.getWatchList(type).onEach {
+        list.getWatchList(type = type).onEach {
             list -> _state.value = ListState(movies = list)
         }.launchIn(viewModelScope)
     }
