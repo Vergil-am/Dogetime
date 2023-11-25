@@ -34,6 +34,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
+import com.example.kotlinmovieapp.data.remote.dto.AddToWatchListDTO
 import com.example.kotlinmovieapp.presentation.components.SeasonsTabs
 import com.example.kotlinmovieapp.util.Constants
 import com.google.common.base.Ascii.toUpperCase
@@ -69,6 +70,7 @@ when (type ) {
                         .height(300.dp)
 
                 ) {
+
                     Image(
                         modifier = Modifier
                             .fillMaxSize()
@@ -105,11 +107,6 @@ when (type ) {
                             Text(
                                 text = it.tagline,
                                 style = MaterialTheme.typography.headlineSmall,
-//                                style = TextStyle(
-//                                    fontSize = 16.sp,
-//                                    fontWeight = FontWeight(300),
-//                                    color = Color.Black,
-//                                ),
                                 modifier = Modifier
                                     .fillMaxWidth()
                             )
@@ -118,7 +115,15 @@ when (type ) {
                                     .fillMaxWidth()
                                     .padding(10.dp)
                                 ,
-                                onClick = { /*TODO*/ }
+                                onClick = {
+                                    viewModel.addToWishlist(
+                                        AddToWatchListDTO(
+                                            media_id = it.id,
+                                            media_type = "movie",
+                                            watchlist = true
+                                        )
+                                    )
+                                }
                                 ) {
                                Text(text = "ADD TO WATCHLIST")
                             }
@@ -194,22 +199,67 @@ when (type ) {
                         .height(220.dp)
 
                 ) {
+
                     Image(
                         modifier = Modifier
                             .fillMaxSize()
-                        ,
+                            .blur(10.dp) ,
                         painter = rememberAsyncImagePainter(
                             "${Constants.IMAGE_BASE_URL}/w500${it.backdrop_path}"
                         ),
                         contentDescription = it.name
                     )
-                    Text(text = toUpperCase(it.name),
-                        style = TextStyle(
-                            fontSize = 50.sp,
-                            fontWeight = FontWeight(500)
-                        ),
-                        modifier = Modifier.align(Alignment.BottomCenter)
-                    )
+                    Row (
+                        modifier = Modifier
+                            .align(Alignment.BottomCenter)
+                            .padding(10.dp)
+                            .fillMaxWidth()
+                            ,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Image(
+                            modifier = Modifier,
+                            painter = rememberAsyncImagePainter(
+                                "${Constants.IMAGE_BASE_URL}/w300${it.poster_path}"
+                            ),
+                            contentDescription = it.name
+                        )
+                        Column (
+                            modifier = Modifier.padding(10.dp)
+                        ) {
+                            Text(text = toUpperCase(it.name),
+                                style = MaterialTheme.typography.titleMedium
+                            )
+                            Text(text = it.status,
+                                style =
+                                MaterialTheme.typography.labelLarge)
+                            Text(
+                                text = it.tagline,
+                                style = MaterialTheme.typography.headlineSmall,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                            )
+                            OutlinedIconButton(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(10.dp)
+                                ,
+                                onClick = {
+                                    viewModel.addToWishlist(
+                                        AddToWatchListDTO(
+                                            media_id = it.id,
+                                            media_type = "tv",
+                                            watchlist = true
+                                        )
+                                    )
+                                }
+                                ) {
+                               Text(text = "ADD TO WATCHLIST")
+                            }
+
+                        }
+
+                    }
 
                 }
 

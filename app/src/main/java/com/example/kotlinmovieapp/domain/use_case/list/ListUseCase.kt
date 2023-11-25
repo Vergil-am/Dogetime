@@ -1,6 +1,7 @@
 package com.example.kotlinmovieapp.domain.use_case.list
 
 import android.util.Log
+import com.example.kotlinmovieapp.data.remote.dto.AddToWatchListDTO
 import com.example.kotlinmovieapp.data.remote.dto.MoviesDTO
 import com.example.kotlinmovieapp.domain.repository.ListRepository
 import kotlinx.coroutines.flow.Flow
@@ -22,6 +23,16 @@ class ListUseCase  @Inject constructor(
         } catch (e: IOException) {
             Log.e("MOVIE REPO", e.toString() )
 
+        }
+    }
+
+    suspend fun addToWatchList(body: AddToWatchListDTO) {
+        try {
+            repo.addToWatchList(body = body)
+        } catch (e: HttpException) {
+            Log.e("", "")
+        } catch (e: IOException) {
+            Log.e("", "")
         }
     }
     fun getFavorites(type: String) : Flow<MoviesDTO> = flow {

@@ -2,17 +2,21 @@ package com.example.kotlinmovieapp.presentation.details
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.kotlinmovieapp.data.remote.dto.AddToWatchListDTO
+import com.example.kotlinmovieapp.domain.use_case.list.ListUseCase
 import com.example.kotlinmovieapp.domain.use_case.movies.get_movie.GetMovieUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class DetailsViewModel @Inject constructor(
     private val getMovieUseCase: GetMovieUseCase,
+    private val list: ListUseCase
 ): ViewModel()  {
     private val _state = MutableStateFlow(MovieState())
     var state : StateFlow<MovieState> = _state
@@ -34,6 +38,12 @@ class DetailsViewModel @Inject constructor(
         getMovieUseCase.getSeason(id, season).onEach {seasonDTO ->
             _state.value = MovieState(movie = null, show = state.value.show, isLoading = false, season = seasonDTO)
         }.launchIn(viewModelScope)
+    }
+
+    fun addToWishlist(body: AddToWatchListDTO) {
+        viewModelScope.launch {
+            list.addToWatchList(body = body)
+        }
     }
 
 }
