@@ -17,17 +17,17 @@ class ListViewModel @Inject constructor(
     var state = _state
     init {
 //       getWatchList("movies")
-        getFavorites("tv")
+        getFavorites("movies")
     }
 
     fun getWatchList(type: String) {
         list.getWatchList(type).onEach {
-            moviesDTO -> _state.value = ListState(movies = moviesDTO)
+            list -> _state.value = ListState(movies = list)
         }.launchIn(viewModelScope)
     }
     fun getFavorites(type: String) {
         list.getFavorites(type).onEach {
-                moviesDTO -> _state.value = ListState(movies = moviesDTO)
+                list -> _state.value = ListState(movies = list )
         }.launchIn(viewModelScope)
     }
 

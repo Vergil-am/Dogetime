@@ -56,16 +56,17 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideListAPI() : ListAPI{
+    fun provideListAPI(): ListAPI {
         return Retrofit.Builder()
             .baseUrl(BASE_URL)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
             .create(ListAPI::class.java)
     }
+
     @Provides
     @Singleton
-    fun provideListAPIRepo(api: ListAPI): ListRepository{
+    fun provideListRepo(api: ListAPI): ListRepository {
         return ListRepoImplementation(api)
     }
 }

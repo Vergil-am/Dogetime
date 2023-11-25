@@ -46,7 +46,7 @@ fun WatchList(
 
                         painter = rememberAsyncImagePainter(
                             "${Constants.IMAGE_BASE_URL}/w200${movie.poster_path}"),
-                        contentDescription = movie.title
+                        contentDescription = "test"
                     )
                 }
             }
