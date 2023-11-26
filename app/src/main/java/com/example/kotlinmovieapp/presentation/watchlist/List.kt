@@ -24,6 +24,7 @@ fun WatchList(
     viewModel: ListViewModel,
     navController: NavController
 ) {
+    viewModel.getWatchList("movies")
     val state = viewModel.state.collectAsState().value
     val gridState = rememberLazyGridState()
     LazyVerticalGrid(
@@ -38,7 +39,15 @@ fun WatchList(
                     modifier = Modifier
                         .padding(10.dp)
                         .height(155.dp),
-                    onClick = {}
+                    onClick = {
+                        if (
+                            state.type == "movies"
+                        ) {
+                            navController.navigate("movie/${movie.id}")
+                        } else {
+                            navController.navigate("show/${movie.id}")
+                        }
+                    }
                 ) {
                     Image(
                         modifier = Modifier

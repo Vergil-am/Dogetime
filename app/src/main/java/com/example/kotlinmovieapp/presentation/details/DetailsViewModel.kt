@@ -23,27 +23,40 @@ class DetailsViewModel @Inject constructor(
 
     fun getMovie(id: Int) {
             getMovieUseCase.getMovieDetails(id).onEach { movieDetailsDTO ->
-                _state.value = MovieState(movie = movieDetailsDTO, show = null, isLoading = false)
+                _state.value = MovieState(movie = movieDetailsDTO, show = null, isLoading = false,
+                    watchList = state.value.watchList
+                    )
             }.launchIn(viewModelScope)
 
 
     }
     fun getShow(id: Int) {
             getMovieUseCase.getShow(id).onEach { showDetailsDTO ->
-                _state.value = MovieState(movie = null, show = showDetailsDTO, isLoading = false, season = state.value.season)
+                _state.value = MovieState(movie = null, show = showDetailsDTO, isLoading = false, season = state.value.season,
+                        watchList = state.value.watchList
+                )
             }.launchIn(viewModelScope)
     }
 
     fun getSeason(id: Int, season: Int) {
         getMovieUseCase.getSeason(id, season).onEach {seasonDTO ->
-            _state.value = MovieState(movie = null, show = state.value.show, isLoading = false, season = seasonDTO)
+            _state.value = MovieState(movie = null, show = state.value.show, isLoading = false, season = seasonDTO,
+                watchList = state.value.watchList
+            )
         }.launchIn(viewModelScope)
     }
 
-    fun addToWishlist(body: AddToWatchListDTO) {
+    fun addToWatchlist(body: AddToWatchListDTO) {
         viewModelScope.launch {
             list.addToWatchList(body = body)
         }
+    }
+    fun getWatchList(type: String) {
+       list.getWatchList(type).onEach {
+           list -> _state.value = MovieState(movie = state.value.movie, show = state.value.show, isLoading = false, season = state.value.season,
+               watchList = list.results
+           )
+       }.launchIn(viewModelScope)
     }
 
 }

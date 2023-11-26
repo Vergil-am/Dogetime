@@ -20,6 +20,7 @@ import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
+import com.example.kotlinmovieapp.util.Constants
 
 @RequiresApi(34)
 @SuppressLint("SetJavaScriptEnabled", "SourceLockedOrientationActivity")
@@ -37,9 +38,9 @@ fun VideoPlayer(
       mutableStateOf(false)
    }
    val url: String = if (season != 0 && episode != 0) {
-      "https://vidsrc.to/embed/tv/$id/$season/$episode"
+      "${Constants.VIDEO_URL}tv/$id/$season/$episode"
    } else {
-      "https://vidsrc.to/embed/movie/$id"
+      "${Constants.VIDEO_URL}movie/$id"
    }
    DisposableEffect(key1 = activity ) {
       activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
@@ -69,6 +70,7 @@ fun VideoPlayer(
                }
                webChromeClient = object : WebChromeClient() {
                   var customView: View? = null
+
                   override fun onShowCustomView(view: View?, callback: CustomViewCallback?) {
                      super.onShowCustomView(view, callback)
                      isFullscreen.value = true

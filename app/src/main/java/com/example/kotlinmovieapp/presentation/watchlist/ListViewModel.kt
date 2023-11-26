@@ -15,7 +15,7 @@ class ListViewModel @Inject constructor(
     private val _state = MutableStateFlow(ListState())
     var state = _state
     init {
-       getWatchList("tv")
+//       getWatchList("tv")
 //        getFavorites("movies")
     }
 

@@ -1,13 +1,10 @@
 package com.example.kotlinmovieapp.presentation.details
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -18,14 +15,10 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedIconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.blur
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -33,11 +26,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import coil.compose.rememberAsyncImagePainter
 import com.example.kotlinmovieapp.data.remote.dto.AddToWatchListDTO
+import com.example.kotlinmovieapp.presentation.components.DetailsHeader
 import com.example.kotlinmovieapp.presentation.components.SeasonsTabs
-import com.example.kotlinmovieapp.util.Constants
-import com.google.common.base.Ascii.toUpperCase
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -50,9 +41,14 @@ fun  Details(
 
 ) {
     val state = viewModel.state.collectAsState()
+    val addToWatchList: (AddToWatchListDTO) -> Unit = {
+        viewModel.addToWatchlist(it)
+    }
 when (type ) {
     "movie" -> {
         viewModel.getMovie(id)
+        viewModel.getWatchList("movies")
+
         val movie = state.value.movie
         Column(
             modifier = Modifier
@@ -64,76 +60,17 @@ when (type ) {
 
         ) {
             movie?.let {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(300.dp)
-
-                ) {
-
-                    Image(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .blur(10.dp) ,
-                        painter = rememberAsyncImagePainter(
-                            "${Constants.IMAGE_BASE_URL}/w500${it.backdrop_path}"
-                        ),
-                        contentDescription = it.title
-                    )
-                    Row (
-                        modifier = Modifier
-                            .align(Alignment.BottomCenter)
-                            .padding(10.dp)
-                            .fillMaxWidth()
-                            ,
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Image(
-                            modifier = Modifier,
-                            painter = rememberAsyncImagePainter(
-                                "${Constants.IMAGE_BASE_URL}/w300${it.poster_path}"
-                            ),
-                            contentDescription = it.title
-                        )
-                        Column (
-                            modifier = Modifier.padding(10.dp)
-                        ) {
-                            Text(text = toUpperCase(it.title),
-                                style = MaterialTheme.typography.titleMedium
-                            )
-                            Text(text = it.status,
-                                style =
-                                MaterialTheme.typography.labelLarge)
-                            Text(
-                                text = it.tagline,
-                                style = MaterialTheme.typography.headlineSmall,
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                            )
-                            OutlinedIconButton(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(10.dp)
-                                ,
-                                onClick = {
-                                    viewModel.addToWishlist(
-                                        AddToWatchListDTO(
-                                            media_id = it.id,
-                                            media_type = "movie",
-                                            watchlist = true
-                                        )
-                                    )
-                                }
-                                ) {
-                               Text(text = "ADD TO WATCHLIST")
-                            }
-
-                        }
-
-                    }
-
-                }
-
+                DetailsHeader(
+                    backDrop = it.backdrop_path,
+                    title = it.title,
+                    poster = it.poster_path,
+                    status = it.status,
+                    id = it.id,
+                    type = "movie",
+                    tagline = it.tagline,
+                    watchList = state.value.watchList,
+                    addToWatchList = addToWatchList
+                )
                 Row (
                     modifier = Modifier
                         .fillMaxWidth()
@@ -187,81 +124,24 @@ when (type ) {
     }
     "show" -> {
         viewModel.getShow(id)
+        viewModel.getWatchList("tv")
         val show = state.value.show
         Column(
             modifier = Modifier
                 .verticalScroll(rememberScrollState())
         ) {
             show?.let {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(220.dp)
-
-                ) {
-
-                    Image(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .blur(10.dp) ,
-                        painter = rememberAsyncImagePainter(
-                            "${Constants.IMAGE_BASE_URL}/w500${it.backdrop_path}"
-                        ),
-                        contentDescription = it.name
-                    )
-                    Row (
-                        modifier = Modifier
-                            .align(Alignment.BottomCenter)
-                            .padding(10.dp)
-                            .fillMaxWidth()
-                            ,
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Image(
-                            modifier = Modifier,
-                            painter = rememberAsyncImagePainter(
-                                "${Constants.IMAGE_BASE_URL}/w300${it.poster_path}"
-                            ),
-                            contentDescription = it.name
-                        )
-                        Column (
-                            modifier = Modifier.padding(10.dp)
-                        ) {
-                            Text(text = toUpperCase(it.name),
-                                style = MaterialTheme.typography.titleMedium
-                            )
-                            Text(text = it.status,
-                                style =
-                                MaterialTheme.typography.labelLarge)
-                            Text(
-                                text = it.tagline,
-                                style = MaterialTheme.typography.headlineSmall,
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                            )
-                            OutlinedIconButton(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(10.dp)
-                                ,
-                                onClick = {
-                                    viewModel.addToWishlist(
-                                        AddToWatchListDTO(
-                                            media_id = it.id,
-                                            media_type = "tv",
-                                            watchlist = true
-                                        )
-                                    )
-                                }
-                                ) {
-                               Text(text = "ADD TO WATCHLIST")
-                            }
-
-                        }
-
-                    }
-
-                }
+                DetailsHeader(
+                    backDrop = it.backdrop_path,
+                    title = it.name,
+                    poster = it.poster_path,
+                    status = it.status,
+                    id = it.id,
+                    type = "tv",
+                    tagline = it.tagline,
+                    watchList = state.value.watchList,
+                    addToWatchList = addToWatchList
+                )
 
                 Text(text = it.tagline,
                     style = TextStyle(
@@ -315,5 +195,4 @@ when (type ) {
 }
 
 }
-
 
