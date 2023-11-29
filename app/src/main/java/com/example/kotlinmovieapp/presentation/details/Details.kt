@@ -13,7 +13,6 @@ import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -30,9 +29,7 @@ import com.example.kotlinmovieapp.data.remote.dto.AddToWatchListDTO
 import com.example.kotlinmovieapp.presentation.components.DetailsHeader
 import com.example.kotlinmovieapp.presentation.components.SeasonsTabs
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-@androidx.annotation.OptIn(androidx.media3.common.util.UnstableApi::class)
 fun  Details(
     navController: NavController,
     viewModel: DetailsViewModel,
@@ -133,7 +130,7 @@ when (type ) {
             show?.let {
                 DetailsHeader(
                     backDrop = it.backdrop_path,
-                    title = it.name,
+                    title = it.original_name,
                     poster = it.poster_path,
                     status = it.status,
                     id = it.id,

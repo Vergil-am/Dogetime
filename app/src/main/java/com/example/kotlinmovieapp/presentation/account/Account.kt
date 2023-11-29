@@ -6,7 +6,10 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.platform.LocalContext
+import com.example.kotlinmovieapp.datastore.AccountStore
+import kotlinx.coroutines.launch
 
 @Composable
 fun Account (
@@ -14,8 +17,11 @@ fun Account (
 ) {
     viewModel.getReqToken()
     val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+    val dataStore = AccountStore(context)
     val state = viewModel.state.value
     val url = "https://www.themoviedb.org/authenticate/${state.token}"
+
     Column {
         if (state.sessionId != null) {
             Text(text = state.sessionId)
@@ -32,8 +38,17 @@ fun Account (
         }
         Button(onClick = {
             state.token?.let { viewModel.getSessionId(it) }
+            state.sessionId?.let { scope.launch {
+                dataStore.storeSessionId(it)
+            }}
         }) {
             Text(text = "Get session id")
+        }
+        
+        Button(onClick = {
+            
+        }) {
+           Text(text = "Get account id") 
         }
 
     }

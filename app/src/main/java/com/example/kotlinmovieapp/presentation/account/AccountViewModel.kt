@@ -15,6 +15,8 @@ class AccountViewModel @Inject constructor(
 ) : ViewModel() {
     private val _state = mutableStateOf(accountState())
     val state = _state
+
+
     fun getReqToken() {
         reqTokenUseCase.generateReqToken().onEach {
             res -> state.value = accountState(res.request_token)
