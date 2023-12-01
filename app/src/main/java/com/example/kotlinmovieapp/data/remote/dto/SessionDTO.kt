@@ -4,5 +4,5 @@ data class SessionDTO(
     val status_code: Int,
     val status_message: String?,
     val success: Boolean,
-    val session_id: String?
+    val session_id: String
 )

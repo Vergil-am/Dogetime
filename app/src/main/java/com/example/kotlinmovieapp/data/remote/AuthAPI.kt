@@ -1,5 +1,6 @@
 package com.example.kotlinmovieapp.data.remote
 
+import com.example.kotlinmovieapp.data.remote.dto.AccountDTO
 import com.example.kotlinmovieapp.data.remote.dto.RequestTokenDTO
 import com.example.kotlinmovieapp.data.remote.dto.SessionDTO
 import com.example.kotlinmovieapp.domain.model.TokenReqBody
@@ -20,4 +21,10 @@ interface AuthAPI {
         @Body request: TokenReqBody,
         @Query("api_key") apiKey : String = Constants.API_KEY
     ): SessionDTO
+
+    @GET("account")
+    suspend fun getAccount(
+        @Query("session_id") sessionId: String,
+        @Query("api_key") apiKey : String = Constants.API_KEY
+    ): AccountDTO
 }

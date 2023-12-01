@@ -1,5 +1,6 @@
 package com.example.kotlinmovieapp.presentation.account
 
+import android.util.Log
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -22,17 +23,33 @@ class AccountViewModel @Inject constructor(
     val state = _state
 
 
-    @OptIn(ExperimentalCoroutinesApi::class)
     fun getReqToken(): Deferred<RequestTokenDTO> {
         return viewModelScope.async {
             reqTokenUseCase.generateReqToken().reduce { _, value -> value }
         }
     }
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     fun getSessionId(token: String) {
-        reqTokenUseCase.createSessionId(token).onEach {
-           res -> state.value = accountState(token = state.value.token, sessionId = res.session_id)
-        }.launchIn(viewModelScope)
+        val session = viewModelScope.async {
+            reqTokenUseCase.createSessionId(token).onEach {
+                    res -> state.value = accountState(account = state.value.account ,token = state.value.token, sessionId = res.session_id)
+            }.reduce { _ , value ->  value}
+        }
+        session.invokeOnCompletion {
+            if (it == null) {
+                Log.e("SESSION", session.getCompleted().session_id)
+                getAccount(session.getCompleted().session_id)
+            }
+        }
+
+    }
+
+    fun getAccount(sessionId: String) {
+       reqTokenUseCase.getAccount(sessionId).onEach {
+           res -> state.value =  accountState(account = res , token = state.value.token, sessionId = state.value.sessionId)
+           Log.e("ACCOUNT", res.toString())
+       }.launchIn(viewModelScope)
     }
 
 }

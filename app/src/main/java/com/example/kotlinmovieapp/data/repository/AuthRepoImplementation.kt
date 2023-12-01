@@ -1,6 +1,7 @@
 package com.example.kotlinmovieapp.data.repository
 
 import com.example.kotlinmovieapp.data.remote.AuthAPI
+import com.example.kotlinmovieapp.data.remote.dto.AccountDTO
 import com.example.kotlinmovieapp.data.remote.dto.RequestTokenDTO
 import com.example.kotlinmovieapp.data.remote.dto.SessionDTO
 import com.example.kotlinmovieapp.domain.model.TokenReqBody
@@ -16,6 +17,10 @@ class AuthRepoImplementation @Inject constructor(
 
     override suspend fun getSessionId(token: String): SessionDTO {
        return authAPI.createSession(TokenReqBody(token))
+    }
+
+    override suspend fun getAccount(sessionId: String): AccountDTO {
+        return authAPI.getAccount(sessionId)
     }
 
 }
