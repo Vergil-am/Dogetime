@@ -9,18 +9,18 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.platform.LocalContext
 import com.example.kotlinmovieapp.datastore.AccountStore
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @Composable
 fun Account (
     viewModel: AccountViewModel
 ) {
-    viewModel.getReqToken()
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val dataStore = AccountStore(context)
     val state = viewModel.state.value
-    val url = "https://www.themoviedb.org/authenticate/${state.token}"
 
     Column {
         if (state.sessionId != null) {
@@ -29,9 +29,13 @@ fun Account (
             Text(text = "Account")
         }
         Button(onClick = {
-            if (state.token != null) {
-                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
-                context.startActivity(intent)
+            val token = viewModel.getReqToken()
+            token.invokeOnCompletion {
+                if (it == null) {
+                   val url = "https://www.themoviedb.org/authenticate/${token.getCompleted().request_token}"
+                   val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+                   context.startActivity(intent)
+                }
             }
         }) {
             Text(text = "Login")
@@ -46,10 +50,12 @@ fun Account (
         }
         
         Button(onClick = {
-            
+            state.token?.let { viewModel.getSessionId(it) }
         }) {
            Text(text = "Get account id") 
         }
+        
+        Text(text = "session ID = ${state.sessionId}")
 
     }
 
