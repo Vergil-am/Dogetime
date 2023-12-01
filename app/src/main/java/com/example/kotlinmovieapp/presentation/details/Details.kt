@@ -9,25 +9,30 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.kotlinmovieapp.data.remote.dto.AddToWatchListDTO
 import com.example.kotlinmovieapp.presentation.components.DetailsHeader
 import com.example.kotlinmovieapp.presentation.components.SeasonsTabs
+import com.example.kotlinmovieapp.presentation.components.ShowInfo
 
 @Composable
 fun  Details(
@@ -122,72 +127,61 @@ when (type ) {
     "show" -> {
         viewModel.getShow(id)
         viewModel.getWatchList("tv")
+        var selected by remember {
+            mutableStateOf("Info")
+        }
         val show = state.value.show
-        Column(
-            modifier = Modifier
-                .verticalScroll(rememberScrollState())
-        ) {
-            show?.let {
-                DetailsHeader(
-                    backDrop = it.backdrop_path,
-                    title = it.original_name,
-                    poster = it.poster_path,
-                    status = it.status,
-                    id = it.id,
-                    type = "tv",
-                    tagline = it.tagline,
-                    watchList = state.value.watchList,
-                    addToWatchList = addToWatchList
-                )
+        Scaffold (
+            bottomBar = {
+                NavigationBar {
+                    NavigationBarItem(selected = selected == "Info",
+                        onClick = {
+                            selected = "Info"
+                        },
+                        icon = {
+                            Icon(imageVector = Icons.Filled.Info, contentDescription = "Info" )
+                        })
+                    NavigationBarItem(selected = selected == "Watch",
+                        onClick = {
+                            selected = "Watch" },
+                        icon = { Icon(imageVector = Icons.Filled.PlayArrow, contentDescription = "Watch")})
 
-                Text(text = it.tagline,
-                    style = TextStyle(
-                        fontSize = 24.sp,
-                        fontWeight = FontWeight(300),
-                        color = Color.Gray,
-                        textAlign = TextAlign.Center
-                    ),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                    )
-                Row (
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(20.dp)
-                    ,
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Text(text = "TV Show")
-                    Text(text = it.first_air_date.split("-")[0])
-                    Text(text = "${it.episode_run_time} min")
-                    Text(text = it.vote_average.toString().format("%.f"))
                 }
-                Text(text = it.overview,
-                    modifier = Modifier.padding(10.dp)
+            }
+        ) {
+            paddingValues ->
+            Column(
+                modifier = Modifier
+                    .verticalScroll(rememberScrollState())
+                    .padding(paddingValues)
+            ) {
+                show?.let {
+                    DetailsHeader(
+                        backDrop = it.backdrop_path,
+                        title = it.name,
+                        poster = it.poster_path,
+                        status = it.status,
+                        id = it.id,
+                        type = "tv",
+                        tagline = it.tagline,
+                        watchList = state.value.watchList,
+                        addToWatchList = addToWatchList
                     )
-                Row (
-                    modifier = Modifier
-                        .fillMaxWidth()
-                    ,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-
-                ) {
-                    it.genres.forEach{
-                        genre -> AssistChip(
-                        onClick = {},
-                        label = { Text(text = genre.name)}
+                    when (selected) {
+                        "Info" -> ShowInfo(show = it)
+                        "Watch" -> SeasonsTabs(
+                            id = it.id,
+                            seasons = it.seasons,
+                            viewModel = viewModel,
+                            navController = navController
                         )
                     }
-                }
-                SeasonsTabs(
-                    id = it.id,
-                    seasons = it.seasons,
-                    viewModel = viewModel,
-                    navController = navController
-                    )
 
+
+                }
             }
         }
+
     }
 }
 

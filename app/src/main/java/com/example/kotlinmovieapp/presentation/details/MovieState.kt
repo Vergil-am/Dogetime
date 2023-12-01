@@ -10,5 +10,5 @@ data class MovieState(
     val movie: MovieDetailsDTO? = null,
     val show: ShowDetailsDTO? = null,
     val season: SeasonDTO? = null,
-    val  watchList: List<Movie> = listOf()
+    val watchList: List<Movie> = listOf(),
 )
