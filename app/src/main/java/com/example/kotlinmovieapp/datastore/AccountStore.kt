@@ -31,9 +31,9 @@ class AccountStore (
         }
     }
 
-    suspend fun storeAccountId(accountId: String) {
+    suspend fun storeAccountId(accountId: Int) {
         context.dataStore.edit {
-            it[SESSION_ID_KEY] = accountId
+            it[ACCOUNT_ID_KEY] = accountId.toString()
         }
 
     }

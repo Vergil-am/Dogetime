@@ -11,7 +11,7 @@ import okio.IOException
 import retrofit2.HttpException
 import javax.inject.Inject
 
-class reqTokenUseCase @Inject constructor(
+class AuthUseCase @Inject constructor(
     private val repo: AuthRepository
 ) {
     fun generateReqToken(): Flow<RequestTokenDTO>  = flow{

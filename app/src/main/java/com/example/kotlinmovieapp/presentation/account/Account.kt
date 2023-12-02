@@ -9,6 +9,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.platform.LocalContext
+import com.example.kotlinmovieapp.datastore.AccountStore
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -16,21 +18,21 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 fun Account (
     viewModel: AccountViewModel
 ) {
-    //val context = LocalContext.current
+    val context = LocalContext.current
     //val scope = rememberCoroutineScope()
-    //val dataStore = AccountStore(context)
+    val dataStore = AccountStore(context)
     val state = viewModel.state.value
 
     val launcher = rememberLauncherForActivityResult(contract = ActivityResultContracts.StartActivityForResult()) {
         result -> if (result.resultCode == Activity.RESULT_CANCELED) {
-        state.token?.let { viewModel.getSessionId(it) }
+        state.token?.let { viewModel.getSessionId(it, dataStore) }
     }
     }
 
     if (state.account == null) {
         Column {
             if (state.sessionId != null) {
-                Text(text = state.sessionId)
+                Text(text = state.sessionId!!)
             } else {
                 Text(text = "Account")
             }
