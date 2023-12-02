@@ -49,7 +49,7 @@ fun  Details(
 when (type ) {
     "movie" -> {
         viewModel.getMovie(id)
-        viewModel.getWatchList("movies")
+//        viewModel.getWatchList("movies")
 
         val movie = state.value.movie
         Column(
@@ -126,7 +126,7 @@ when (type ) {
     }
     "show" -> {
         viewModel.getShow(id)
-        viewModel.getWatchList("tv")
+//        viewModel.getWatchList("tv")
         var selected by remember {
             mutableStateOf("Info")
         }

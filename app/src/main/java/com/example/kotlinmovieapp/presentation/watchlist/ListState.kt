@@ -1,8 +1,11 @@
 package com.example.kotlinmovieapp.presentation.watchlist
 
-import com.example.kotlinmovieapp.data.remote.dto.MoviesDTO
+import com.example.kotlinmovieapp.domain.model.Movie
 
 data class ListState(
     val type: String = "movies",
-    val movies: MoviesDTO? = null
+    val movies: List<Movie> = mutableListOf(),
+    val accountId: Int? = null,
+    val sessionId: String? = null
+
 )

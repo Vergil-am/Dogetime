@@ -6,7 +6,9 @@ import com.example.kotlinmovieapp.data.remote.dto.MoviesDTO
 
 interface ListRepository {
     suspend fun getWatchList(
-        type: String
+        type: String,
+        sessionId: String,
+        accountId: Int
     ): MoviesDTO
 
     suspend fun addToWatchList(

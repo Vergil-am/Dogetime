@@ -51,12 +51,12 @@ class DetailsViewModel @Inject constructor(
             list.addToWatchList(body = body)
         }
     }
-    fun getWatchList(type: String) {
-       list.getWatchList(type).onEach {
-           list -> _state.value = MovieState(movie = state.value.movie, show = state.value.show, isLoading = false, season = state.value.season,
-               watchList = list.results
-           )
-       }.launchIn(viewModelScope)
-    }
+//    fun getWatchList(type: String) {
+//       list.getWatchList(type).onEach {
+//           list -> _state.value = MovieState(movie = state.value.movie, show = state.value.show, isLoading = false, season = state.value.season,
+//               watchList = list.results
+//           )
+//       }.launchIn(viewModelScope)
+//    }
 
 }

@@ -13,9 +13,9 @@ import javax.inject.Inject
 class ListUseCase  @Inject constructor(
     private val repo : ListRepository
 ){
-   fun getWatchList(type: String) : Flow<MoviesDTO> = flow {
+   fun getWatchList(type: String, sessionId: String, accountId: Int) : Flow<MoviesDTO> = flow {
         try {
-            val res = repo.getWatchList(type)
+            val res = repo.getWatchList(type, sessionId, accountId)
             Log.e("LIST USE CASE", res.toString())
             emit(res)
         }catch (e : HttpException) {
@@ -35,15 +35,15 @@ class ListUseCase  @Inject constructor(
             Log.e("", "")
         }
     }
-    fun getFavorites(type: String) : Flow<MoviesDTO> = flow {
-        try {
-            val res = repo.getFavorites(type)
-            emit(res)
-        }catch (e : HttpException) {
-            Log.e("MOVIE REPO", e.toString() )
-        } catch (e: IOException) {
-            Log.e("MOVIE REPO", e.toString() )
-
-        }
-    }
+//    fun getFavorites(type: String) : Flow<MoviesDTO> = flow {
+//        try {
+//            val res = repo.getFavorites(type)
+//            emit(res)
+//        }catch (e : HttpException) {
+//            Log.e("MOVIE REPO", e.toString() )
+//        } catch (e: IOException) {
+//            Log.e("MOVIE REPO", e.toString() )
+//
+//        }
+//    }
 }

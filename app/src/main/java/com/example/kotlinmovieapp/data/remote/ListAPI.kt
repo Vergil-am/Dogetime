@@ -14,9 +14,9 @@ interface ListAPI {
     // WatchList
     @GET("account/{account_id}/watchlist/{type}")
     suspend fun getWatchList(
-        @Path("account_id") accountId: Int = Constants.ACCOUNT_ID,
+        @Path("account_id") accountId: Int,
         @Path("type") type: String,
-        @Query("session_id") sessionId: String = Constants.SESSION_ID,
+        @Query("session_id") sessionId: String,
         @Query("api_key") apiKey: String = Constants.API_KEY
     ): MoviesDTO
 
