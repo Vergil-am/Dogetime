@@ -36,7 +36,8 @@ fun Home(
                 .fillMaxWidth()
                 .height(209.5.dp)
                 .background(Color.Black),
-            movies = state.trending?.results
+            movies = state.trending?.results,
+            navController
         )
         state.movies?.let { MovieRow(data = it.results, type ="movie" , navController = navController) }
         state.shows?.let { MovieRow(data = it.results, type = "show", navController = navController) }

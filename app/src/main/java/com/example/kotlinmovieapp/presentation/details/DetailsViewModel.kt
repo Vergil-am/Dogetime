@@ -3,6 +3,7 @@ package com.example.kotlinmovieapp.presentation.details
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.kotlinmovieapp.data.remote.dto.AddToWatchListDTO
+import com.example.kotlinmovieapp.domain.model.Movie
 import com.example.kotlinmovieapp.domain.use_case.list.ListUseCase
 import com.example.kotlinmovieapp.domain.use_case.movies.get_movie.GetMovieUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -20,6 +21,8 @@ class DetailsViewModel @Inject constructor(
 ): ViewModel()  {
     private val _state = MutableStateFlow(MovieState())
     var state : StateFlow<MovieState> = _state
+
+
 
     fun getMovie(id: Int) {
             getMovieUseCase.getMovieDetails(id).onEach { movieDetailsDTO ->
@@ -50,6 +53,10 @@ class DetailsViewModel @Inject constructor(
         viewModelScope.launch {
             list.addToWatchList(body = body)
         }
+    }
+
+    fun updateWatchList(list: List<Movie>) {
+       _state.value.watchList = list
     }
 //    fun getWatchList(type: String) {
 //       list.getWatchList(type).onEach {

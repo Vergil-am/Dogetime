@@ -24,25 +24,30 @@ class ListViewModel @Inject constructor(
         getAccountFromDataStore()
     }
 
-    fun getWatchList(type: String) {
+    fun getWatchList() {
         if (state.value.sessionId != null && state.value.accountId != null) {
-            list.getWatchList(type = type,
+            list.getWatchList(type = "movies",
                 state.value.sessionId!!, state.value.accountId!!
             ).onEach { list ->
                 _state.value = ListState(
                     movies = list.results,
+                    series = state.value.series,
+                    sessionId = state.value.sessionId,
+                    accountId = state.value.accountId
+                )
+            }.launchIn(viewModelScope)
+            list.getWatchList(type = "tv",
+                state.value.sessionId!!, state.value.accountId!!
+            ).onEach { list ->
+                _state.value = ListState(
+                    movies = state.value.movies,
+                    series = list.results,
                     sessionId = state.value.sessionId,
                     accountId = state.value.accountId
                 )
             }.launchIn(viewModelScope)
         }
     }
-//    fun getFavorites(type: String) {
-//        list.getFavorites(type).onEach {
-//                list -> _state.value = ListState(movies = list )
-//        }.launchIn(viewModelScope)
-//    }
-
     private fun getAccountFromDataStore() {
             dataStore.getSessionId.onEach {
                 if (it != null) {
