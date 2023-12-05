@@ -44,8 +44,12 @@ class MovieRepoImplementation @Inject constructor(
     }
 
     // Search
-    override suspend fun getSearch(query: String): SearchDTO {
-        return api.getSearch(query)
+    override suspend fun searchMovies(query: String): SearchDTO {
+        return api.searchMovies(query)
+    }
+
+    override suspend fun searchShows(query: String): SearchDTO {
+        return api.searchShows(query)
     }
 
     override suspend fun getGenres(type: String): GenresDTO {

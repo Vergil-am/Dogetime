@@ -39,8 +39,15 @@ fun Home(
             movies = state.trending?.results,
             navController
         )
-        state.movies?.let { MovieRow(data = it.results, type ="movie" , navController = navController) }
-        state.shows?.let { MovieRow(data = it.results, type = "show", navController = navController) }
+        state.movies?.let {
+            Text(text = "Trending movies")
+            MovieRow(data = it.results, type ="movie" , navController = navController)
+        }
+        state.shows?.let {
+
+            Text(text = "Trending series")
+            MovieRow(data = it.results, type = "show", navController = navController)
+        }
 
 
     }

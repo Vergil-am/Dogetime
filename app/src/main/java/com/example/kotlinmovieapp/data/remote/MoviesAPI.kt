@@ -72,13 +72,21 @@ interface MoviesAPI {
     ) : SeasonDTO
 
     // Search
-    @GET("search/multi")
-    suspend fun getSearch(
+    @GET("search/movie")
+    suspend fun searchMovies(
         @Query("query") query: String,
         @Query("language") language: String = "en-US",
         @Query("with_original_language") orLang: String = "en",
         @Query("api_key") apiKey : String = API_KEY
     ) : SearchDTO
+
+    @GET("search/tv")
+    suspend fun searchShows(
+        @Query("query") query: String,
+        @Query("language") language: String = "en-US",
+        @Query("with_original_language") orLang: String = "en",
+        @Query("api_key") apiKey : String = API_KEY
+    ): SearchDTO
 
     // Get genres
     @GET("genre/{type}/list")

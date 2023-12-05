@@ -12,9 +12,20 @@ import javax.inject.Inject
 class Search @Inject constructor(
    private val repo : MovieRepository
 ) {
-    fun getSearch(query: String): Flow<SearchDTO> = flow {
+    fun searchMovies(query: String): Flow<SearchDTO> = flow {
         try {
-            val result = repo.getSearch(query)
+            val result = repo.searchMovies(query)
+            emit(result)
+        } catch (_: HttpException) {
+            Log.e("Search", "Http exception")
+        }
+        catch(_: IOException) {
+            Log.e("TRENDING", "Http exception")
+        }
+    }
+    fun searchShows(query: String): Flow<SearchDTO> = flow {
+        try {
+            val result = repo.searchShows(query)
             emit(result)
         } catch (_: HttpException) {
             Log.e("Search", "Http exception")

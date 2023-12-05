@@ -8,12 +8,10 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import androidx.navigation.NavGraph.Companion.findStartDestination
 import coil.compose.rememberAsyncImagePainter
 import com.example.kotlinmovieapp.domain.model.Movie
 import com.example.kotlinmovieapp.util.Constants
@@ -25,20 +23,6 @@ fun MovieRow(
     type: String,
     navController: NavController
 ) {
-    when (type) {
-        "movie" -> {
-            Text(text = "Trending - Movies", modifier = Modifier
-                .padding(horizontal = 10.dp)
-                .padding(top = 10.dp)
-            )
-        }
-        "show" -> {
-            Text(text = "Trending - Series" , modifier = Modifier
-                .padding(horizontal = 10.dp)
-                .padding(top = 10.dp)
-            )
-        }
-    }
     LazyRow(
         modifier = Modifier
             .padding(horizontal = 10.dp)
@@ -53,9 +37,7 @@ fun MovieRow(
                         .width(133.5.dp),
                     onClick = {
                         navController.navigate("$type/${movie.id}") {
-                            popUpTo(navController.graph.findStartDestination().id) {
-                                saveState = true
-                            }
+
                             launchSingleTop = true
                             restoreState = true
                         }

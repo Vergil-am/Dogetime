@@ -70,7 +70,6 @@ fun VideoPlayer(
                }
                webChromeClient = object : WebChromeClient() {
                   var customView: View? = null
-
                   override fun onShowCustomView(view: View?, callback: CustomViewCallback?) {
                      super.onShowCustomView(view, callback)
                      isFullscreen.value = true

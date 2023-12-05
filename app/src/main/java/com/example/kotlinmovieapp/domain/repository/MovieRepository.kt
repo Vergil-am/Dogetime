@@ -25,7 +25,10 @@ interface MovieRepository {
     suspend fun getSeason(seasonId: Int, season: Int) : SeasonDTO
 
     // Search
-    suspend fun getSearch(query: String) : SearchDTO
+    suspend fun searchMovies(query: String) : SearchDTO
+
+    suspend fun searchShows(query: String) : SearchDTO
+
 
     // Genres
     suspend fun getGenres(type: String) : GenresDTO
