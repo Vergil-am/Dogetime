@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -21,6 +20,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
@@ -53,9 +53,6 @@ fun Episodes(
                     .height(120.dp)
                     .padding(10.dp)
                 ,
-                colors = CardDefaults.cardColors(
-                    containerColor = Color.Transparent
-                )
             ) {
                 Row {
                     Box (
@@ -73,7 +70,6 @@ fun Episodes(
                         Box (
                             modifier = Modifier
                                 .align(Alignment.BottomEnd)
-                                .padding(horizontal = 2.dp)
                                 .background(Color.Black)
 
                         ) {
@@ -82,12 +78,20 @@ fun Episodes(
                     }
 
                     Column (
-                        modifier = Modifier.fillMaxSize(),
-                        verticalArrangement = Arrangement.SpaceBetween
+                        modifier = Modifier.fillMaxSize()
+                            .padding(10.dp),
+                        verticalArrangement = Arrangement.SpaceBetween,
                     ) {
                         episode.name?.let { Text(text = it) }
-                        episode.air_date?.let { Text(text = it) }
-                        Text(text = "${episode.runtime} min")
+                        episode.air_date?.let { Text(text = it,
+                            modifier = Modifier.fillMaxWidth(),
+                            textAlign = TextAlign.End
+
+                            ) }
+                        Text(text = "${episode.runtime} min",
+                            modifier = Modifier.fillMaxWidth(),
+                            textAlign = TextAlign.End
+                        )
                         
                     }
                 }
