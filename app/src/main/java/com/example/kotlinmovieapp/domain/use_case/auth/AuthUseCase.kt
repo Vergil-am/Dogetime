@@ -15,6 +15,7 @@ class AuthUseCase @Inject constructor(
     private val repo: AuthRepository
 ) {
     fun generateReqToken(): Flow<RequestTokenDTO>  = flow{
+
             try {
                 val res = repo.generateToken()
                 emit(res)

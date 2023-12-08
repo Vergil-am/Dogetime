@@ -6,8 +6,9 @@ object Constants {
     const val IMAGE_BASE_URL = "https://image.tmdb.org/t/p"
     const val VIDEO_URL = "https://vidsrc.to/embed/"
 
-    // These values are temporary
+    const val ANIMEIAT_BASE_URL = "https://api.animeiat.co/v1/"
 
+    // These values are temporary
     const val SESSION_ID = "8561635a9b8cf39838e3a2275661a2f8e41757c5"
     const val ACCOUNT_ID = 20596883
 }
