@@ -13,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.example.kotlinmovieapp.domain.model.MovieHome
 import com.example.kotlinmovieapp.presentation.components.Carousel
 import com.example.kotlinmovieapp.presentation.components.MovieRow
 
@@ -39,15 +40,49 @@ fun Home(
             movies = state.trending?.results,
             navController
         )
-        state.movies?.let {
+        state.movies?.let { moviesDTO ->
+            val movies = moviesDTO.results.map {
+                MovieHome(
+                    id = it.id,
+                    title = it.title,
+                    type = "movie",
+                    poster = it.poster_path,
+                    slug = null
+                )
+            }
             Text(text = "Trending movies")
-            MovieRow(data = it.results, type ="movie" , navController = navController)
+            MovieRow(data = movies , navController = navController)
         }
-        state.shows?.let {
-
+        state.shows?.let { moviesDTO ->
+            val shows = moviesDTO.results.map {
+                MovieHome(
+                    id = it.id,
+                    title = "Title",
+                    type = "show",
+                    poster = it.poster_path,
+                    slug = null
+                )
+            }
             Text(text = "Trending series")
-            MovieRow(data = it.results, type = "show", navController = navController)
+            MovieRow(data = shows, navController = navController)
         }
+
+        state.anime?.let { Anime ->
+            val anime = Anime.data.map {
+                MovieHome(
+                    id = it.id,
+                    title = it.anime_name,
+                    type = "anime",
+                    poster = it.poster_path,
+                    slug = it.slug
+                )
+            }
+            Text(text = "Popular anime")
+            MovieRow(data = anime, navController = navController)
+
+        }
+
+            
 
 
     }

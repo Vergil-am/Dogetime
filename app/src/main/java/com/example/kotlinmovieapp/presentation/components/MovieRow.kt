@@ -13,14 +13,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
-import com.example.kotlinmovieapp.domain.model.Movie
+import com.example.kotlinmovieapp.domain.model.MovieHome
 import com.example.kotlinmovieapp.util.Constants
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MovieRow(
-    data: List<Movie>,
-    type: String,
+    data: List<MovieHome>,
     navController: NavController
 ) {
     LazyRow(
@@ -36,8 +35,13 @@ fun MovieRow(
                         .height(200.dp)
                         .width(133.5.dp),
                     onClick = {
-                        navController.navigate("$type/${movie.id}") {
-
+                        navController.navigate(
+                            if (movie.type == "anime" && movie.slug != null) {
+                                "${movie.type}/${movie.slug}"
+                            } else {
+                                "${movie.type}/${movie.id}"
+                            }
+                        ) {
                             launchSingleTop = true
                             restoreState = true
                         }
@@ -48,8 +52,11 @@ fun MovieRow(
                         modifier = Modifier
                             .fillMaxSize(),
                         painter = rememberAsyncImagePainter(
-
-                            "${Constants.IMAGE_BASE_URL}/w200${movie.poster_path}"
+                            if (movie.type == "anime") {
+                                "https://api.animeiat.co/storage/${movie.poster}"
+                            } else {
+                                "${Constants.IMAGE_BASE_URL}/w200${movie.poster}"
+                            }
                         ),
                         contentDescription = movie.title
                     )

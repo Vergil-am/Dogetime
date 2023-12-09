@@ -24,7 +24,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.example.kotlinmovieapp.presentation.components.MovieRow
 import com.example.kotlinmovieapp.presentation.navgraph.Route
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -72,18 +71,18 @@ fun Search(
         Column(
             modifier = Modifier.padding(paddingValues)
         ) {
-            state.movies?.let {
-
-                Text(text = "Movies")
-                MovieRow(data = it.results , type = "movie", navController = navController )
-            }
-            state.shows?.results?.let {
-                if (it.isNotEmpty()) {
-                    Text(text = "Series")
-                    MovieRow(data = it , type = "show", navController = navController )
-                }
-
-            }
+//            state.movies?.let {
+//
+//                Text(text = "Movies")
+//                MovieRow(data = it.results , type = "movie", navController = navController )
+//            }
+//            state.shows?.results?.let {
+//                if (it.isNotEmpty()) {
+//                    Text(text = "Series")
+//                    MovieRow(data = it , type = "show", navController = navController )
+//                }
+//
+//            }
         }
     }
 }
