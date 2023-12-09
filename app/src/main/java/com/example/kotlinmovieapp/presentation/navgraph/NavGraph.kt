@@ -104,10 +104,10 @@ fun NavGraph (
             }
         }
 
-        composable(Route.VideoPlayer.route) { navBackStackEntry ->
-            val id = navBackStackEntry.arguments?.getString("id")
-            val season = navBackStackEntry.arguments?.getString("season")
-            val episode = navBackStackEntry.arguments?.getString("episode")
+        composable(Route.VideoPlayer.route) {
+            val id = it.arguments?.getString("id")
+            val season = it.arguments?.getString("season")
+            val episode = it.arguments?.getString("episode")
             if (id != null && episode != null && season != null) {
                 VideoPlayer(
                     id = id, season = season.toInt(),
@@ -118,28 +118,42 @@ fun NavGraph (
         }
 
 
-        composable(Route.MovieDetails.route) { navBackStackEntry ->
-            val id = navBackStackEntry.arguments?.getString("id")
+        composable(Route.MovieDetails.route) {
+            val id = it.arguments?.getString("id")
             if (id != null) {
                 Details(
                     navController = navController,
                     viewModel = detailsViewModel,
-                    id = id.toInt(),
+                    id = id,
                     type = "movie"
                 )
             }
         }
-        composable(Route.ShowDetails.route) { navBackStackEntry ->
-            val id = navBackStackEntry.arguments?.getString("id")
+        composable(Route.ShowDetails.route) {
+            val id = it.arguments?.getString("id")
             if (id != null) {
                 Details(
                     navController = navController,
                     viewModel = detailsViewModel,
-                    id = id.toInt(),
+                    id = id,
                     type = "show"
 
                 )
             }
+        }
+
+        composable(Route.AnimeDetails.route) {
+            val slug = it.arguments?.getString("slug")
+            if (slug != null) {
+                Details(
+                    navController = navController,
+                    viewModel = detailsViewModel,
+                    id = slug,
+                    type = "anime"
+
+                )
+            }
+
         }
 
     }

@@ -38,7 +38,7 @@ import com.example.kotlinmovieapp.presentation.components.ShowInfo
 fun  Details(
     navController: NavController,
     viewModel: DetailsViewModel,
-    id: Int,
+    id: String,
     type: String
 
 ) {
@@ -48,7 +48,7 @@ fun  Details(
     }
 when (type ) {
     "movie" -> {
-        viewModel.getMovie(id)
+        viewModel.getMovie(id.toInt())
 //        viewModel.getWatchList("movies")
 
         val movie = state.value.movie
@@ -125,7 +125,7 @@ when (type ) {
         }
     }
     "show" -> {
-        viewModel.getShow(id)
+        viewModel.getShow(id.toInt())
 //        viewModel.getWatchList("tv")
         var selected by remember {
             mutableStateOf("Info")
@@ -182,6 +182,32 @@ when (type ) {
             }
         }
 
+    }
+    "anime" -> {
+        viewModel.getAnime(id)
+        val anime = state.value.anime?.data
+        if (anime != null) {
+            Column {
+                Text(text = anime.anime_name)
+                Text(text = anime.status)
+                Text(text = anime.story)
+
+            }
+
+        }
+        if (anime != null)
+        DetailsHeader(
+            backDrop = anime.poster_path,
+            title = anime.anime_name,
+            poster = anime.poster_path,
+            status = anime.status,
+            id = anime.id,
+            type = "anime",
+            tagline = "test",
+            watchList = state.value.watchList,
+            addToWatchList = addToWatchList
+        )
+        Text(text = id)
     }
 }
 

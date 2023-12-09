@@ -1,5 +1,6 @@
 package com.example.kotlinmovieapp.presentation.details
 
+import com.example.kotlinmovieapp.data.remote.dto.AnimeiatDetailsDTO
 import com.example.kotlinmovieapp.data.remote.dto.MovieDetailsDTO
 import com.example.kotlinmovieapp.data.remote.dto.SeasonDTO
 import com.example.kotlinmovieapp.data.remote.dto.ShowDetailsDTO
@@ -10,5 +11,6 @@ data class MovieState(
     val movie: MovieDetailsDTO? = null,
     val show: ShowDetailsDTO? = null,
     val season: SeasonDTO? = null,
+    val anime: AnimeiatDetailsDTO? = null,
     var watchList: List<Movie> = listOf(),
 )
