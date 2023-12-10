@@ -1,6 +1,6 @@
-package com.example.kotlinmovieapp.data.remote.dto
+package com.example.kotlinmovieapp.data.remote.model
 
-data class Links(
+data class LinksX(
     val first: String,
     val last: String,
     val next: String,

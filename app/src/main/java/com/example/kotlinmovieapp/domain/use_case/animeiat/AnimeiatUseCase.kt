@@ -1,12 +1,14 @@
 package com.example.kotlinmovieapp.domain.use_case.animeiat
 
 import android.util.Log
+import com.example.kotlinmovieapp.data.remote.dto.AnimeiatEpisodeDTO
 import com.example.kotlinmovieapp.data.remote.dto.AnimeiatEpisodesDTO
 import com.example.kotlinmovieapp.domain.model.Details
 import com.example.kotlinmovieapp.domain.model.MovieHome
 import com.example.kotlinmovieapp.domain.repository.AnimeiatRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import okio.ByteString.Companion.decodeBase64
 import okio.IOException
 import retrofit2.HttpException
 import javax.inject.Inject
@@ -79,5 +81,20 @@ class AnimeiatUseCase @Inject constructor(
             Log.e("Animeiat", e.toString() )
 
         }
+    }
+
+    fun getAnimeEpisode(slug: String) : Flow<AnimeiatEpisodeDTO> = flow {
+        try {
+            val res = repo.getEpisode(slug)
+            val decoded = res.hash.decodeBase64().toString()
+            Log.e("Decoded", decoded)
+            emit(res)
+        }catch (e : HttpException) {
+            Log.e("Animeiat", e.toString() )
+        } catch (e: IOException) {
+            Log.e("Animeiat", e.toString() )
+
+        }
+
     }
 }

@@ -2,6 +2,7 @@ package com.example.kotlinmovieapp.data.remote
 
 import com.example.kotlinmovieapp.data.remote.dto.AnimeiatDTO
 import com.example.kotlinmovieapp.data.remote.dto.AnimeiatDetailsDTO
+import com.example.kotlinmovieapp.data.remote.dto.AnimeiatEpisodeDTO
 import com.example.kotlinmovieapp.data.remote.dto.AnimeiatEpisodesDTO
 import retrofit2.http.GET
 import retrofit2.http.Path
@@ -19,4 +20,9 @@ interface AnimeiatAPI {
    suspend fun getEpisodes(
        @Path("slug") slug: String
    ) : AnimeiatEpisodesDTO
+
+   @GET("episode/{slug}")
+   suspend fun getEpisode(
+       @Path("slug") slug: String
+   ) : AnimeiatEpisodeDTO
 }

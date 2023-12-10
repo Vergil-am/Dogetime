@@ -1,6 +1,6 @@
-package com.example.kotlinmovieapp.data.remote.dto
+package com.example.kotlinmovieapp.data.remote.model
 
-data class MetaX(
+data class Meta(
     val current_page: Int,
     val from: Int,
     val last_page: Int,

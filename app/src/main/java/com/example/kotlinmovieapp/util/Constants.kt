@@ -7,6 +7,7 @@ object Constants {
     const val VIDEO_URL = "https://vidsrc.to/embed/"
 
     const val ANIMEIAT_BASE_URL = "https://api.animeiat.co/v1/"
+    const val AIMEIAT_IMAGE_URL = "https://api.animeiat.co/storage"
 
     // These values are temporary
     const val SESSION_ID = "8561635a9b8cf39838e3a2275661a2f8e41757c5"

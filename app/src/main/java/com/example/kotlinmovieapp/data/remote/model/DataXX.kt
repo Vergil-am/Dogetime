@@ -1,4 +1,4 @@
-package com.example.kotlinmovieapp.data.remote.dto
+package com.example.kotlinmovieapp.data.remote.model
 
 data class DataXX(
     val anime_id: Int,

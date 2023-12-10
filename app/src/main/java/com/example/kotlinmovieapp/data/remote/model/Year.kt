@@ -1,4 +1,4 @@
-package com.example.kotlinmovieapp.data.remote.dto
+package com.example.kotlinmovieapp.data.remote.model
 
 data class Year(
     val created_at: String,

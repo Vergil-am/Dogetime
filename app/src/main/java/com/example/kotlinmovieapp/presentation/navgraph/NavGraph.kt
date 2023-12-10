@@ -24,6 +24,8 @@ import com.example.kotlinmovieapp.presentation.details.Details
 import com.example.kotlinmovieapp.presentation.details.DetailsViewModel
 import com.example.kotlinmovieapp.presentation.account.Account
 import com.example.kotlinmovieapp.presentation.account.AccountViewModel
+import com.example.kotlinmovieapp.presentation.details.AnimeEpisodes
+import com.example.kotlinmovieapp.presentation.details.ShowSeasons
 import com.example.kotlinmovieapp.presentation.home.Home
 import com.example.kotlinmovieapp.presentation.home.HomeViewModel
 import com.example.kotlinmovieapp.presentation.video_player.VideoPlayer
@@ -141,6 +143,12 @@ fun NavGraph (
                 )
             }
         }
+        composable(Route.ShowSeasons.route) {
+            val id = it.arguments?.getString("id")
+            if (id != null) {
+                ShowSeasons(viewModel = detailsViewModel, navController = navController, id = id.toInt())
+            }
+        }
 
         composable(Route.AnimeDetails.route) {
             val slug = it.arguments?.getString("slug")
@@ -154,6 +162,12 @@ fun NavGraph (
                 )
             }
 
+        }
+        composable(Route.AnimeEpisodes.route) {
+            val slug = it.arguments?.getString("slug")
+            if (slug != null) {
+                AnimeEpisodes(viewModel = detailsViewModel, navController = navController, slug = slug)
+            }
         }
 
     }

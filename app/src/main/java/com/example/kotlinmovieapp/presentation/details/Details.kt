@@ -38,7 +38,7 @@ fun  Details(
         viewModel.addToWatchlist(it)
     }
     val media = state.value.media
-            Column(
+    Column(
             modifier = Modifier
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
@@ -96,7 +96,11 @@ fun  Details(
                     ,
                     colors = ButtonDefaults.buttonColors(containerColor = Color.White),
                     onClick = {
-                    navController.navigate("video_player/${it.id}/0/0")
+                        when(type) {
+                            "movie" -> navController.navigate("video_player/${it.id}/0/0")
+                            "show" -> navController.navigate("show/seasons/$id")
+                            "anime" -> navController.navigate("anime/episodes/$id")
+                        }
                 }
                 ) {
                     Text(text = "Play")
