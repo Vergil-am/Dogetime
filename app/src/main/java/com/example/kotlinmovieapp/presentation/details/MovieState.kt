@@ -10,5 +10,6 @@ data class MovieState(
     val media: Details? = null,
     val season: SeasonDTO? = null,
     var watchList: List<Movie> = listOf(),
-    var animeEpisodes: AnimeiatEpisodesDTO? = null
+    var animeEpisodes: AnimeiatEpisodesDTO? = null,
+    var animeEpisodeId: String? = null
 )

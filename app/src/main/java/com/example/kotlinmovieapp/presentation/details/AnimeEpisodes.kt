@@ -35,8 +35,11 @@ fun AnimeEpisodes(
     viewModel.getAnimeEpisodes(slug)
     
     val episodes = viewModel.state.collectAsState().value.animeEpisodes
-
+    val episodeId = viewModel.state.collectAsState().value.animeEpisodeId
     Column {
+        if (episodeId != null) {
+            Text(text = episodeId)
+        }
         episodes?.data?.forEach { episode ->
             Card (
                 onClick = {
@@ -73,7 +76,8 @@ fun AnimeEpisodes(
                     }
 
                     Column (
-                        modifier = Modifier.fillMaxSize()
+                        modifier = Modifier
+                            .fillMaxSize()
                             .padding(10.dp),
                         verticalArrangement = Arrangement.SpaceBetween,
                     ) {

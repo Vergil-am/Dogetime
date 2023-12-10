@@ -97,13 +97,22 @@ class DetailsViewModel @Inject constructor(
                 isLoading = false,
                 season = null,
                 watchList = state.value.watchList,
-                animeEpisodes = it
+                animeEpisodes = it,
+                animeEpisodeId = state.value.animeEpisodeId
             )
         }.launchIn(viewModelScope)
     }
 
     fun getAnimeEpisode(slug: String) {
         animeiat.getAnimeEpisode(slug).onEach {
+            _state.value = MovieState(
+                media = state.value.media,
+                isLoading = false,
+                season = null,
+                watchList = state.value.watchList,
+                animeEpisodes = state.value.animeEpisodes,
+                animeEpisodeId =  it
+            )
         }.launchIn(viewModelScope)
     }
 
