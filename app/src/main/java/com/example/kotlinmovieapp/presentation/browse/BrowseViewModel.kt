@@ -23,21 +23,21 @@ class BrowseViewModel @Inject constructor(
     }
     fun getMovies(type: String , catalog: String , page: Int) {
         if (type == "movies") {
-            getMoviesUseCase.getMovies(catalog, page).onEach {movies ->
+            getMoviesUseCase.getMovies(catalog, page).onEach {
                 if (page == 1) {
-                    _state.value = BrowseState(movies = movies, type = state.value.type, catalog = state.value.catalog, genre = state.value.genre, page = state.value.page)
+                    _state.value = BrowseState(movies = it, type = state.value.type, catalog = state.value.catalog, genre = state.value.genre, page = state.value.page)
                 } else if (page > 1) {
-                    _state.value = BrowseState(movies = state.value.movies.plus(movies), type = state.value.type, catalog = state.value.catalog, genre = state.value.genre, page = state.value.page + 1)
+                    _state.value = BrowseState(movies = state.value.movies.plus(it), type = state.value.type, catalog = state.value.catalog, genre = state.value.genre, page = state.value.page + 1)
 
                 }
             }.launchIn(viewModelScope)
 
         } else if (type == "tv") {
-            getMoviesUseCase.getShows(catalog, page).onEach { shows ->
+            getMoviesUseCase.getShows(catalog, page).onEach {
                 if (page == 1) {
-                    _state.value = BrowseState(movies = shows, type = state.value.type, catalog = state.value.catalog, genre = state.value.genre)
+                    _state.value = BrowseState(movies = it, type = state.value.type, catalog = state.value.catalog, genre = state.value.genre)
                 } else if (page > 1) {
-                    _state.value = BrowseState(movies = state.value.movies.plus(shows), type = state.value.type, catalog = state.value.catalog, genre = state.value.genre, page = state.value.page + 1)
+                    _state.value = BrowseState(movies = state.value.movies.plus(it), type = state.value.type, catalog = state.value.catalog, genre = state.value.genre, page = state.value.page + 1)
 
                 }
             }.launchIn(viewModelScope)

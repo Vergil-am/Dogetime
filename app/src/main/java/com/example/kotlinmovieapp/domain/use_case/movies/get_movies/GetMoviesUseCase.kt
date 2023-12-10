@@ -1,8 +1,7 @@
 package com.example.kotlinmovieapp.domain.use_case.movies.get_movies
 
 import android.util.Log
-import com.example.kotlinmovieapp.data.remote.dto.MoviesDTO
-import com.example.kotlinmovieapp.domain.model.Movie
+import com.example.kotlinmovieapp.domain.model.MovieHome
 import com.example.kotlinmovieapp.domain.repository.MovieRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -15,9 +14,17 @@ class GetMoviesUseCase @Inject constructor(
     private val repo : MovieRepository
 ) {
     // Trending
-    fun getTrending(): Flow<MoviesDTO> = flow {
+    fun getTrending(): Flow<List<MovieHome>> = flow {
         try {
-            val movies = repo.getTrending()
+            val movies = repo.getTrending().results.map {
+                MovieHome(
+                    id = it.id,
+                    title = it.title,
+                    type = "movie",
+                    poster = it.poster_path,
+                    slug = null
+                )
+            }
             emit(movies)
         } catch (_: HttpException) {
             Log.e("TRENDING", "Http exception")
@@ -26,9 +33,17 @@ class GetMoviesUseCase @Inject constructor(
 
         }
     }
-    fun getTrendingShows() : Flow<MoviesDTO> = flow {
+    fun getTrendingShows() : Flow<List<MovieHome>> = flow {
         try {
-            val shows = repo.getTrendingShows(1)
+            val shows = repo.getTrendingShows(1).results.map {
+                MovieHome(
+                    id = it.id,
+                    title = it.name,
+                    type = "show",
+                    poster = it.poster_path,
+                    slug = null
+                )
+            }
             emit(shows)
         } catch (_: HttpException) {
 
@@ -36,10 +51,18 @@ class GetMoviesUseCase @Inject constructor(
 
     }
     // Movies
-    fun getMovies(catalog: String, page: Int): Flow<List<Movie>> = flow {
+    fun getMovies(catalog: String, page: Int): Flow<List<MovieHome>> = flow {
         try {
-            val movies = repo.getMovies(page = page, catalog)
-            emit(movies.results)
+            val movies = repo.getMovies(page = page, catalog).results.map {
+                MovieHome(
+                    id = it.id,
+                    title = it.title,
+                    type = "movie",
+                    poster = it.poster_path,
+                    slug = null
+                )
+            }
+            emit(movies)
         } catch (_: HttpException) {
             Log.e("POPULAR", "Http exception")
         } catch (_: IOException) {
@@ -48,10 +71,18 @@ class GetMoviesUseCase @Inject constructor(
         }
     }
     // Shows
-    fun getShows(catalog: String, page: Int): Flow<List<Movie>> = flow {
+    fun getShows(catalog: String, page: Int): Flow<List<MovieHome>> = flow {
         try {
-            val shows = repo.getShows(page = page, catalog)
-            emit(shows.results)
+            val shows = repo.getShows(page = page, catalog).results.map {
+                MovieHome(
+                    id = it.id,
+                    title = it.name,
+                    type = "show",
+                    poster = it.poster_path,
+                    slug = null
+                )
+            }
+            emit(shows)
         } catch (_: HttpException) {
             Log.e("POPULAR", "Http exception")
         } catch (_: IOException) {

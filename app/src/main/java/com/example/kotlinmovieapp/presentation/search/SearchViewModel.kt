@@ -17,13 +17,12 @@ class SearchViewModel @Inject constructor(
     val state : StateFlow<SearchState> = _state
 
     fun getSearch(query: String) {
-        search.searchMovies(query).onEach {searchDTO ->
-            _state.value = SearchState(search = state.value.search , movies = searchDTO , shows = state.value.shows)
+        search.searchMovies(query).onEach {
+            _state.value = SearchState(search = state.value.search , movies = it, shows = state.value.shows)
 
         }.launchIn(viewModelScope)
-        search.searchShows(query).onEach {searchDTO ->
-            _state.value = SearchState(search = state.value.search , movies = state.value.movies , shows = searchDTO)
-
+        search.searchShows(query).onEach {
+            _state.value = SearchState(search = state.value.search , movies = state.value.movies , shows = it)
         }.launchIn(viewModelScope)
     }
 

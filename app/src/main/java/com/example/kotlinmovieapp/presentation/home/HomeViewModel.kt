@@ -27,7 +27,7 @@ class HomeViewModel @Inject constructor (
 
     private fun getAll() {
         getMoviesUseCase.getTrending().onEach {
-            moviesDTO -> _state.value = MovieListState(movies = moviesDTO, trending = moviesDTO, shows = state.value.shows, anime = state.value.anime )
+            _state.value = MovieListState(movies = it, trending = it, shows = state.value.shows, anime = state.value.anime )
         }.launchIn(viewModelScope)
 
         getMoviesUseCase.getTrendingShows().onEach {
@@ -35,7 +35,7 @@ class HomeViewModel @Inject constructor (
         }.launchIn(viewModelScope)
 
         Animeiat.getPopularAnime().onEach {
-            AnimeiatDTO -> _state.value = MovieListState(movies = state.value.movies, trending = state.value.trending, shows = state.value.shows, anime = AnimeiatDTO)
+            _state.value = MovieListState(movies = state.value.movies, trending = state.value.trending, shows = state.value.shows, anime = it)
         }.launchIn(viewModelScope)
     }
 

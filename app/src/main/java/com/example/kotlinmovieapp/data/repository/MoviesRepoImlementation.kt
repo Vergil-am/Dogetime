@@ -2,6 +2,7 @@ package com.example.kotlinmovieapp.data.repository
 
 import com.example.kotlinmovieapp.data.remote.MoviesAPI
 import com.example.kotlinmovieapp.data.remote.dto.GenresDTO
+import com.example.kotlinmovieapp.data.remote.dto.GetShowsDTO
 import com.example.kotlinmovieapp.data.remote.dto.MovieDetailsDTO
 import com.example.kotlinmovieapp.data.remote.dto.MoviesDTO
 import com.example.kotlinmovieapp.data.remote.dto.SearchDTO
@@ -17,7 +18,7 @@ class MovieRepoImplementation @Inject constructor(
     override suspend fun getTrending(): MoviesDTO {
         return api.getTrending()
     }
-    override suspend fun getTrendingShows(page: Int): MoviesDTO {
+    override suspend fun getTrendingShows(page: Int): GetShowsDTO {
         return api.getTrendingShows(page)
     }
 
@@ -33,7 +34,7 @@ class MovieRepoImplementation @Inject constructor(
 
     // Shows
 
-    override suspend fun getShows(page: Int, catalog: String): MoviesDTO {
+    override suspend fun getShows(page: Int, catalog: String): GetShowsDTO {
         return api.getShows(catalog, page = page)
     }
     override suspend fun getShow(showId: Int): ShowDetailsDTO{
@@ -48,7 +49,7 @@ class MovieRepoImplementation @Inject constructor(
         return api.searchMovies(query)
     }
 
-    override suspend fun searchShows(query: String): SearchDTO {
+    override suspend fun searchShows(query: String): GetShowsDTO {
         return api.searchShows(query)
     }
 

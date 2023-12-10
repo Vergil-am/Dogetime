@@ -182,7 +182,7 @@ fun Browse(
                                    .fillMaxSize(),
 
                                painter = rememberAsyncImagePainter(
-                                   "${Constants.IMAGE_BASE_URL}/w200${movie.poster_path}"),
+                                   "${Constants.IMAGE_BASE_URL}/w200${movie.poster}"),
                                contentDescription = movie.title
                            )
                        }

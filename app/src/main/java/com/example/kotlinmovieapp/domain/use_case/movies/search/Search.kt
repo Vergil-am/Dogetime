@@ -1,7 +1,7 @@
 package com.example.kotlinmovieapp.domain.use_case.movies.search
 
 import android.util.Log
-import com.example.kotlinmovieapp.data.remote.dto.SearchDTO
+import com.example.kotlinmovieapp.domain.model.MovieHome
 import com.example.kotlinmovieapp.domain.repository.MovieRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -12,26 +12,47 @@ import javax.inject.Inject
 class Search @Inject constructor(
    private val repo : MovieRepository
 ) {
-    fun searchMovies(query: String): Flow<SearchDTO> = flow {
+    fun searchMovies(query: String): Flow<List<MovieHome>> = flow {
         try {
-            val result = repo.searchMovies(query)
-            emit(result)
+            val movies = repo.searchMovies(query).results.filter {
+                it.poster_path != null
+            }.map {
+                MovieHome(
+                    id = it.id,
+                    title = it.title,
+                    type = "show",
+                    poster = it.poster_path,
+                    slug = null
+                )
+            }
+            Log.e("Search Movies", movies.toString())
+            emit(movies)
         } catch (_: HttpException) {
             Log.e("Search", "Http exception")
         }
         catch(_: IOException) {
-            Log.e("TRENDING", "Http exception")
+            Log.e("Search", "Http exception")
         }
     }
-    fun searchShows(query: String): Flow<SearchDTO> = flow {
+    fun searchShows(query: String): Flow<List<MovieHome>> = flow {
         try {
-            val result = repo.searchShows(query)
-            emit(result)
+            val shows = repo.searchShows(query).results.filter { it.poster_path != null }.map {
+                MovieHome(
+                    id = it.id,
+                    title = it.name,
+                    type = "show",
+                    poster = it.poster_path,
+                    slug = null
+                )
+            }
+
+            Log.e("Search Shows", shows.toString())
+            emit(shows)
         } catch (_: HttpException) {
             Log.e("Search", "Http exception")
         }
         catch(_: IOException) {
-            Log.e("TRENDING", "Http exception")
+            Log.e("Search", "Http exception")
         }
     }
 }

@@ -1,6 +1,7 @@
 package com.example.kotlinmovieapp.data.remote
 
 import com.example.kotlinmovieapp.data.remote.dto.GenresDTO
+import com.example.kotlinmovieapp.data.remote.dto.GetShowsDTO
 import com.example.kotlinmovieapp.data.remote.dto.MovieDetailsDTO
 import com.example.kotlinmovieapp.data.remote.dto.MoviesDTO
 import com.example.kotlinmovieapp.data.remote.dto.SearchDTO
@@ -29,7 +30,7 @@ interface MoviesAPI {
         @Query("language") language: String = "en-US",
         @Query("with_original_language") orLang: String = "en",
         @Query("api_key") apiKey : String = API_KEY
-    ) : MoviesDTO
+    ) : GetShowsDTO
 
 
     //Movies
@@ -56,7 +57,7 @@ interface MoviesAPI {
         @Path("catalog") catalog: String = "popular",
         @Query("page") page : Int = 1,
         @Query("api_key") apiKey: String = API_KEY
-    ) : MoviesDTO
+    ) : GetShowsDTO
 
     @GET("tv/{show_id}")
     suspend fun getShow(
@@ -86,7 +87,7 @@ interface MoviesAPI {
         @Query("language") language: String = "en-US",
         @Query("with_original_language") orLang: String = "en",
         @Query("api_key") apiKey : String = API_KEY
-    ): SearchDTO
+    ): GetShowsDTO
 
     // Get genres
     @GET("genre/{type}/list")
