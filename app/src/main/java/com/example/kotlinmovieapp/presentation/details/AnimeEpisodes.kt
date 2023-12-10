@@ -11,17 +11,24 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
+//import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
 import com.example.kotlinmovieapp.util.Constants
 
@@ -29,22 +36,26 @@ import com.example.kotlinmovieapp.util.Constants
 @Composable
 fun AnimeEpisodes(
    viewModel: DetailsViewModel,
-   navController: NavController,
+//   navController: NavController,
    slug: String
 ) {
     viewModel.getAnimeEpisodes(slug)
-    
     val episodes = viewModel.state.collectAsState().value.animeEpisodes
     val episodeId = viewModel.state.collectAsState().value.animeEpisodeId
-    Column {
+    var opened by remember {
+        mutableStateOf(false)
+    }
+    Column (
+        modifier = Modifier.verticalScroll(rememberScrollState())
+    ) {
         if (episodeId != null) {
             Text(text = episodeId)
         }
         episodes?.data?.forEach { episode ->
             Card (
                 onClick = {
-//                    navController.navigate("")
-                          viewModel.getAnimeEpisode(episode.slug)
+                    viewModel.getAnimeEpisode(episode.slug)
+                    opened = true
                           },
                 modifier = Modifier
                     .fillMaxWidth()
@@ -92,6 +103,11 @@ fun AnimeEpisodes(
                 }
             }
         }
+
+    }
+    ModalBottomSheet(onDismissRequest = {
+        opened = false
+    }) {
 
     }
 

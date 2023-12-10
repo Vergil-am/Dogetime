@@ -1,7 +1,6 @@
 package com.example.kotlinmovieapp.domain.use_case.animeiat
 
 import android.util.Log
-import com.example.kotlinmovieapp.data.remote.dto.AnimeiatEpisodeDTO
 import com.example.kotlinmovieapp.data.remote.dto.AnimeiatEpisodesDTO
 import com.example.kotlinmovieapp.domain.model.Details
 import com.example.kotlinmovieapp.domain.model.MovieHome
@@ -86,9 +85,12 @@ class AnimeiatUseCase @Inject constructor(
     fun getAnimeEpisode(slug: String) : Flow<String> = flow {
         try {
             val res = repo.getEpisode(slug)
-            val decoded = res.hash.decodeBase64().toString().split("\"").reversed()[0]
-            Log.e("Decoded", decoded)
-            emit(decoded)
+            val decoded = res.hash.decodeBase64()?.string(Charsets.UTF_8)?.split("\"")?.reversed()?.get(1)
+            if (decoded != null) {
+                emit(decoded)
+            } else {
+                emit("error")
+            }
         }catch (e : HttpException) {
             Log.e("Animeiat", e.toString() )
         } catch (e: IOException) {

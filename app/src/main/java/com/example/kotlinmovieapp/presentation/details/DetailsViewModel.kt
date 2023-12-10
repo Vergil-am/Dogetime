@@ -60,6 +60,7 @@ class DetailsViewModel @Inject constructor(
     fun getSeason(id: Int, season: Int) {
         getMovieUseCase.getSeason(id, season).onEach {
             _state.value = MovieState(
+                media = state.value.media,
                 isLoading = false,
                 season = it,
                 watchList = state.value.watchList,
