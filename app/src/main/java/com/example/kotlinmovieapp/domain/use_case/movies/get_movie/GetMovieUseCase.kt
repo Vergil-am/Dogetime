@@ -1,9 +1,8 @@
 package com.example.kotlinmovieapp.domain.use_case.movies.get_movie
 
 import android.util.Log
-import com.example.kotlinmovieapp.data.remote.dto.MovieDetailsDTO
 import com.example.kotlinmovieapp.data.remote.dto.SeasonDTO
-import com.example.kotlinmovieapp.data.remote.dto.ShowDetailsDTO
+import com.example.kotlinmovieapp.domain.model.Details
 import com.example.kotlinmovieapp.domain.repository.MovieRepository
 import kotlinx.coroutines.flow.flow
 import okio.IOException
@@ -14,9 +13,28 @@ import javax.inject.Inject
 class GetMovieUseCase @Inject constructor(
     private val repo : MovieRepository
 ) {
-    fun getMovieDetails(id: Int): Flow<MovieDetailsDTO> = flow {
+    fun getMovieDetails(id: Int): Flow<Details> = flow {
         try {
-            val movie = repo.getMovie(movieId = id)
+            val res = repo.getMovie(movieId = id)
+            val movie = Details(
+                id = res.id ,
+                title = res.title,
+                backdrop = res.backdrop_path,
+                poster =  res.poster_path,
+                genres =  res.genres.map { it.name },
+                overview = res.overview,
+                releaseDate = res.release_date,
+                status = res.status,
+                type = "movie",
+                episodes = null,
+                tagline = res.tagline,
+                homepage = res.homepage,
+                lastAirDate = null,
+                imdbId = res.imdb_id,
+                rating = res.vote_average,
+                runtime = res.runtime,
+                seasons = null
+            )
             Log.d("MOVIE REPO", movie.toString())
             emit(movie)
         } catch (e : HttpException) {
@@ -26,9 +44,38 @@ class GetMovieUseCase @Inject constructor(
 
         }
     }
-    fun getShow(id: Int): Flow<ShowDetailsDTO> = flow {
+    fun getShow(id: Int): Flow<Details> = flow {
         try {
-            val  show = repo.getShow(id)
+            val  res = repo.getShow(id)
+            val runtime = res.episode_run_time.firstOrNull()
+            val episodeRunTime = if (runtime == null) {
+                null
+            } else if (runtime is Int) {
+                runtime
+            } else if (runtime is Double || runtime is Float){
+               runtime.toString().toInt()
+            } else {
+                null
+            }
+            val show = Details(
+                id = res.id ,
+                title = res.name,
+                backdrop = res.backdrop_path,
+                poster =  res.poster_path,
+                genres =  res.genres.map { it.name },
+                overview = res.overview,
+                releaseDate = res.first_air_date,
+                status = res.status,
+                type = "movie",
+                episodes = null,
+                tagline = res.tagline,
+                homepage = res.homepage,
+                lastAirDate = res.last_air_date,
+                imdbId = null,
+                rating = res.vote_average,
+                runtime = episodeRunTime,
+                seasons = res.seasons
+            )
             Log.e("SHOW REPO", show.toString() )
             emit(show)
         }catch (e : HttpException) {
@@ -41,9 +88,9 @@ class GetMovieUseCase @Inject constructor(
 
     fun getSeason(id: Int, season: Int): Flow<SeasonDTO> = flow {
         try {
-            val  Season = repo.getSeason(id, season)
+            val res = repo.getSeason(id, season)
             Log.e("SHOW REPO", season.toString() )
-            emit(Season)
+            emit(res)
         }catch (e : HttpException) {
             Log.e("MOVIE REPO", e.toString() )
         } catch (e: IOException) {

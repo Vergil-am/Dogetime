@@ -1,8 +1,8 @@
 package com.example.kotlinmovieapp.domain.use_case.animeiat
 
 import android.util.Log
-import com.example.kotlinmovieapp.data.remote.dto.AnimeiatDetailsDTO
 import com.example.kotlinmovieapp.data.remote.dto.AnimeiatEpisodesDTO
+import com.example.kotlinmovieapp.domain.model.Details
 import com.example.kotlinmovieapp.domain.model.MovieHome
 import com.example.kotlinmovieapp.domain.repository.AnimeiatRepository
 import kotlinx.coroutines.flow.Flow
@@ -36,11 +36,30 @@ class AnimeiatUseCase @Inject constructor(
     }
 
 
-    fun getAnimeDetails (slug: String) : Flow<AnimeiatDetailsDTO> = flow {
+    fun getAnimeDetails (slug: String) : Flow<Details> = flow {
 
         try {
-            val res = repo.getAnimeDetails(slug)
-            emit(res)
+            val res = repo.getAnimeDetails(slug).data
+            val anime = Details(
+                id = res.id ,
+                title = res.anime_name ,
+                backdrop = res.poster_path,
+                poster =  res.poster_path,
+                genres =  res.genres.map { it.name },
+                overview = res.story,
+                releaseDate = res.created_at ,
+                status = res.status,
+                type = "anime",
+                episodes = res.total_episodes,
+                tagline = null,
+                homepage = null,
+                lastAirDate = null,
+                imdbId = null,
+                rating = null,
+                runtime = null,
+                seasons = null
+                )
+            emit(anime)
         }catch (e : HttpException) {
             Log.e("Animeiat", e.toString() )
         } catch (e: IOException) {

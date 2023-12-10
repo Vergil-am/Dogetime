@@ -31,7 +31,7 @@ fun DetailsHeader(
     status: String,
     id: Int,
     type: String,
-    tagline: String,
+    tagline: String?,
     watchList: List<Movie>,
     addToWatchList: (AddToWatchListDTO) -> Unit
 
@@ -48,7 +48,11 @@ fun DetailsHeader(
                 .fillMaxSize()
                 .blur(10.dp) ,
             painter = rememberAsyncImagePainter(
-                "${Constants.IMAGE_BASE_URL}/w500${backDrop}"
+                if (type == "anime") {
+                    "https://api.animeiat.co/storage/${poster}"
+                } else {
+                    "${Constants.IMAGE_BASE_URL}/w500${backDrop}"
+                }
             ),
             contentDescription = title
         )
@@ -63,7 +67,11 @@ fun DetailsHeader(
             Image(
                 modifier = Modifier,
                 painter = rememberAsyncImagePainter(
-                    "${Constants.IMAGE_BASE_URL}/w300${poster}"
+                    if (type == "anime") {
+                        "https://api.animeiat.co/storage/${poster}"
+                    } else {
+                        "${Constants.IMAGE_BASE_URL}/w300${poster}"
+                    }
                 ),
                 contentDescription = title
             )
@@ -79,12 +87,14 @@ fun DetailsHeader(
                     style =
                     MaterialTheme.typography.labelLarge
                 )
-                Text(
-                    text = tagline,
-                    style = MaterialTheme.typography.headlineSmall,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                )
+                if (tagline != null) {
+                    Text(
+                        text = tagline,
+                        style = MaterialTheme.typography.headlineSmall,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                    )
+                }
                 if (watchList.any { movie -> movie.id == id }) {
                     OutlinedIconButton(
                         modifier = Modifier
