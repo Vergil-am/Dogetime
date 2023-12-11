@@ -112,9 +112,11 @@ fun NavGraph (
             val episode = it.arguments?.getString("episode")
             if (id != null && episode != null && season != null) {
                 VideoPlayer(
-                    id = id, season = season.toInt(),
+                    id = id,
+                    season = season.toInt(),
                     episode = episode.toInt(),
-                    windowCompat = windowCompat
+                    windowCompat = windowCompat,
+                    viewModel = detailsViewModel
                 )
             }
         }
@@ -166,7 +168,7 @@ fun NavGraph (
         composable(Route.AnimeEpisodes.route) {
             val slug = it.arguments?.getString("slug")
             if (slug != null) {
-                AnimeEpisodes(viewModel = detailsViewModel, navController = navController, slug = slug)
+                AnimeEpisodes(viewModel = detailsViewModel,  slug = slug)
             }
         }
 

@@ -1,5 +1,7 @@
 package com.example.kotlinmovieapp.presentation.details
 
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -13,8 +15,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -26,35 +32,33 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-//import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
 import com.example.kotlinmovieapp.util.Constants
+import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AnimeEpisodes(
    viewModel: DetailsViewModel,
-//   navController: NavController,
    slug: String
 ) {
     viewModel.getAnimeEpisodes(slug)
-    val episodes = viewModel.state.collectAsState().value.animeEpisodes
-    val episodeId = viewModel.state.collectAsState().value.animeEpisodeId
+    val state = viewModel.state.collectAsState().value
+    val episodes = state.animeEpisodes
     var opened by remember {
         mutableStateOf(false)
     }
+    val context = LocalContext.current
     Column (
         modifier = Modifier.verticalScroll(rememberScrollState())
     ) {
-        if (episodeId != null) {
-            Text(text = episodeId)
-        }
         episodes?.data?.forEach { episode ->
             Card (
                 onClick = {
-                    viewModel.getAnimeEpisode(episode.slug)
+                    viewModel.getAnimeEpisodeId(episode.slug)
                     opened = true
                           },
                 modifier = Modifier
@@ -105,11 +109,57 @@ fun AnimeEpisodes(
         }
 
     }
-    ModalBottomSheet(onDismissRequest = {
-        opened = false
-    }) {
+    if (opened) {
+        ModalBottomSheet(
+            onDismissRequest = { opened = false },
+            modifier = Modifier.padding(10.dp)
+        ) {
+            state.animeEpisodeId?.let { viewModel.getAnimeEpisodeSources(it) }
 
+            val episode = state.animeEpisodeSources?.data
+            Text(
+                text = "SELECT QUALITY",
+                modifier = Modifier
+                    .fillMaxWidth(),
+                textAlign = TextAlign.Center,
+                style = MaterialTheme.typography.titleLarge
+                )
+            episode?.sources?.forEach {
+
+                Card (
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(10.dp),
+                    onClick = {
+                        // This will probably change later on
+                        val intent = Intent(Intent.ACTION_VIEW).apply {
+                            setDataAndType(Uri.parse(it.file), "video/*")
+                            flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                        }
+                        context.startActivity(intent)
+                    }
+                ) {
+                    Row  (
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(10.dp)
+
+                    ){
+                        Column {
+                            Text(text = it.name.uppercase(Locale.ROOT))
+                            Text(text = "${it.label} ${it.quality}")
+                        }
+                        Icon(
+                            imageVector = Icons.Filled.PlayArrow,
+                            contentDescription = "play"
+                        )
+                    }
+                }
+            }
+        }
     }
+
 
 }
 

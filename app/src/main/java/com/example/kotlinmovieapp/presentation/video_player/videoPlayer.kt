@@ -13,6 +13,7 @@ import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -20,6 +21,7 @@ import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
+import com.example.kotlinmovieapp.presentation.details.DetailsViewModel
 import com.example.kotlinmovieapp.util.Constants
 
 @RequiresApi(34)
@@ -29,7 +31,8 @@ fun VideoPlayer(
    id: String,
    season: Int?,
    episode: Int?,
-   windowCompat: WindowInsetsControllerCompat
+   windowCompat: WindowInsetsControllerCompat,
+   viewModel: DetailsViewModel
 ) {
    windowCompat.hide(WindowInsetsCompat.Type.systemBars())
    windowCompat.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
@@ -38,8 +41,10 @@ fun VideoPlayer(
       mutableStateOf(false)
    }
    val url: String = if (season != 0 && episode != 0) {
-      "${Constants.VIDEO_URL}tv/$id/$season/$episode"
-   } else {
+      viewModel.state.collectAsState().value.episodeUrl
+         ?: "${Constants.VIDEO_URL}tv/$id/$season/$episode"
+   }
+   else {
       "${Constants.VIDEO_URL}movie/$id"
    }
    DisposableEffect(key1 = activity ) {

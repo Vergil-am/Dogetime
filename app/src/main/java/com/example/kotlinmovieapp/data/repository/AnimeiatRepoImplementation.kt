@@ -4,6 +4,7 @@ import com.example.kotlinmovieapp.data.remote.AnimeiatAPI
 import com.example.kotlinmovieapp.data.remote.dto.AnimeiatDTO
 import com.example.kotlinmovieapp.data.remote.dto.AnimeiatDetailsDTO
 import com.example.kotlinmovieapp.data.remote.dto.AnimeiatEpisodeDTO
+import com.example.kotlinmovieapp.data.remote.dto.AnimeiatEpisodeSourcesDTO
 import com.example.kotlinmovieapp.data.remote.dto.AnimeiatEpisodesDTO
 import com.example.kotlinmovieapp.domain.repository.AnimeiatRepository
 import javax.inject.Inject
@@ -25,5 +26,9 @@ class AnimeiatRepoImplementation @Inject constructor(
 
     override suspend fun getEpisode(slug: String): AnimeiatEpisodeDTO {
         return API.getEpisode(slug)
+    }
+
+    override suspend fun getEpisodeSources(slug: String): AnimeiatEpisodeSourcesDTO {
+        return API.getEpisodeSources(slug)
     }
 }
