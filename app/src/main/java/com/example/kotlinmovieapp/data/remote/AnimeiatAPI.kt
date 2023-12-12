@@ -5,6 +5,7 @@ import com.example.kotlinmovieapp.data.remote.dto.AnimeiatDetailsDTO
 import com.example.kotlinmovieapp.data.remote.dto.AnimeiatEpisodeDTO
 import com.example.kotlinmovieapp.data.remote.dto.AnimeiatEpisodeSourcesDTO
 import com.example.kotlinmovieapp.data.remote.dto.AnimeiatEpisodesDTO
+import com.example.kotlinmovieapp.data.remote.dto.AnimeiatLatestEpisodesDTO
 import retrofit2.http.GET
 import retrofit2.http.Path
 import retrofit2.http.Query
@@ -17,6 +18,10 @@ interface AnimeiatAPI {
       @Query("page") page: Int? = 1
    ) : AnimeiatDTO
 
+   @GET("home/sticky-episodes")
+   suspend fun getLatestEpisodes(
+      @Query("page") page: Int? = 1
+   ): AnimeiatLatestEpisodesDTO
    @GET("anime/{slug}")
    suspend fun getAnimeDetails(
       @Path("slug") slug: String

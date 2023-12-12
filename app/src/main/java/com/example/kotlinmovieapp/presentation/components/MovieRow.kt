@@ -14,7 +14,6 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
 import com.example.kotlinmovieapp.domain.model.MovieHome
-import com.example.kotlinmovieapp.util.Constants
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -52,11 +51,7 @@ fun MovieRow(
                         modifier = Modifier
                             .fillMaxSize(),
                         painter = rememberAsyncImagePainter(
-                            if (movie.type == "anime") {
-                                "https://api.animeiat.co/storage/${movie.poster}"
-                            } else {
-                                "${Constants.IMAGE_BASE_URL}/w200${movie.poster}"
-                            }
+                            movie.poster
                         ),
                         contentDescription = movie.title
                     )

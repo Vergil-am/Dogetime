@@ -6,6 +6,7 @@ import com.example.kotlinmovieapp.data.remote.dto.AnimeiatEpisodesDTO
 import com.example.kotlinmovieapp.domain.model.Details
 import com.example.kotlinmovieapp.domain.model.MovieHome
 import com.example.kotlinmovieapp.domain.repository.AnimeiatRepository
+import com.example.kotlinmovieapp.util.Constants
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import okio.ByteString.Companion.decodeBase64
@@ -23,7 +24,7 @@ class AnimeiatUseCase @Inject constructor(
                         id = it.id,
                         title = it.anime_name,
                         type = "anime",
-                        poster = it.poster_path,
+                        poster = "${Constants.AIMEIAT_IMAGE_URL}/${it.poster_path}",
                         slug = it.slug
                     )
                 }
@@ -38,6 +39,26 @@ class AnimeiatUseCase @Inject constructor(
     }
 
 
+   fun getLatestEpisodes(): Flow<List<MovieHome>> = flow {
+       try {
+           val res = repo.getLatestEpisodes().data.map {
+               MovieHome(
+                   id = it.id,
+                   title = it.title,
+                   type = "anime",
+                   poster = "${Constants.AIMEIAT_IMAGE_URL}/${it.poster_path}",
+                   slug = it.slug.substringBefore("-episode-")
+               )
+           }
+           Log.e("Animeiat", res.toString())
+           emit(res)
+       }catch (e : HttpException) {
+           Log.e("Animeiat", e.toString() )
+       } catch (e: IOException) {
+           Log.e("Animeiat", e.toString() )
+
+       }
+   }
     fun getAnimeDetails (slug: String) : Flow<Details> = flow {
 
         try {
@@ -45,8 +66,8 @@ class AnimeiatUseCase @Inject constructor(
             val anime = Details(
                 id = res.id ,
                 title = res.anime_name ,
-                backdrop = res.poster_path,
-                poster =  res.poster_path,
+                backdrop = "${Constants.AIMEIAT_IMAGE_URL}/${res.poster_path}",
+                poster =  "${Constants.AIMEIAT_IMAGE_URL}/${res.poster_path}",
                 genres =  res.genres.map { it.name },
                 overview = res.story,
                 releaseDate = res.created_at ,

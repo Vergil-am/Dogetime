@@ -3,6 +3,7 @@ package com.example.kotlinmovieapp.domain.use_case.movies.search
 import android.util.Log
 import com.example.kotlinmovieapp.domain.model.MovieHome
 import com.example.kotlinmovieapp.domain.repository.MovieRepository
+import com.example.kotlinmovieapp.util.Constants
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import okio.IOException
@@ -21,7 +22,7 @@ class Search @Inject constructor(
                     id = it.id,
                     title = it.title,
                     type = "show",
-                    poster = it.poster_path,
+                    poster = "${Constants.IMAGE_BASE_URL}/w200/${it.poster_path}",
                     slug = null
                 )
             }
@@ -41,7 +42,7 @@ class Search @Inject constructor(
                     id = it.id,
                     title = it.name,
                     type = "show",
-                    poster = it.poster_path,
+                    poster = "${Constants.IMAGE_BASE_URL}/w200/${it.poster_path}",
                     slug = null
                 )
             }

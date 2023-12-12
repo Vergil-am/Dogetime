@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedIconButton
 import androidx.compose.material3.Text
@@ -16,11 +17,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import coil.compose.rememberAsyncImagePainter
 import com.example.kotlinmovieapp.data.remote.dto.AddToWatchListDTO
 import com.example.kotlinmovieapp.domain.model.Movie
-import com.example.kotlinmovieapp.util.Constants
 import com.google.common.base.Ascii
 
 @Composable
@@ -46,13 +48,10 @@ fun DetailsHeader(
         Image(
             modifier = Modifier
                 .fillMaxSize()
-                .blur(10.dp) ,
+                .blur(5.dp),
+            contentScale = ContentScale.FillWidth,
             painter = rememberAsyncImagePainter(
-                if (type == "anime") {
-                    "https://api.animeiat.co/storage/${poster}"
-                } else {
-                    "${Constants.IMAGE_BASE_URL}/w500${backDrop}"
-                }
+               backDrop
             ),
             contentDescription = title
         )
@@ -65,13 +64,10 @@ fun DetailsHeader(
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Image(
-                modifier = Modifier,
+                modifier = Modifier
+                    .clip(RoundedCornerShape(8.dp)),
                 painter = rememberAsyncImagePainter(
-                    if (type == "anime") {
-                        "https://api.animeiat.co/storage/${poster}"
-                    } else {
-                        "${Constants.IMAGE_BASE_URL}/w300${poster}"
-                    }
+                   poster
                 ),
                 contentDescription = title
             )

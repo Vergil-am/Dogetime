@@ -4,6 +4,7 @@ import android.util.Log
 import com.example.kotlinmovieapp.data.remote.dto.SeasonDTO
 import com.example.kotlinmovieapp.domain.model.Details
 import com.example.kotlinmovieapp.domain.repository.MovieRepository
+import com.example.kotlinmovieapp.util.Constants
 import kotlinx.coroutines.flow.flow
 import okio.IOException
 import retrofit2.HttpException
@@ -19,8 +20,8 @@ class GetMovieUseCase @Inject constructor(
             val movie = Details(
                 id = res.id ,
                 title = res.title,
-                backdrop = res.backdrop_path,
-                poster =  res.poster_path,
+                backdrop = "${Constants.IMAGE_BASE_URL}/w500/${res.backdrop_path}",
+                poster =  "${Constants.IMAGE_BASE_URL}/w200/${res.poster_path}" ,
                 genres =  res.genres.map { it.name },
                 overview = res.overview,
                 releaseDate = res.release_date,
@@ -60,8 +61,8 @@ class GetMovieUseCase @Inject constructor(
             val show = Details(
                 id = res.id ,
                 title = res.name,
-                backdrop = res.backdrop_path,
-                poster =  res.poster_path,
+                backdrop = "${Constants.IMAGE_BASE_URL}/w500/${res.backdrop_path}" ,
+                poster =  "${Constants.IMAGE_BASE_URL}/w200/${res.poster_path}" ,
                 genres =  res.genres.map { it.name },
                 overview = res.overview,
                 releaseDate = res.first_air_date,

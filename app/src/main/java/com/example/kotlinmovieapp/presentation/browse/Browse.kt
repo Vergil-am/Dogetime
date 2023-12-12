@@ -36,7 +36,6 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
 import com.example.kotlinmovieapp.presentation.navgraph.Route
-import com.example.kotlinmovieapp.util.Constants
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -179,12 +178,7 @@ fun Browse(
                                    .fillMaxSize(),
 
                                painter = rememberAsyncImagePainter(
-                                   if (state.value.type.value == "anime") {
-                                       "https://api.animeiat.co/storage/${movie.poster}"
-                                   } else {
-
-                                       "${Constants.IMAGE_BASE_URL}/w200${movie.poster}"
-                                   }
+                                  movie.poster
                                ),
                                contentDescription = movie.title
                            )
