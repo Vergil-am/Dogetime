@@ -167,13 +167,10 @@ fun Browse(
                                .padding(10.dp)
                                .height(155.dp),
                            onClick = {
-                               if (
-                                   state.value.type.value == "movies"
-                               ) {
-
-                                   navController.navigate("movie/${movie.id}")
-                               } else {
-                                   navController.navigate("show/${movie.id}")
+                               when (state.value.type.value) {
+                                   "movies" -> navController.navigate("movie/${movie.id}")
+                                       "anime" -> navController.navigate("anime/${movie.slug}")
+                                   "tv" -> navController.navigate("show/${movie.id}")
                                }
                            }
                        ) {
@@ -182,7 +179,13 @@ fun Browse(
                                    .fillMaxSize(),
 
                                painter = rememberAsyncImagePainter(
-                                   "${Constants.IMAGE_BASE_URL}/w200${movie.poster}"),
+                                   if (state.value.type.value == "anime") {
+                                       "https://api.animeiat.co/storage/${movie.poster}"
+                                   } else {
+
+                                       "${Constants.IMAGE_BASE_URL}/w200${movie.poster}"
+                                   }
+                               ),
                                contentDescription = movie.title
                            )
                        }

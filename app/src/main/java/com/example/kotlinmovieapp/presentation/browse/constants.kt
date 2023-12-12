@@ -26,4 +26,5 @@ val ShowCatalog = listOf(
 val Types = listOf(
     Type("Movies", "movies", MovieCatalog),
     Type("Shows", "tv", ShowCatalog),
+    Type("anime", "anime", MovieCatalog)
 )

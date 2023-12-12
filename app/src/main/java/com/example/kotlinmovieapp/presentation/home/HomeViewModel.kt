@@ -34,7 +34,7 @@ class HomeViewModel @Inject constructor (
                 moviesDTO ->  _state.value = MovieListState(movies = state.value.movies, trending = state.value.trending, shows = moviesDTO, anime = state.value.anime)
         }.launchIn(viewModelScope)
 
-        Animeiat.getPopularAnime().onEach {
+        Animeiat.getPopularAnime(query = null, page = null).onEach {
             _state.value = MovieListState(movies = state.value.movies, trending = state.value.trending, shows = state.value.shows, anime = it)
         }.launchIn(viewModelScope)
     }

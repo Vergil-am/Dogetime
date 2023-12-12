@@ -1,6 +1,7 @@
 package com.example.kotlinmovieapp.presentation.browse
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.kotlinmovieapp.domain.use_case.animeiat.AnimeiatUseCase
 import com.example.kotlinmovieapp.domain.use_case.movies.genres.GenresUseCase
 import com.example.kotlinmovieapp.domain.use_case.movies.get_movies.GetMoviesUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -12,7 +13,8 @@ import javax.inject.Inject
 @HiltViewModel
 class BrowseViewModel @Inject constructor(
    private val getMoviesUseCase: GetMoviesUseCase,
-    private val genresUseCase: GenresUseCase
+    private val genresUseCase: GenresUseCase,
+    private val animeiat: AnimeiatUseCase
 ) : ViewModel() {
     private val _state = MutableStateFlow(BrowseState())
     var state = _state
@@ -22,25 +24,31 @@ class BrowseViewModel @Inject constructor(
         getGenres(state.value.type.value)
     }
     fun getMovies(type: String , catalog: String , page: Int) {
-        if (type == "movies") {
-            getMoviesUseCase.getMovies(catalog, page).onEach {
-                if (page == 1) {
-                    _state.value = BrowseState(movies = it, type = state.value.type, catalog = state.value.catalog, genre = state.value.genre, page = state.value.page)
-                } else if (page > 1) {
-                    _state.value = BrowseState(movies = state.value.movies.plus(it), type = state.value.type, catalog = state.value.catalog, genre = state.value.genre, page = state.value.page + 1)
+        when (type) {
+           "movies" ->             getMoviesUseCase.getMovies(catalog, page).onEach {
+               if (page == 1) {
+                   _state.value = BrowseState(movies = it, type = state.value.type, catalog = state.value.catalog, genre = state.value.genre, page = state.value.page)
+               } else if (page > 1) {
+                   _state.value = BrowseState(movies = state.value.movies.plus(it), type = state.value.type, catalog = state.value.catalog, genre = state.value.genre, page = state.value.page + 1)
 
-                }
-            }.launchIn(viewModelScope)
+               }
+           }.launchIn(viewModelScope)
+           "tv" ->             getMoviesUseCase.getShows(catalog, page).onEach {
+               if (page == 1) {
+                   _state.value = BrowseState(movies = it, type = state.value.type, catalog = state.value.catalog, genre = state.value.genre)
+               } else if (page > 1) {
+                   _state.value = BrowseState(movies = state.value.movies.plus(it), type = state.value.type, catalog = state.value.catalog, genre = state.value.genre, page = state.value.page + 1)
 
-        } else if (type == "tv") {
-            getMoviesUseCase.getShows(catalog, page).onEach {
-                if (page == 1) {
-                    _state.value = BrowseState(movies = it, type = state.value.type, catalog = state.value.catalog, genre = state.value.genre)
-                } else if (page > 1) {
-                    _state.value = BrowseState(movies = state.value.movies.plus(it), type = state.value.type, catalog = state.value.catalog, genre = state.value.genre, page = state.value.page + 1)
+               }
+           }.launchIn(viewModelScope)
+           "anime" ->              animeiat.getPopularAnime(query = null, page).onEach {
+               if (page == 1) {
+                   _state.value = BrowseState(movies = it, type = state.value.type, catalog = state.value.catalog, genre = state.value.genre)
+               } else if (page > 1) {
+                   _state.value = BrowseState(movies = state.value.movies.plus(it), type = state.value.type, catalog = state.value.catalog, genre = state.value.genre, page = state.value.page + 1)
 
-                }
-            }.launchIn(viewModelScope)
+               }
+           }.launchIn(viewModelScope)
         }
     }
 

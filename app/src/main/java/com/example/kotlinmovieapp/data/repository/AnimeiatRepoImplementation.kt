@@ -10,25 +10,25 @@ import com.example.kotlinmovieapp.domain.repository.AnimeiatRepository
 import javax.inject.Inject
 
 class AnimeiatRepoImplementation @Inject constructor(
-    private val API: AnimeiatAPI
+    private val api: AnimeiatAPI
 ): AnimeiatRepository {
-    override suspend fun getPopularAnime(): AnimeiatDTO {
-        return API.getPopularAnime()
+    override suspend fun getPopularAnime(query: String?, page: Int?): AnimeiatDTO {
+        return api.getPopularAnime(query, page)
     }
 
     override suspend fun getAnimeDetails(slug: String): AnimeiatDetailsDTO {
-        return API.getAnimeDetails(slug)
+        return api.getAnimeDetails(slug)
     }
 
     override suspend fun getEpisodes(slug: String): AnimeiatEpisodesDTO {
-        return API.getEpisodes(slug)
+        return api.getEpisodes(slug)
     }
 
     override suspend fun getEpisode(slug: String): AnimeiatEpisodeDTO {
-        return API.getEpisode(slug)
+        return api.getEpisode(slug)
     }
 
     override suspend fun getEpisodeSources(slug: String): AnimeiatEpisodeSourcesDTO {
-        return API.getEpisodeSources(slug)
+        return api.getEpisodeSources(slug)
     }
 }

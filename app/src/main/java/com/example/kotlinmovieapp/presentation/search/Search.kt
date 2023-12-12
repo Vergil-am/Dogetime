@@ -80,8 +80,13 @@ fun Search(
                     Text(text = "Series")
                     MovieRow(data = it , navController = navController )
                 }
+            state.anime?.let {
+                Text(text = "Anime")
+                MovieRow(data = it, navController = navController)
+            }
 
             }
+
         }
     }
 

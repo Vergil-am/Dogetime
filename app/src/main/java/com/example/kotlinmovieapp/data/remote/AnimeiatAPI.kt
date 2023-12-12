@@ -7,11 +7,16 @@ import com.example.kotlinmovieapp.data.remote.dto.AnimeiatEpisodeSourcesDTO
 import com.example.kotlinmovieapp.data.remote.dto.AnimeiatEpisodesDTO
 import retrofit2.http.GET
 import retrofit2.http.Path
+import retrofit2.http.Query
 
 interface AnimeiatAPI {
 
     @GET("anime")
-   suspend fun getPopularAnime() : AnimeiatDTO
+   suspend fun getPopularAnime(
+      @Query("q") query: String?,
+      @Query("page") page: Int? = 1
+   ) : AnimeiatDTO
+
    @GET("anime/{slug}")
    suspend fun getAnimeDetails(
       @Path("slug") slug: String

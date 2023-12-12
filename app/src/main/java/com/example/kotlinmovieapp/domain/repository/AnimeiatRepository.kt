@@ -8,7 +8,7 @@ import com.example.kotlinmovieapp.data.remote.dto.AnimeiatEpisodesDTO
 
 interface AnimeiatRepository {
 
-    suspend fun getPopularAnime() : AnimeiatDTO
+    suspend fun getPopularAnime(query: String?, page: Int?) : AnimeiatDTO
 
     suspend fun getAnimeDetails(slug: String) : AnimeiatDetailsDTO
 

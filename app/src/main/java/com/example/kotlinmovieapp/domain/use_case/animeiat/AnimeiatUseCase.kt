@@ -16,9 +16,9 @@ import javax.inject.Inject
 class AnimeiatUseCase @Inject constructor(
     private val repo: AnimeiatRepository
 ) {
-    fun getPopularAnime(): Flow<List<MovieHome>> = flow {
+    fun getPopularAnime(query: String?, page: Int?): Flow<List<MovieHome>> = flow {
             try {
-                val res = repo.getPopularAnime().data.map {
+                val res = repo.getPopularAnime(query, page).data.map {
                     MovieHome(
                         id = it.id,
                         title = it.anime_name,
