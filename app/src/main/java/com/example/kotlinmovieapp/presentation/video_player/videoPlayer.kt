@@ -13,7 +13,6 @@ import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -22,7 +21,6 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import com.example.kotlinmovieapp.presentation.details.DetailsViewModel
-import com.example.kotlinmovieapp.util.Constants
 
 @RequiresApi(34)
 @SuppressLint("SetJavaScriptEnabled", "SourceLockedOrientationActivity")
@@ -32,7 +30,6 @@ fun VideoPlayer(
    season: Int?,
    episode: Int?,
    windowCompat: WindowInsetsControllerCompat,
-   viewModel: DetailsViewModel
 ) {
    windowCompat.hide(WindowInsetsCompat.Type.systemBars())
    windowCompat.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
@@ -41,11 +38,13 @@ fun VideoPlayer(
       mutableStateOf(false)
    }
    val url: String = if (season != 0 && episode != 0) {
-      viewModel.state.collectAsState().value.episodeUrl
-         ?: "${Constants.VIDEO_URL}tv/$id/$season/$episode"
+//      "${Constants.VIDEO_URL}tv/$id/$season/$episode"
+      "https://vidsrc.xyz/embed/tv?tmdb=$id&season=$season&episode=$episode"
    }
    else {
-      "${Constants.VIDEO_URL}movie/$id"
+//      "${Constants.VIDEO_URL}movie/$id"
+      "https://vidsrc.xyz/embed/movie?tmdb=$id"
+//     "https://vidsrc.xyz/embed/tv?imdb=tt0944947&season=1&episode=1"
    }
    DisposableEffect(key1 = activity ) {
       activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE

@@ -49,12 +49,17 @@ class GetMovieUseCase @Inject constructor(
         try {
             val  res = repo.getShow(id)
             val runtime = res.episode_run_time.firstOrNull()
+            Log.e("RUNTIME", runtime.toString())
             val episodeRunTime = if (runtime == null) {
-                null
+                if (res.origin_country[0] == "JP" || res.genres[0].name == "Animation") {
+                    23
+                } else {
+                    43
+                }
             } else if (runtime is Int) {
                 runtime
             } else if (runtime is Double || runtime is Float){
-               runtime.toString().toInt()
+               runtime.toString().substringBefore(".").toInt()
             } else {
                 null
             }

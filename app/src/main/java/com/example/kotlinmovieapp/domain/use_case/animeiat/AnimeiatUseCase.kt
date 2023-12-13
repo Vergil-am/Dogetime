@@ -40,15 +40,18 @@ class AnimeiatUseCase @Inject constructor(
 
 
    fun getLatestEpisodes(): Flow<List<MovieHome>> = flow {
+
        try {
            val res = repo.getLatestEpisodes().data.map {
-               MovieHome(
-                   id = it.id,
-                   title = it.title,
-                   type = "anime",
-                   poster = "${Constants.AIMEIAT_IMAGE_URL}/${it.poster_path}",
-                   slug = it.slug.substringBefore("-episode-")
-               )
+                   val slug = it.slug.substringBefore("-episode-")
+                   val anime = repo.getAnimeDetails(slug).data
+                   MovieHome(
+                       id = anime.id,
+                       title = anime.anime_name,
+                       type = "anime",
+                       poster = "${Constants.AIMEIAT_IMAGE_URL}/${anime.poster_path}",
+                       slug = anime.slug
+                   )
            }
            Log.e("Animeiat", res.toString())
            emit(res)
@@ -79,7 +82,7 @@ class AnimeiatUseCase @Inject constructor(
                 lastAirDate = null,
                 imdbId = null,
                 rating = null,
-                runtime = null,
+                runtime = 23,
                 seasons = null
                 )
             emit(anime)
