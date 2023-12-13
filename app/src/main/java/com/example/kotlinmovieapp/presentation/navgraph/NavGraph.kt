@@ -116,7 +116,6 @@ fun NavGraph (
                     season = season.toInt(),
                     episode = episode.toInt(),
                     windowCompat = windowCompat,
-                    viewModel = detailsViewModel
                 )
             }
         }
