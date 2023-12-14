@@ -29,7 +29,8 @@ interface AnimeiatAPI {
 
    @GET("anime/{slug}/episodes")
    suspend fun getEpisodes(
-       @Path("slug") slug: String
+       @Path("slug") slug: String,
+       @Query("page") page: Int
    ) : AnimeiatEpisodesDTO
 
    @GET("episode/{slug}")

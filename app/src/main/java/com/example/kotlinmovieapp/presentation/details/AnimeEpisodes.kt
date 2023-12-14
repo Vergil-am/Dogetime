@@ -13,8 +13,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.Card
@@ -25,7 +25,9 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -45,70 +47,92 @@ fun AnimeEpisodes(
    viewModel: DetailsViewModel,
    slug: String
 ) {
-    viewModel.getAnimeEpisodes(slug)
+    var page by remember {
+        mutableIntStateOf(1)
+    }
+
+    if (page == 1) {
+        viewModel.getAnimeEpisodes(slug, 1)
+    }
     val state = viewModel.state.collectAsState().value
+    val columnState = rememberLazyListState()
     val episodes = state.animeEpisodes
     var opened by remember {
         mutableStateOf(false)
     }
     val context = LocalContext.current
-    Column (
-        modifier = Modifier.verticalScroll(rememberScrollState())
+
+    val hasReachedItem by remember {
+        derivedStateOf { columnState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ==
+                columnState.layoutInfo.totalItemsCount - 1
+        }
+    }
+
+    if (hasReachedItem) {
+        page += 1
+        viewModel.getAnimeEpisodes(slug, page)
+    }
+    LazyColumn (
+        state = columnState
     ) {
-        episodes?.data?.forEach { episode ->
-            Card (
-                onClick = {
-                    viewModel.getAnimeEpisodeId(episode.slug)
-                    opened = true
-                          },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(120.dp)
-                    .padding(10.dp)
-                ,
-            ) {
-                Row {
-                    Box (
-                        modifier = Modifier
-                            .width(180.dp)
-                    ) {
-                        Image(
-                            alignment = Alignment.TopStart,
+        episodes.forEach { episode ->
+            item {
+                Card(
+                    onClick = {
+                        viewModel.getAnimeEpisodeId(episode.slug)
+                        opened = true
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(120.dp)
+                        .padding(10.dp),
+                ) {
+                    Row {
+                        Box(
+                            modifier = Modifier
+                                .width(180.dp)
+                        ) {
+                            Image(
+                                alignment = Alignment.TopStart,
+                                modifier = Modifier
+                                    .fillMaxSize(),
+                                painter = rememberAsyncImagePainter(
+                                    model = "${Constants.AIMEIAT_IMAGE_URL}/${episode.poster_path}"
+                                ),
+                                contentDescription = "Episode ${episode.number}"
+                            )
+                            Box(
+                                modifier = Modifier
+                                    .align(Alignment.BottomEnd)
+                                    .background(Color.Black)
+
+                            ) {
+                                Text(text = "EP ${episode.number}")
+                            }
+                        }
+
+                        Column(
                             modifier = Modifier
                                 .fillMaxSize()
-                            ,
-                            painter = rememberAsyncImagePainter(
-                                model = "${Constants.AIMEIAT_IMAGE_URL}/${episode.poster_path}" ),
-                            contentDescription = "Episode ${episode.number}" )
-                        Box (
-                            modifier = Modifier
-                                .align(Alignment.BottomEnd)
-                                .background(Color.Black)
-
+                                .padding(10.dp),
+                            verticalArrangement = Arrangement.SpaceBetween,
                         ) {
-                            Text(text = "EP ${episode.number}")
+                            Text(text = episode.title)
+                            Text(
+                                text = episode.published_at.split("T")[0],
+                                modifier = Modifier.fillMaxWidth(),
+                                textAlign = TextAlign.End
+
+                            )
                         }
+
                     }
-
-                    Column (
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(10.dp),
-                        verticalArrangement = Arrangement.SpaceBetween,
-                    ) {
-                        Text(text = episode.title)
-                         Text(text = episode.published_at.split("T")[0],
-                            modifier = Modifier.fillMaxWidth(),
-                            textAlign = TextAlign.End
-
-                        )
-                    }
-
                 }
             }
         }
-
     }
+
+
     if (opened) {
         ModalBottomSheet(
             onDismissRequest = { opened = false },

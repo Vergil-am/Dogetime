@@ -109,9 +109,9 @@ class AnimeiatUseCase @Inject constructor(
     }
 
 
-    fun getAnimeEpisodes (slug: String) : Flow<AnimeiatEpisodesDTO> = flow  {
+    fun getAnimeEpisodes (slug: String, page: Int) : Flow<AnimeiatEpisodesDTO> = flow  {
         try {
-            val res = repo.getEpisodes(slug)
+            val res = repo.getEpisodes(slug, page)
             emit(res)
         }catch (e : HttpException) {
             Log.e("Animeiat", e.toString() )

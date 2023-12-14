@@ -21,8 +21,8 @@ class AnimeiatRepoImplementation @Inject constructor(
         return api.getAnimeDetails(slug)
     }
 
-    override suspend fun getEpisodes(slug: String): AnimeiatEpisodesDTO {
-        return api.getEpisodes(slug)
+    override suspend fun getEpisodes(slug: String, page: Int): AnimeiatEpisodesDTO {
+        return api.getEpisodes(slug, page)
     }
 
     override suspend fun getEpisode(slug: String): AnimeiatEpisodeDTO {

@@ -13,7 +13,7 @@ interface AnimeiatRepository {
 
     suspend fun getAnimeDetails(slug: String) : AnimeiatDetailsDTO
 
-    suspend fun getEpisodes(slug: String) : AnimeiatEpisodesDTO
+    suspend fun getEpisodes(slug: String, page: Int) : AnimeiatEpisodesDTO
 
     suspend fun getEpisode(slug: String) : AnimeiatEpisodeDTO
 
