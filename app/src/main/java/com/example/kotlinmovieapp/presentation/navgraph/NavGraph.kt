@@ -81,12 +81,10 @@ fun NavGraph (
         }
         composable(route = Route.Search.route) {
 
-            HomeLayout(navController = navController) {
                 Search(
                     navController,
                     searchViewModel
                 )
-            }
         }
         composable(route = Route.WatchList.route) {
 

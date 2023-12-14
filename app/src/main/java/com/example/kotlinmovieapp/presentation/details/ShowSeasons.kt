@@ -2,13 +2,13 @@ package com.example.kotlinmovieapp.presentation.details
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.ScrollableTabRow
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -42,14 +42,15 @@ fun ShowSeasons(
         LaunchedEffect(pagerState.currentPage) {
             selectedTab = pagerState.currentPage
         }
-        Surface (
+        Column (
             modifier = Modifier.fillMaxSize()
         ) {
 
-
             ScrollableTabRow(
                 selectedTabIndex = selectedTab,
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                ,
 
                 ) {
                 seasons.forEachIndexed { index, season ->
@@ -60,7 +61,7 @@ fun ShowSeasons(
                         },
                         modifier = Modifier.padding(10.dp)
                     ) {
-                        Text(text = season.season_number.toString())
+                        Text(text = "Season ${season.season_number}")
                     }
                 }
 

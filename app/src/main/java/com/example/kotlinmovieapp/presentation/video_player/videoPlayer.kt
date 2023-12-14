@@ -20,7 +20,6 @@ import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
-import com.example.kotlinmovieapp.presentation.details.DetailsViewModel
 
 @RequiresApi(34)
 @SuppressLint("SetJavaScriptEnabled", "SourceLockedOrientationActivity")
@@ -64,6 +63,7 @@ fun VideoPlayer(
                )
 
                settings.javaScriptEnabled = true
+               settings.domStorageEnabled = true
                webViewClient = object: WebViewClient() {
                   override fun shouldOverrideUrlLoading(
                      view: WebView?,

@@ -7,8 +7,12 @@ import com.example.kotlinmovieapp.domain.model.Details
 import com.example.kotlinmovieapp.domain.model.MovieHome
 import com.example.kotlinmovieapp.domain.repository.AnimeiatRepository
 import com.example.kotlinmovieapp.util.Constants
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.flatMapConcat
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.toList
 import okio.ByteString.Companion.decodeBase64
 import okio.IOException
 import retrofit2.HttpException
@@ -39,22 +43,32 @@ class AnimeiatUseCase @Inject constructor(
     }
 
 
+   @OptIn(ExperimentalCoroutinesApi::class)
    fun getLatestEpisodes(): Flow<List<MovieHome>> = flow {
 
        try {
-           val res = repo.getLatestEpisodes().data.map {
-                   val slug = it.slug.substringBefore("-episode-")
-                   val anime = repo.getAnimeDetails(slug).data
-                   MovieHome(
-                       id = anime.id,
-                       title = anime.anime_name,
-                       type = "anime",
-                       poster = "${Constants.AIMEIAT_IMAGE_URL}/${anime.poster_path}",
-                       slug = anime.slug
-                   )
-           }
-           Log.e("Animeiat", res.toString())
-           emit(res)
+           val latestEpisodes = repo.getLatestEpisodes().data
+           val animes = latestEpisodes.asFlow()
+               .flatMapConcat {
+                   flow {
+                       try {
+                           val slug = it.slug.substringBefore("-episode-")
+                           val animeDetails = repo.getAnimeDetails(slug).data
+                           val anime = MovieHome(
+                               id = animeDetails.id,
+                               title = animeDetails.anime_name,
+                               type = "anime",
+                               poster = "${Constants.AIMEIAT_IMAGE_URL}/${animeDetails.poster_path}",
+                               slug = animeDetails.slug
+                           )
+
+                           emit(anime)
+                       } catch (e: Exception) {
+                           Log.e("Animeiat", e.toString())
+                       }
+                   }
+               }.toList()
+           emit(animes)
        }catch (e : HttpException) {
            Log.e("Animeiat", e.toString() )
        } catch (e: IOException) {

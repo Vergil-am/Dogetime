@@ -11,6 +11,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
@@ -44,6 +46,7 @@ fun Episodes(
 
 
     Column (
+        modifier = Modifier.verticalScroll(rememberScrollState())
     ) {
         state?.episodes?.forEach { episode ->
             Card (
@@ -78,7 +81,8 @@ fun Episodes(
                     }
 
                     Column (
-                        modifier = Modifier.fillMaxSize()
+                        modifier = Modifier
+                            .fillMaxSize()
                             .padding(10.dp),
                         verticalArrangement = Arrangement.SpaceBetween,
                     ) {

@@ -13,17 +13,13 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
-import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material3.Card
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
@@ -35,7 +31,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
-import com.example.kotlinmovieapp.presentation.navgraph.Route
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -62,23 +57,9 @@ fun Browse(
     var opened by remember {
         mutableStateOf("")
     }
-   Scaffold (
-       topBar = {
-           TopAppBar(
-               title = { Text(text = "LOGO")},
-               actions = {
-                   IconButton(onClick = {
-                       navController.navigate(Route.Search.route)
-                   }) {
-                       Icon(imageVector = Icons.Outlined.Search, contentDescription = "Search icon")
-                   }
-               }
-               )
-       }
-   ) { paddingValues ->
+
        Column(
            modifier = Modifier
-               .padding(paddingValues)
        ) {
            Row {
                Box(modifier = Modifier) {
@@ -190,7 +171,6 @@ fun Browse(
 
 
        }
-   }
 
 
 
