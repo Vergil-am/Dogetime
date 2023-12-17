@@ -27,7 +27,7 @@ fun WatchList(
 ) {
     val state = viewModel.state.collectAsState().value
     if (state.sessionId != null && state.accountId != null) {
-        viewModel.getWatchList()
+//        viewModel.getWatchList()
         val gridState = rememberLazyGridState()
 
         LazyVerticalGrid(
@@ -35,7 +35,7 @@ fun WatchList(
             columns = GridCells.Fixed(3),
             contentPadding = PaddingValues(10.dp)
         ) {
-            state.movies.plus(state.series).forEachIndexed { index, movie ->
+            state.movies.plus(state.series).forEachIndexed { _ , movie ->
                 item {
                     Card(
                         modifier = Modifier

@@ -22,6 +22,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.kotlinmovieapp.data.remote.dto.AddToWatchListDTO
+import com.example.kotlinmovieapp.local.entities.WatchListMedia
 import com.example.kotlinmovieapp.presentation.components.DetailsHeader
 
 @Composable
@@ -34,8 +35,9 @@ fun  Details(
 ) {
     viewModel.getMedia(type = type ,id = id)
     val state = viewModel.state.collectAsState()
-    val addToWatchList: (AddToWatchListDTO) -> Unit = {
-        viewModel.addToWatchlist(it)
+    val addToWatchList: (media: WatchListMedia) -> Unit = {
+//        viewModel.addToWatchlist(it)
+        viewModel.addToWatchList(it)
     }
     val media = state.value.media
     Column(
@@ -57,7 +59,8 @@ fun  Details(
                         type = media.type,
                         tagline = media.tagline,
                         watchList = state.value.watchList,
-                        addToWatchList = addToWatchList
+                        addToWatchList = addToWatchList,
+                        slug = media.title
                     )
                     Row (
                     modifier = Modifier

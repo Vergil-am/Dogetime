@@ -45,7 +45,7 @@ class MainActivity : ComponentActivity() {
 
                     val watchlistState = listViewModel.state.collectAsState().value
                     val watchlist = watchlistState.movies.plus(watchlistState.series)
-                    listViewModel.getWatchList()
+//                    listViewModel.getWatchList()
                     detailsViewModel.updateWatchList(watchlist)
                     NavGraph(
                         startDestination = viewModel.startDestination,

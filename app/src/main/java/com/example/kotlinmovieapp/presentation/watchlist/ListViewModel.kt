@@ -1,9 +1,11 @@
 package com.example.kotlinmovieapp.presentation.watchlist
 import android.content.Context
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.kotlinmovieapp.datastore.AccountStore
 import com.example.kotlinmovieapp.domain.use_case.list.ListUseCase
+import com.example.kotlinmovieapp.domain.use_case.watchlist.WatchListUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -13,53 +15,62 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ListViewModel @Inject constructor(
-   private val list: ListUseCase,
+//   private val list: ListUseCase,
+    private val watchList : WatchListUseCase,
     @ApplicationContext context: Context
 ) : ViewModel() {
     private val _state = MutableStateFlow(ListState())
     var state = _state
 
-    private val dataStore = AccountStore(context)
+//    private val dataStore = AccountStore(context)
     init {
-        getAccountFromDataStore()
+        getWatchList()
+
+//        getAccountFromDataStore()
     }
 
     fun getWatchList() {
-        if (state.value.sessionId != null && state.value.accountId != null) {
-            list.getWatchList(type = "movies",
-                state.value.sessionId!!, state.value.accountId!!
-            ).onEach { list ->
-                _state.value = ListState(
-                    movies = list.results,
-                    series = state.value.series,
-                    sessionId = state.value.sessionId,
-                    accountId = state.value.accountId
-                )
-            }.launchIn(viewModelScope)
-            list.getWatchList(type = "tv",
-                state.value.sessionId!!, state.value.accountId!!
-            ).onEach { list ->
-                _state.value = ListState(
-                    movies = state.value.movies,
-                    series = list.results,
-                    sessionId = state.value.sessionId,
-                    accountId = state.value.accountId
-                )
-            }.launchIn(viewModelScope)
-        }
+        watchList.getAll().onEach {
+            Log.w("GET WATCH LIST", it.toString())
+        }.launchIn(viewModelScope)
     }
-    private fun getAccountFromDataStore() {
-            dataStore.getSessionId.onEach {
-                if (it != null) {
-                    _state.value = ListState(movies = state.value.movies, sessionId = it, accountId = state.value.accountId)
-                }
-            }.launchIn(viewModelScope)
-            dataStore.getAccountID.onEach {
-                if (it != null) {
-                    _state.value = ListState(movies = state.value.movies, sessionId = state.value.sessionId, accountId = it.toInt())
-                }
-            }.launchIn(viewModelScope)
-        }
 
+//    fun getWatchList() {
+//        if (state.value.sessionId != null && state.value.accountId != null) {
+//            list.getWatchList(type = "movies",
+//                state.value.sessionId!!, state.value.accountId!!
+//            ).onEach { list ->
+//                _state.value = ListState(
+//                    movies = list.results,
+//                    series = state.value.series,
+//                    sessionId = state.value.sessionId,
+//                    accountId = state.value.accountId
+//                )
+//            }.launchIn(viewModelScope)
+//            list.getWatchList(type = "tv",
+//                state.value.sessionId!!, state.value.accountId!!
+//            ).onEach { list ->
+//                _state.value = ListState(
+//                    movies = state.value.movies,
+//                    series = list.results,
+//                    sessionId = state.value.sessionId,
+//                    accountId = state.value.accountId
+//                )
+//            }.launchIn(viewModelScope)
+//        }
+//    }
+//    private fun getAccountFromDataStore() {
+//            dataStore.getSessionId.onEach {
+//                if (it != null) {
+//                    _state.value = ListState(movies = state.value.movies, sessionId = it, accountId = state.value.accountId)
+//                }
+//            }.launchIn(viewModelScope)
+//            dataStore.getAccountID.onEach {
+//                if (it != null) {
+//                    _state.value = ListState(movies = state.value.movies, sessionId = state.value.sessionId, accountId = it.toInt())
+//                }
+//            }.launchIn(viewModelScope)
+//        }
+//
     }
 

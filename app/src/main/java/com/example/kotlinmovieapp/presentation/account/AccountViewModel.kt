@@ -28,67 +28,67 @@ class AccountViewModel @Inject constructor(
     val state = _state
 
 
-    private val dataStore = AccountStore(context)
+//    private val dataStore = AccountStore(context)
    init {
-       getAccountFromDataStore()
+//       getAccountFromDataStore()
    }
 
-    fun getReqToken(): Deferred<RequestTokenDTO> {
-        return viewModelScope.async {
-            auth.generateReqToken().reduce { _, value -> value }
-        }
-    }
+//    fun getReqToken(): Deferred<RequestTokenDTO> {
+//        return viewModelScope.async {
+//            auth.generateReqToken().reduce { _, value -> value }
+//        }
+//    }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
-    fun getSessionId(token: String, dataStore: AccountStore) {
-        val session = viewModelScope.async {
-            auth.createSessionId(token).onEach {
-                    res -> state.value = accountState(account = state.value.account ,token = state.value.token, sessionId = res.session_id)
-            }.reduce { _ , value ->  value}
-        }
-        session.invokeOnCompletion {
-            if (it == null) {
-                Log.e("SESSION", session.getCompleted().session_id)
-                getAccount(session.getCompleted().session_id, dataStore)
-            }
-        }
-
-    }
-
-    @OptIn(ExperimentalCoroutinesApi::class)
-    private fun getAccount(sessionId: String, dataStore: AccountStore) {
-        val account = viewModelScope.async {
-            auth.getAccount(sessionId).onEach {
-                    res -> state.value =  accountState(account = res , token = state.value.token, sessionId = state.value.sessionId)
-                Log.e("ACCOUNT", res.toString())
-            }.reduce { _ , value ->  value }
-        }
-
-        account.invokeOnCompletion {
-            if (it == null) {
-                viewModelScope.launch {
-                    dataStore.storeSessionId(sessionId)
-                    dataStore.storeAccountId(account.getCompleted().id)
-
-                }
-            }
-        }
-
-    }
-
-    private fun getAccountFromDataStore() {
-        dataStore.getSessionId.onEach {
-            if (it != null) {
-                state.value.sessionId = it
-            }
-        }.launchIn(viewModelScope)
-
-       dataStore.getAccountID.onEach {
-           if (it != null) {
-               state.value.accountId = it.toInt()
-           }
-       }.launchIn(viewModelScope)
-
-    }
+//    @OptIn(ExperimentalCoroutinesApi::class)
+//    fun getSessionId(token: String, dataStore: AccountStore) {
+//        val session = viewModelScope.async {
+//            auth.createSessionId(token).onEach {
+//                    res -> state.value = accountState(account = state.value.account ,token = state.value.token, sessionId = res.session_id)
+//            }.reduce { _ , value ->  value}
+//        }
+//        session.invokeOnCompletion {
+//            if (it == null) {
+//                Log.e("SESSION", session.getCompleted().session_id)
+//                getAccount(session.getCompleted().session_id, dataStore)
+//            }
+//        }
+//
+//    }
+//
+//    @OptIn(ExperimentalCoroutinesApi::class)
+//    private fun getAccount(sessionId: String, dataStore: AccountStore) {
+//        val account = viewModelScope.async {
+//            auth.getAccount(sessionId).onEach {
+//                    res -> state.value =  accountState(account = res , token = state.value.token, sessionId = state.value.sessionId)
+//                Log.e("ACCOUNT", res.toString())
+//            }.reduce { _ , value ->  value }
+//        }
+//
+//        account.invokeOnCompletion {
+//            if (it == null) {
+//                viewModelScope.launch {
+//                    dataStore.storeSessionId(sessionId)
+//                    dataStore.storeAccountId(account.getCompleted().id)
+//
+//                }
+//            }
+//        }
+//
+//    }
+//
+//    private fun getAccountFromDataStore() {
+//        dataStore.getSessionId.onEach {
+//            if (it != null) {
+//                state.value.sessionId = it
+//            }
+//        }.launchIn(viewModelScope)
+//
+//       dataStore.getAccountID.onEach {
+//           if (it != null) {
+//               state.value.accountId = it.toInt()
+//           }
+//       }.launchIn(viewModelScope)
+//
+//    }
 
 }

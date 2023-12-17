@@ -4,9 +4,12 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.kotlinmovieapp.data.remote.dto.AddToWatchListDTO
 import com.example.kotlinmovieapp.domain.model.Movie
+import com.example.kotlinmovieapp.domain.model.MovieHome
 import com.example.kotlinmovieapp.domain.use_case.animeiat.AnimeiatUseCase
 import com.example.kotlinmovieapp.domain.use_case.list.ListUseCase
 import com.example.kotlinmovieapp.domain.use_case.movies.get_movie.GetMovieUseCase
+import com.example.kotlinmovieapp.domain.use_case.watchlist.WatchListUseCase
+import com.example.kotlinmovieapp.local.entities.WatchListMedia
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -19,7 +22,8 @@ import javax.inject.Inject
 class DetailsViewModel @Inject constructor(
     private val getMovieUseCase: GetMovieUseCase,
     private val animeiat: AnimeiatUseCase,
-    private val list: ListUseCase
+//    private val list: ListUseCase
+    private val watchList: WatchListUseCase
 ): ViewModel()  {
     private val _state = MutableStateFlow(MovieState())
     var state : StateFlow<MovieState> = _state
@@ -71,11 +75,11 @@ class DetailsViewModel @Inject constructor(
         }.launchIn(viewModelScope)
     }
 
-    fun addToWatchlist(body: AddToWatchListDTO) {
-        viewModelScope.launch {
-            list.addToWatchList(body = body)
-        }
-    }
+//    fun addToWatchlist(body: AddToWatchListDTO) {
+//        viewModelScope.launch {
+//            list.addToWatchList(body = body)
+//        }
+//    }
 
     fun updateWatchList(list: List<Movie>) {
        _state.value.watchList = list
@@ -145,6 +149,13 @@ class DetailsViewModel @Inject constructor(
                 animeEpisodeSources = it
             )
         }.launchIn(viewModelScope)
+    }
+
+    // WatchList
+    fun addToWatchList(media: WatchListMedia ) {
+        viewModelScope.launch {
+            watchList.addToWatchList(media)
+        }
     }
 
 //    fun getWatchList(type: String) {

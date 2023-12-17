@@ -23,6 +23,7 @@ import androidx.compose.ui.unit.dp
 import coil.compose.rememberAsyncImagePainter
 import com.example.kotlinmovieapp.data.remote.dto.AddToWatchListDTO
 import com.example.kotlinmovieapp.domain.model.Movie
+import com.example.kotlinmovieapp.local.entities.WatchListMedia
 import com.google.common.base.Ascii
 
 @Composable
@@ -35,7 +36,8 @@ fun DetailsHeader(
     type: String,
     tagline: String?,
     watchList: List<Movie>,
-    addToWatchList: (AddToWatchListDTO) -> Unit
+    slug: String?,
+    addToWatchList: (WatchListMedia) -> Unit
 
 ) {
     Box(
@@ -91,37 +93,46 @@ fun DetailsHeader(
                             .fillMaxWidth()
                     )
                 }
-                if (watchList.any { movie -> movie.id == id }) {
+//                if (watchList.any { movie -> movie.id == id }) {
+//                    OutlinedIconButton(
+//                        modifier = Modifier
+//                            .fillMaxWidth()
+//                            .padding(10.dp),
+//                        onClick = {
+//                            addToWatchList(
+//
+////                                AddToWatchListDTO(
+////                                    media_id = id,
+////                                    media_type = type,
+////                                    watchlist = false
+////                                )
+//                            )
+//                        }
+//                    ) {
+//
+//                        Text(text = "Remove from watchlist")
+//                    }
+//
+//                } else {
                     OutlinedIconButton(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(10.dp),
                         onClick = {
                             addToWatchList(
-                                AddToWatchListDTO(
-                                    media_id = id,
-                                    media_type = type,
-                                    watchlist = false
+                                WatchListMedia(
+                                    id = id,
+                                    title = title,
+                                    type = type,
+                                    poster = poster,
+                                    list = "test",
+                                    slug = slug
                                 )
-                            )
-                        }
-                    ) {
-
-                        Text(text = "Remove from watchlist")
-                    }
-
-                } else {
-                    OutlinedIconButton(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(10.dp),
-                        onClick = {
-                            addToWatchList(
-                                AddToWatchListDTO(
-                                    media_id = id,
-                                    media_type = type,
-                                    watchlist = true
-                                )
+//                                AddToWatchListDTO(
+//                                    media_id = id,
+//                                    media_type = type,
+//                                    watchlist = true
+//                                )
                             )
                         }
                     ) {
@@ -132,4 +143,4 @@ fun DetailsHeader(
             }
         }
     }
-}
+//}

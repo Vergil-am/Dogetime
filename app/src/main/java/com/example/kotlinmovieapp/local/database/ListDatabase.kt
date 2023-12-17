@@ -4,23 +4,22 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
-import com.example.kotlinmovieapp.local.dao.ListDao
-import com.example.kotlinmovieapp.local.entities.List
-import com.example.kotlinmovieapp.local.entities.Media
+import com.example.kotlinmovieapp.local.dao.WatchListDAO
+import com.example.kotlinmovieapp.local.entities.WatchListMedia
 import kotlinx.coroutines.InternalCoroutinesApi
-import kotlinx.coroutines.internal.synchronized
 
 @Database(
-    entities = [List::class, Media::class],
+    entities = [WatchListMedia::class],
     version = 1,
     exportSchema = false
     )
 abstract class ListDatabase : RoomDatabase() {
-    abstract fun listDao(): ListDao
+    abstract fun watchListDao(): WatchListDAO
 
     companion object{
         @Volatile
         private var INSTANCE: ListDatabase? = null
+
 
         @OptIn(InternalCoroutinesApi::class)
         fun getDatabase(context: Context): ListDatabase {
@@ -32,7 +31,7 @@ abstract class ListDatabase : RoomDatabase() {
                 val instance = Room.databaseBuilder(
                     context.applicationContext,
                     ListDatabase::class.java,
-                    "list_database"
+                    "watchlist_database"
                     ).build()
                 INSTANCE = instance
                 return instance
