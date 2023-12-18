@@ -10,6 +10,7 @@ import javax.inject.Inject
 class WatchListUseCase @Inject constructor(
     private val watchList: WatchListRepository
 ){
+
     fun getAll() : Flow<List<WatchListMedia>> = flow {
         try {
             val watchList = watchList.getAllLists()

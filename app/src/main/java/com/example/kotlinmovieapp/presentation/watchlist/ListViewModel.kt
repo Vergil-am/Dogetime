@@ -1,13 +1,9 @@
 package com.example.kotlinmovieapp.presentation.watchlist
-import android.content.Context
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.kotlinmovieapp.datastore.AccountStore
-import com.example.kotlinmovieapp.domain.use_case.list.ListUseCase
 import com.example.kotlinmovieapp.domain.use_case.watchlist.WatchListUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -17,7 +13,7 @@ import javax.inject.Inject
 class ListViewModel @Inject constructor(
 //   private val list: ListUseCase,
     private val watchList : WatchListUseCase,
-    @ApplicationContext context: Context
+//    @ApplicationContext context: Context
 ) : ViewModel() {
     private val _state = MutableStateFlow(ListState())
     var state = _state
