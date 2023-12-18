@@ -77,7 +77,6 @@ class AnimeiatUseCase @Inject constructor(
        }
    }
     fun getAnimeDetails (slug: String) : Flow<Details> = flow {
-
         try {
             val res = repo.getAnimeDetails(slug).data
             val anime = Details(
@@ -97,7 +96,8 @@ class AnimeiatUseCase @Inject constructor(
                 imdbId = null,
                 rating = null,
                 runtime = 23,
-                seasons = null
+                seasons = null,
+                slug = res.slug
                 )
             emit(anime)
         }catch (e : HttpException) {

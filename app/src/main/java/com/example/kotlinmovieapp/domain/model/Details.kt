@@ -18,5 +18,6 @@ data class Details(
     val seasons: List<Season>?,
     val lastAirDate: String?,
     val episodes: Int?,
+    val slug: String?
 
 )

@@ -21,7 +21,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.example.kotlinmovieapp.data.remote.dto.AddToWatchListDTO
 import com.example.kotlinmovieapp.local.entities.WatchListMedia
 import com.example.kotlinmovieapp.presentation.components.DetailsHeader
 
@@ -60,7 +59,7 @@ fun  Details(
                         tagline = media.tagline,
                         watchList = state.value.watchList,
                         addToWatchList = addToWatchList,
-                        slug = media.title
+                        slug = media.slug
                     )
                     Row (
                     modifier = Modifier

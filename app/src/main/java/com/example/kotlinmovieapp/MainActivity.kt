@@ -8,7 +8,6 @@ import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
@@ -43,10 +42,10 @@ class MainActivity : ComponentActivity() {
                     color = MaterialTheme.colorScheme.background
                 ) {
 
-                    val watchlistState = listViewModel.state.collectAsState().value
-                    val watchlist = watchlistState.movies.plus(watchlistState.series)
+//                    val watchlistState = listViewModel.state.collectAsState().value
+//                    val watchlist = watchlistState.movies.plus(watchlistState.series)
 //                    listViewModel.getWatchList()
-                    detailsViewModel.updateWatchList(watchlist)
+//                    detailsViewModel.updateWatchList(watchlist)
                     NavGraph(
                         startDestination = viewModel.startDestination,
                         homeViewModel = homeViewModel,

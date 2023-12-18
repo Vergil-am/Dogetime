@@ -10,10 +10,17 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedIconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
@@ -21,11 +28,12 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import coil.compose.rememberAsyncImagePainter
-import com.example.kotlinmovieapp.data.remote.dto.AddToWatchListDTO
 import com.example.kotlinmovieapp.domain.model.Movie
 import com.example.kotlinmovieapp.local.entities.WatchListMedia
+import com.example.kotlinmovieapp.util.Constants
 import com.google.common.base.Ascii
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DetailsHeader(
     backDrop: String,
@@ -40,6 +48,9 @@ fun DetailsHeader(
     addToWatchList: (WatchListMedia) -> Unit
 
 ) {
+   var expanded by remember {
+       mutableStateOf(false)
+   }
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -93,54 +104,39 @@ fun DetailsHeader(
                             .fillMaxWidth()
                     )
                 }
-//                if (watchList.any { movie -> movie.id == id }) {
-//                    OutlinedIconButton(
-//                        modifier = Modifier
-//                            .fillMaxWidth()
-//                            .padding(10.dp),
-//                        onClick = {
-//                            addToWatchList(
-//
-////                                AddToWatchListDTO(
-////                                    media_id = id,
-////                                    media_type = type,
-////                                    watchlist = false
-////                                )
-//                            )
-//                        }
-//                    ) {
-//
-//                        Text(text = "Remove from watchlist")
-//                    }
-//
-//                } else {
                     OutlinedIconButton(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(10.dp),
                         onClick = {
-                            addToWatchList(
-                                WatchListMedia(
-                                    id = id,
-                                    title = title,
-                                    type = type,
-                                    poster = poster,
-                                    list = "test",
-                                    slug = slug
-                                )
-//                                AddToWatchListDTO(
-//                                    media_id = id,
-//                                    media_type = type,
-//                                    watchlist = true
-//                                )
-                            )
+                           expanded = true
                         }
                     ) {
                         Text(text = "ADD TO WATCHLIST")
                     }
+                DropdownMenu(expanded = expanded, onDismissRequest = {expanded = false}) {
+                    Constants.lists.forEach {
+                        DropdownMenuItem(text = { Text(text = it)}, onClick = {
+                            addToWatchList(
+                                WatchListMedia(
+                                    id = id,
+                                    title = title,
+                                    poster = poster,
+                                    slug = slug,
+                                    type = type,
+                                    list = it
+                                )
+                            )
+                            expanded = false
+                        })
+                    }
+
+                }
 
                 }
             }
         }
-    }
-//}
+
+
+
+}

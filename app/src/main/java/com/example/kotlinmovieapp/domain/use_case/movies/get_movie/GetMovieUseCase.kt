@@ -34,7 +34,8 @@ class GetMovieUseCase @Inject constructor(
                 imdbId = res.imdb_id,
                 rating = res.vote_average,
                 runtime = res.runtime,
-                seasons = null
+                seasons = null,
+                slug = res.title.replace(" ", "-")
             )
             Log.d("MOVIE REPO", movie.toString())
             emit(movie)
@@ -72,7 +73,7 @@ class GetMovieUseCase @Inject constructor(
                 overview = res.overview,
                 releaseDate = res.first_air_date,
                 status = res.status,
-                type = "movie",
+                type = "show",
                 episodes = null,
                 tagline = res.tagline,
                 homepage = res.homepage,
@@ -80,7 +81,8 @@ class GetMovieUseCase @Inject constructor(
                 imdbId = null,
                 rating = res.vote_average,
                 runtime = episodeRunTime,
-                seasons = res.seasons
+                seasons = res.seasons,
+                slug = res.name.replace(" ", "-")
             )
             Log.e("SHOW REPO", show.toString() )
             emit(show)

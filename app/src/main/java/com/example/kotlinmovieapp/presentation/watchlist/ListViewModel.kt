@@ -1,5 +1,4 @@
 package com.example.kotlinmovieapp.presentation.watchlist
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.kotlinmovieapp.domain.use_case.watchlist.WatchListUseCase
@@ -27,7 +26,7 @@ class ListViewModel @Inject constructor(
 
     fun getWatchList() {
         watchList.getAll().onEach {
-            Log.w("GET WATCH LIST", it.toString())
+            _state.value = ListState(media = it)
         }.launchIn(viewModelScope)
     }
 

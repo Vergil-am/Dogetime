@@ -12,4 +12,6 @@ object Constants {
     // These values are temporary
     const val SESSION_ID = "8561635a9b8cf39838e3a2275661a2f8e41757c5"
     const val ACCOUNT_ID = 20596883
+
+    val lists = listOf("Planning", "Watching", "Completed", "Paused", "Dropped")
 }
