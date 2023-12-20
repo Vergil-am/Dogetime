@@ -21,22 +21,22 @@ fun Home(
     viewModel: HomeViewModel
 ) {
     val state = viewModel.state.value
+    viewModel.getWatchlist()
     Column (
     modifier = Modifier
         .verticalScroll(rememberScrollState())
     ) {
+        state.watchList?.let {
+            Text(text = "Continue watching",
+                style = MaterialTheme.typography.titleMedium,
+                textAlign = TextAlign.Center,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(10.dp)
+            )
+            MovieRow(data = it, navController = navController)
+        }
 
-//        Text(text = "In cinemas", modifier = Modifier
-//            .padding(10.dp))
-//        Carousel(
-//            modifier = Modifier
-//                .padding(10.dp)
-//                .fillMaxWidth()
-//                .height(209.5.dp)
-//                .background(Color.Black),
-//            movies = state.trending?.results,
-//            navController
-//        )
         state.movies?.let {
             Text(text = "Trending movies",
                 style = MaterialTheme.typography.titleMedium,

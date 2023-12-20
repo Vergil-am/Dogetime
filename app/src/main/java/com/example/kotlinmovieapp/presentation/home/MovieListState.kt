@@ -7,5 +7,6 @@ data class MovieListState(
     val movies: List<MovieHome>?  = null,
     val trending: List<MovieHome>? = null,
     val shows: List<MovieHome>? = null,
-    val anime: List<MovieHome>? = null
+    val anime: List<MovieHome>? = null,
+    val watchList: List<MovieHome>? = null,
 )
