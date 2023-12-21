@@ -1,8 +1,8 @@
 package com.example.kotlinmovieapp.domain.use_case.watchlist
 
 import android.util.Log
-import com.example.kotlinmovieapp.local.entities.WatchListMedia
-import com.example.kotlinmovieapp.local.repository.WatchListRepository
+import com.example.kotlinmovieapp.data.local.entities.WatchListMedia
+import com.example.kotlinmovieapp.domain.repository.WatchListRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import javax.inject.Inject
@@ -40,4 +40,15 @@ class WatchListUseCase @Inject constructor(
         }
 
     }
+
+    suspend fun getMediaById(id: Int) : Flow<WatchListMedia> = flow {
+        try {
+           val res = watchList.getMediaById(id)
+            Log.e("RES", res.toString())
+            emit(res)
+        } catch (e: Exception) {
+            Log.e("WATCHLIST", e.toString())
+        }
+    }
+
 }

@@ -1,4 +1,4 @@
-package com.example.kotlinmovieapp.local.entities
+package com.example.kotlinmovieapp.data.local.entities
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey

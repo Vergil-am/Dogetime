@@ -10,10 +10,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedIconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -28,8 +28,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import coil.compose.rememberAsyncImagePainter
-import com.example.kotlinmovieapp.domain.model.Movie
-import com.example.kotlinmovieapp.local.entities.WatchListMedia
+import com.example.kotlinmovieapp.data.local.entities.WatchListMedia
 import com.example.kotlinmovieapp.util.Constants
 import com.google.common.base.Ascii
 
@@ -43,11 +42,13 @@ fun DetailsHeader(
     id: Int,
     type: String,
     tagline: String?,
-    watchList: List<Movie>,
+    watchList: WatchListMedia?,
     slug: String?,
-    addToWatchList: (WatchListMedia) -> Unit
+    addToWatchList: (WatchListMedia) -> Unit,
+    getWatchList: (id: Int) -> Unit
 
 ) {
+    getWatchList(id)
    var expanded by remember {
        mutableStateOf(false)
    }
@@ -112,30 +113,42 @@ fun DetailsHeader(
                            expanded = true
                         }
                     ) {
-                        Text(text = "ADD TO WATCHLIST")
+                        if (watchList != null) {
+                            Text(text = watchList.list)
+                        } else {
+                            Text(text = "ADD TO WATCHLIST")
+                        }
                     }
-                DropdownMenu(expanded = expanded, onDismissRequest = {expanded = false}) {
-                    Constants.lists.forEach {
-                        DropdownMenuItem(text = { Text(text = it)}, onClick = {
-                            addToWatchList(
-                                WatchListMedia(
-                                    id = id,
-                                    title = title,
-                                    poster = poster,
-                                    slug = slug,
-                                    type = type,
-                                    list = it
-                                )
-                            )
-                            expanded = false
-                        })
-                    }
-
-                }
 
                 }
             }
         }
+
+    if (expanded) {
+        ModalBottomSheet(onDismissRequest = {
+            expanded = false
+        }) {
+            Constants.lists.forEach {
+                DropdownMenuItem(text = {
+                    Text(text = it)
+                                        }, onClick = {
+                    addToWatchList(
+                        WatchListMedia(
+                            id = id,
+                            title = title,
+                            poster = poster,
+                            slug = slug,
+                            type = type,
+                            list = it
+                        )
+                    )
+                    expanded = false
+                })
+            }
+
+
+        }
+    }
 
 
 

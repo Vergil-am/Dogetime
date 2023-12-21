@@ -1,9 +1,9 @@
-package com.example.kotlinmovieapp.local.database
+package com.example.kotlinmovieapp.data.local.database
 
 import androidx.room.Database
 import androidx.room.RoomDatabase
-import com.example.kotlinmovieapp.local.dao.WatchListDAO
-import com.example.kotlinmovieapp.local.entities.WatchListMedia
+import com.example.kotlinmovieapp.data.local.dao.WatchListDAO
+import com.example.kotlinmovieapp.data.local.entities.WatchListMedia
 
 @Database(
     entities = [WatchListMedia::class],

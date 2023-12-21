@@ -1,9 +1,9 @@
-package com.example.kotlinmovieapp.local.dao
+package com.example.kotlinmovieapp.data.local.dao
 
 import androidx.room.Dao
 import androidx.room.Query
 import androidx.room.Upsert
-import com.example.kotlinmovieapp.local.entities.WatchListMedia
+import com.example.kotlinmovieapp.data.local.entities.WatchListMedia
 
 
 @Dao
@@ -20,7 +20,8 @@ interface WatchListDAO{
     suspend fun getList(list: String) : List<WatchListMedia>
 
 
-
+    @Query("SELECT * FROM watchlist WHERE id = :id")
+    suspend fun getMediaById(id: Int) : WatchListMedia
 
 
 

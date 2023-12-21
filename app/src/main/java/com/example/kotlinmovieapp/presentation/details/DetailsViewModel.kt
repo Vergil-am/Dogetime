@@ -2,14 +2,10 @@ package com.example.kotlinmovieapp.presentation.details
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.kotlinmovieapp.data.remote.dto.AddToWatchListDTO
-import com.example.kotlinmovieapp.domain.model.Movie
-import com.example.kotlinmovieapp.domain.model.MovieHome
 import com.example.kotlinmovieapp.domain.use_case.animeiat.AnimeiatUseCase
-import com.example.kotlinmovieapp.domain.use_case.list.ListUseCase
 import com.example.kotlinmovieapp.domain.use_case.movies.get_movie.GetMovieUseCase
 import com.example.kotlinmovieapp.domain.use_case.watchlist.WatchListUseCase
-import com.example.kotlinmovieapp.local.entities.WatchListMedia
+import com.example.kotlinmovieapp.data.local.entities.WatchListMedia
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -22,7 +18,6 @@ import javax.inject.Inject
 class DetailsViewModel @Inject constructor(
     private val getMovieUseCase: GetMovieUseCase,
     private val animeiat: AnimeiatUseCase,
-//    private val list: ListUseCase
     private val watchList: WatchListUseCase
 ): ViewModel()  {
     private val _state = MutableStateFlow(MovieState())
@@ -75,15 +70,6 @@ class DetailsViewModel @Inject constructor(
         }.launchIn(viewModelScope)
     }
 
-//    fun addToWatchlist(body: AddToWatchListDTO) {
-//        viewModelScope.launch {
-//            list.addToWatchList(body = body)
-//        }
-//    }
-
-    fun updateWatchList(list: List<Movie>) {
-       _state.value.watchList = list
-    }
 
     private fun getAnime(slug: String) {
         animeiat.getAnimeDetails(slug).onEach {
@@ -152,18 +138,27 @@ class DetailsViewModel @Inject constructor(
     }
 
     // WatchList
-    fun addToWatchList(media: WatchListMedia ) {
+    fun addToWatchList(media: WatchListMedia) {
         viewModelScope.launch {
             watchList.addToWatchList(media)
         }
     }
 
-//    fun getWatchList(type: String) {
-//       list.getWatchList(type).onEach {
-//           list -> _state.value = MovieState(movie = state.value.movie, show = state.value.show, isLoading = false, season = state.value.season,
-//               watchList = list.results
-//           )
-//       }.launchIn(viewModelScope)
-//    }
+    fun getMediaFromWatchList(id: Int) {
+        viewModelScope.launch {
+            watchList.getMediaById(id).onEach {
+                _state.value =  MovieState(
+                    media = state.value.media,
+                    isLoading = false,
+                    season = null,
+                    watchList = it,
+                    animeEpisodes = state.value.animeEpisodes,
+                    animeEpisodeId =  state.value.animeEpisodeId,
+                    animeEpisodeSources = state.value.animeEpisodeSources
+                )
+            }
+        }
+
+    }
 
 }

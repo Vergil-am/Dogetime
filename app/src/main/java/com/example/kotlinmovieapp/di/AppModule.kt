@@ -11,10 +11,10 @@ import com.example.kotlinmovieapp.data.repository.MovieRepoImplementation
 import com.example.kotlinmovieapp.domain.repository.AnimeiatRepository
 import com.example.kotlinmovieapp.domain.repository.AuthRepository
 import com.example.kotlinmovieapp.domain.repository.MovieRepository
-import com.example.kotlinmovieapp.local.dao.WatchListDAO
-import com.example.kotlinmovieapp.local.database.ListDatabase
-import com.example.kotlinmovieapp.local.repository.WatchListRepository
-import com.example.kotlinmovieapp.local.repository.WatchListRepositoryImpl
+import com.example.kotlinmovieapp.data.local.dao.WatchListDAO
+import com.example.kotlinmovieapp.data.local.database.ListDatabase
+import com.example.kotlinmovieapp.domain.repository.WatchListRepository
+import com.example.kotlinmovieapp.data.repository.WatchListRepositoryImpl
 import com.example.kotlinmovieapp.util.Constants.ANIMEIAT_BASE_URL
 import com.example.kotlinmovieapp.util.Constants.BASE_URL
 import dagger.Module

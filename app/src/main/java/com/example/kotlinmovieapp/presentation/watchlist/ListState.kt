@@ -1,6 +1,6 @@
 package com.example.kotlinmovieapp.presentation.watchlist
 
-import com.example.kotlinmovieapp.local.entities.WatchListMedia
+import com.example.kotlinmovieapp.data.local.entities.WatchListMedia
 
 data class ListState(
     val media: List<WatchListMedia> = mutableListOf()

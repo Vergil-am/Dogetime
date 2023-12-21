@@ -1,7 +1,8 @@
-package com.example.kotlinmovieapp.local.repository
+package com.example.kotlinmovieapp.data.repository
 
-import com.example.kotlinmovieapp.local.dao.WatchListDAO
-import com.example.kotlinmovieapp.local.entities.WatchListMedia
+import com.example.kotlinmovieapp.data.local.dao.WatchListDAO
+import com.example.kotlinmovieapp.data.local.entities.WatchListMedia
+import com.example.kotlinmovieapp.domain.repository.WatchListRepository
 import javax.inject.Inject
 
 class WatchListRepositoryImpl @Inject constructor(
@@ -18,6 +19,10 @@ class WatchListRepositoryImpl @Inject constructor(
 
     override suspend fun addToWatchList(media: WatchListMedia) {
         return watchList.addToList(media)
+    }
+
+    override suspend fun getMediaById(id: Int): WatchListMedia {
+        return watchList.getMediaById(id)
     }
 
 }
