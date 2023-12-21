@@ -57,12 +57,4 @@ class MovieRepoImplementation @Inject constructor(
         return api.getGenres(type)
     }
 
-    // Lists
-    override suspend fun getWatchList(type: String): MoviesDTO {
-        return api.getWatchList(type = type)
-    }
-
-    override suspend fun getFavorites(type: String): MoviesDTO {
-        return api.getFavorites(type = type)
-    }
 }

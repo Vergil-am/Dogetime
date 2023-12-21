@@ -3,13 +3,10 @@ package com.example.kotlinmovieapp.di
 import android.app.Application
 import androidx.room.Room
 import com.example.kotlinmovieapp.data.remote.AnimeiatAPI
-import com.example.kotlinmovieapp.data.remote.AuthAPI
 import com.example.kotlinmovieapp.data.remote.MoviesAPI
 import com.example.kotlinmovieapp.data.repository.AnimeiatRepoImplementation
-import com.example.kotlinmovieapp.data.repository.AuthRepoImplementation
 import com.example.kotlinmovieapp.data.repository.MovieRepoImplementation
 import com.example.kotlinmovieapp.domain.repository.AnimeiatRepository
-import com.example.kotlinmovieapp.domain.repository.AuthRepository
 import com.example.kotlinmovieapp.domain.repository.MovieRepository
 import com.example.kotlinmovieapp.data.local.dao.WatchListDAO
 import com.example.kotlinmovieapp.data.local.database.ListDatabase
@@ -43,38 +40,6 @@ object AppModule { @Provides
         return MovieRepoImplementation(api)
     }
 
-
-    @Provides
-    @Singleton
-    fun provideAuthAPI() : AuthAPI {
-        return Retrofit.Builder()
-            .baseUrl(BASE_URL)
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
-            .create(AuthAPI::class.java)
-    }
-
-    @Provides
-    @Singleton
-    fun provideAuthRepo(api: AuthAPI): AuthRepository {
-        return AuthRepoImplementation(api)
-    }
-//
-//    @Provides
-//    @Singleton
-//    fun provideListAPI(): ListAPI {
-//        return Retrofit.Builder()
-//            .baseUrl(BASE_URL)
-//            .addConverterFactory(GsonConverterFactory.create())
-//            .build()
-//            .create(ListAPI::class.java)
-//    }
-//
-//    @Provides
-//    @Singleton
-//    fun provideListRepo(api: ListAPI): ListRepository {
-//        return ListRepoImplementation(api)
-//    }
 
 
     @Provides

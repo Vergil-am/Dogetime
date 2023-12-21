@@ -7,7 +7,6 @@ import com.example.kotlinmovieapp.data.remote.dto.MoviesDTO
 import com.example.kotlinmovieapp.data.remote.dto.SearchDTO
 import com.example.kotlinmovieapp.data.remote.dto.SeasonDTO
 import com.example.kotlinmovieapp.data.remote.dto.ShowDetailsDTO
-import com.example.kotlinmovieapp.util.Constants
 import com.example.kotlinmovieapp.util.Constants.API_KEY
 import retrofit2.http.GET
 import retrofit2.http.Path
@@ -96,20 +95,4 @@ interface MoviesAPI {
         @Query("language") language: String = "en"
     ): GenresDTO
 
-    // Lists
-    @GET("account/{account_id}/watchlist/{type}")
-    fun getWatchList(
-        @Path("account_id") accountId: Int = Constants.ACCOUNT_ID,
-        @Path("type") type: String = "movies",
-        @Query("session_id") sessionId : String = Constants.SESSION_ID,
-        @Query("api_key") apiKey : String = API_KEY
-    ): MoviesDTO
-
-    @GET("account/{account_id}/favorite/{type}")
-    fun getFavorites(
-        @Path("account_id") accountId: Int = Constants.ACCOUNT_ID,
-        @Path("type") type: String = "movies",
-        @Query("session_id") sessionId : String = Constants.SESSION_ID,
-        @Query("api_key") apiKey : String = API_KEY
-    ): MoviesDTO
 }

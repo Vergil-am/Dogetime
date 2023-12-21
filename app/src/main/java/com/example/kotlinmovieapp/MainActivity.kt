@@ -11,7 +11,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
-import com.example.kotlinmovieapp.presentation.account.AccountViewModel
+import com.example.kotlinmovieapp.presentation.settings.SettingsViewModel
 import com.example.kotlinmovieapp.presentation.browse.BrowseViewModel
 import com.example.kotlinmovieapp.presentation.details.DetailsViewModel
 import com.example.kotlinmovieapp.presentation.home.HomeViewModel
@@ -28,7 +28,7 @@ class MainActivity : ComponentActivity() {
     private val detailsViewModel: DetailsViewModel by viewModels()
     private val browseViewModel: BrowseViewModel by viewModels()
     private val searchViewModel: SearchViewModel by viewModels()
-    private val accountViewModel: AccountViewModel by viewModels()
+    private val accountViewModel: SettingsViewModel by viewModels()
     private val listViewModel by viewModels<ListViewModel >()
     @RequiresApi(34)
     override fun onCreate(savedInstanceState: Bundle?) {

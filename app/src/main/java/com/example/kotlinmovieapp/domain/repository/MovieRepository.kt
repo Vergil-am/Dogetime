@@ -34,11 +34,5 @@ interface MovieRepository {
     // Genres
     suspend fun getGenres(type: String) : GenresDTO
 
-    // Lists
-    suspend fun getWatchList(
-        type: String
-    ): MoviesDTO
-    suspend fun getFavorites(
-        type: String
-    ): MoviesDTO
+
 }

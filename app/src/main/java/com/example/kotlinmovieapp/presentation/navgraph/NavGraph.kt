@@ -8,7 +8,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Menu
-import androidx.compose.material.icons.outlined.Person
+import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -22,13 +22,13 @@ import com.example.kotlinmovieapp.presentation.browse.BrowseViewModel
 import com.example.kotlinmovieapp.presentation.layouts.HomeLayout
 import com.example.kotlinmovieapp.presentation.details.Details
 import com.example.kotlinmovieapp.presentation.details.DetailsViewModel
-import com.example.kotlinmovieapp.presentation.account.Account
-import com.example.kotlinmovieapp.presentation.account.AccountViewModel
+import com.example.kotlinmovieapp.presentation.settings.Account
+import com.example.kotlinmovieapp.presentation.settings.SettingsViewModel
 import com.example.kotlinmovieapp.presentation.details.AnimeEpisodes
 import com.example.kotlinmovieapp.presentation.details.ShowSeasons
 import com.example.kotlinmovieapp.presentation.home.Home
 import com.example.kotlinmovieapp.presentation.home.HomeViewModel
-import com.example.kotlinmovieapp.presentation.video_player.VideoPlayer
+import com.example.kotlinmovieapp.presentation.webView.VideoPlayer
 import com.example.kotlinmovieapp.presentation.search.Search
 import com.example.kotlinmovieapp.presentation.search.SearchViewModel
 import com.example.kotlinmovieapp.presentation.watchlist.ListViewModel
@@ -40,7 +40,7 @@ val Items = listOf(
     Item(icon = Icons.Outlined.Home, Route.Home.route),
     Item(icon = Icons.Outlined.Menu , Route.Browse.route),
     Item(icon = Icons.Outlined.FavoriteBorder, Route.WatchList.route),
-    Item(icon = Icons.Outlined.Person, Route.Account.route),
+    Item(icon = Icons.Outlined.Settings, Route.Account.route),
 
     )
 
@@ -53,7 +53,7 @@ fun NavGraph (
     detailsViewModel: DetailsViewModel,
     browseViewModel: BrowseViewModel,
     searchViewModel: SearchViewModel,
-    accountViewModel: AccountViewModel,
+    accountViewModel: SettingsViewModel,
     listViewModel: ListViewModel,
     windowCompat: WindowInsetsControllerCompat
 ) {
