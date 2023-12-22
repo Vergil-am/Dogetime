@@ -22,6 +22,7 @@ fun Home(
 ) {
     val state = viewModel.state.value
     viewModel.getWatchlist()
+//    viewModel.getLatestEpisodes()
     Column (
     modifier = Modifier
         .verticalScroll(rememberScrollState())

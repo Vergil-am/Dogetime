@@ -11,4 +11,6 @@ object Constants {
 
 
     val lists = listOf("Watching","Planning",  "Completed", "Paused", "Dropped")
+
+    val OKANIME_BASE_URL = "https://www.okanime.xyz/"
 }

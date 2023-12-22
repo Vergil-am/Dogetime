@@ -76,6 +76,7 @@ dependencies {
 
     // Retrofit HTTP library
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation("com.squareup.retrofit2:converter-scalars:2.9.0")
     // Json converter for retrofit
     implementation("com.squareup.retrofit2:converter-gson:2.9.0")
 
@@ -85,6 +86,8 @@ dependencies {
     kapt("androidx.room:room-compiler:$roomVersion")
     implementation("androidx.room:room-ktx:$roomVersion")
 
+    // HTML parser
+    implementation("org.jsoup:jsoup:1.14.3")
 
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")

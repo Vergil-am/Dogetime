@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -83,6 +84,7 @@ fun  Details(
                 Row (
                     modifier = Modifier
                         .fillMaxWidth()
+                        .wrapContentWidth()
                     ,
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
 

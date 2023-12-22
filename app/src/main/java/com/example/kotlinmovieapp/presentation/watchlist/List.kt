@@ -26,6 +26,7 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
@@ -57,12 +58,19 @@ fun WatchList(
         ){
            ScrollableTabRow(
                selectedTabIndex = selectedTab,
-               modifier = Modifier.fillMaxWidth()
+               modifier = Modifier
+                   .fillMaxWidth(),
+
                ) {
                lists.forEachIndexed { index, item ->
-                  Tab(selected = selectedTab == index, onClick = {
-                      selectedTab = index
-                  }) {
+                  Tab(
+                      selected = selectedTab == index,
+                      onClick = { selectedTab = index  },
+                      modifier = Modifier.padding(10.dp),
+                      selectedContentColor = Color.Red,
+                      unselectedContentColor = Color.White
+
+                  ) {
                       Text(text = item)
                   }
                }
