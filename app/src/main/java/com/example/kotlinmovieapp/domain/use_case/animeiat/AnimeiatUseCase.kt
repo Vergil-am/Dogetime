@@ -89,7 +89,7 @@ class AnimeiatUseCase @Inject constructor(
                 releaseDate = res.created_at ,
                 status = res.status,
                 type = "anime",
-                episodes = res.total_episodes,
+                episodes = res.total_episodes.toString(),
                 tagline = null,
                 homepage = null,
                 lastAirDate = null,

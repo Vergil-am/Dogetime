@@ -8,8 +8,13 @@ import javax.inject.Inject
 class OKanimeRepoImlementation @Inject constructor(
     private val okanime: OkanimeAPI
 ): OKanimeRepository {
-    override suspend fun getHome(): Response<String> {
-        return okanime.getHomePage()
+
+    override suspend fun getLatestEpisodes(
+//        page: Int
+    ): Response<String> {
+        return okanime.getLatestEpisodes(
+//            page
+        )
     }
 
     override suspend fun getAnimeDetails(slug: String): Response<String> {

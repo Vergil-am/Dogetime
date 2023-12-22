@@ -1,6 +1,7 @@
 package com.example.kotlinmovieapp.presentation.home
 
 
+import android.util.Log
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
@@ -40,10 +41,10 @@ class HomeViewModel @Inject constructor (
                 moviesDTO ->  _state.value = MovieListState(movies = state.value.movies, trending = state.value.trending, shows = moviesDTO, anime = state.value.anime, watchList = state.value.watchList)
         }.launchIn(viewModelScope)
 
-        Animeiat.getLatestEpisodes().onEach {
-            _state.value = MovieListState(movies = state.value.movies, trending = state.value.trending, shows = state.value.shows, anime = it, watchList = state.value.watchList)
-        }.launchIn(viewModelScope)
-//        getLatestEpisodes()
+//        Animeiat.getLatestEpisodes().onEach {
+//            _state.value = MovieListState(movies = state.value.movies, trending = state.value.trending, shows = state.value.shows, anime = it, watchList = state.value.watchList)
+//        }.launchIn(viewModelScope)
+        getLatestEpisodes()
     }
 
     fun getWatchlist() {
@@ -61,12 +62,12 @@ class HomeViewModel @Inject constructor (
         }.launchIn(viewModelScope)
     }
 
-//    fun getLatestEpisodes() {
-//        okanime.getLatestEpisdoes().onEach {
-//            _state.value = MovieListState(movies = state.value.movies, trending = state.value.trending, shows = state.value.shows, anime = it, watchList = state.value.watchList)
-//            Log.e("ViewModel", it.toString())
-//        }.launchIn(viewModelScope)
-//    }
+    fun getLatestEpisodes() {
+        okanime.getLatestEpisdoes(1).onEach {
+            _state.value = MovieListState(movies = state.value.movies, trending = state.value.trending, shows = state.value.shows, anime = it, watchList = state.value.watchList)
+            Log.e("ViewModel", it.toString())
+        }.launchIn(viewModelScope)
+    }
 
 
 }

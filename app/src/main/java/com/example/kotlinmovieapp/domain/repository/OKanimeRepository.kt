@@ -4,7 +4,9 @@ import retrofit2.Response
 
 interface OKanimeRepository {
 
-    suspend fun getHome() : Response<String>
+    suspend fun getLatestEpisodes(
+//        page: Int
+    ) : Response<String>
 
     suspend fun getAnimeDetails(slug: String) : Response<String>
 }
