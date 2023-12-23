@@ -2,7 +2,9 @@ package com.example.kotlinmovieapp.domain.use_case.okanime
 
 import android.util.Log
 import com.example.kotlinmovieapp.domain.model.Details
+import com.example.kotlinmovieapp.domain.model.Episode
 import com.example.kotlinmovieapp.domain.model.MovieHome
+import com.example.kotlinmovieapp.domain.model.OkanimeEpisode
 import com.example.kotlinmovieapp.domain.repository.OKanimeRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -42,7 +44,11 @@ class OKanimeUseCase @Inject constructor(
         }
     }
 
-    fun getAnimeDetails(slug: String) : Flow<Details> = flow {
+    data class OkanimeDetails(
+        val details: Details,
+        val episodes: List<OkanimeEpisode>,
+    )
+    fun getAnimeDetails(slug: String) : Flow<OkanimeDetails> = flow {
         val res = repo.getAnimeDetails(slug).body()
         if (res != null ) {
 
@@ -70,11 +76,24 @@ class OKanimeUseCase @Inject constructor(
                     lastAirDate = null,
                     episodes = listInfo[4].select("small:eq(1)").text(),
                     slug = slug
+            )
+            val episodesHtml = doc.select("div.row.no-gutters div.small")
+            val episodes = episodesHtml.map {
+                OkanimeEpisode(
+                    title = it.selectFirst("div.anime-title h5 a")?.text() ?: "",
+                    slug = it.selectFirst("div.episode-image a")?.attr("href")?.split("/")?.get(4)
+                        ?: "",
+                    poster = it.selectFirst("div.episode-image img")?.attr("src") ?: "",
+                    episodeNumber = it.selectFirst("div.anime-title h5 a")?.text()?.split(" ")?.get(1)
+                        ?: ""
                 )
+            }
+            Log.e("Episodes", episodes.toString())
 
             Log.e("Anime Details", details.toString())
             Log.e("Runtime", runtime)
-            emit(details)
+            emit(OkanimeDetails(details= details, episodes = episodes))
         }
     }
+
 }

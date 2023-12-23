@@ -25,9 +25,7 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -38,7 +36,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import coil.compose.rememberAsyncImagePainter
-import com.example.kotlinmovieapp.util.Constants
 import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -47,13 +44,13 @@ fun AnimeEpisodes(
    viewModel: DetailsViewModel,
    slug: String
 ) {
-    var page by remember {
-        mutableIntStateOf(1)
-    }
+//    var page by remember {
+//        mutableIntStateOf(1)
+//    }
 
-    if (page == 1) {
-        viewModel.getAnimeEpisodes(slug, 1)
-    }
+//    if (page == 1) {
+//        viewModel.getAnimeEpisodes(slug, 1)
+//    }
     val state = viewModel.state.collectAsState().value
     val columnState = rememberLazyListState()
     val episodes = state.animeEpisodes
@@ -62,26 +59,26 @@ fun AnimeEpisodes(
     }
     val context = LocalContext.current
 
-    val hasReachedItem by remember {
-        derivedStateOf { columnState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ==
-                columnState.layoutInfo.totalItemsCount - 1
-        }
-    }
+//    val hasReachedItem by remember {
+//        derivedStateOf { columnState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ==
+//                columnState.layoutInfo.totalItemsCount - 1
+//        }
+//    }
 
-    if (hasReachedItem) {
-        page += 1
-        viewModel.getAnimeEpisodes(slug, page)
-    }
+//    if (hasReachedItem) {
+//        page += 1
+//        viewModel.getAnimeEpisodes(slug, page)
+//    }
     LazyColumn (
         state = columnState
     ) {
         episodes.forEach { episode ->
             item {
                 Card(
-                    onClick = {
-                        viewModel.getAnimeEpisodeId(episode.slug)
-                        opened = true
-                    },
+//                    onClick = {
+//                        viewModel.getAnimeEpisodeId(episode.slug)
+//                        opened = true
+//                    },
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(120.dp)
@@ -97,9 +94,10 @@ fun AnimeEpisodes(
                                 modifier = Modifier
                                     .fillMaxSize(),
                                 painter = rememberAsyncImagePainter(
-                                    model = "${Constants.AIMEIAT_IMAGE_URL}/${episode.poster_path}"
+//                                    model = "${Constants.AIMEIAT_IMAGE_URL}/${episode.poster_path}"
+                                    model = episode.poster
                                 ),
-                                contentDescription = "Episode ${episode.number}"
+                                contentDescription = "Episode ${episode.title}"
                             )
                             Box(
                                 modifier = Modifier
@@ -107,7 +105,7 @@ fun AnimeEpisodes(
                                     .background(Color.Black)
 
                             ) {
-                                Text(text = "EP ${episode.number}")
+                                Text(text = "EP ${episode.episodeNumber}")
                             }
                         }
 
@@ -118,12 +116,12 @@ fun AnimeEpisodes(
                             verticalArrangement = Arrangement.SpaceBetween,
                         ) {
                             Text(text = episode.title)
-                            Text(
-                                text = episode.published_at.split("T")[0],
-                                modifier = Modifier.fillMaxWidth(),
-                                textAlign = TextAlign.End
-
-                            )
+//                            Text(
+//                                text = episode.published_at.split("T")[0],
+//                                modifier = Modifier.fillMaxWidth(),
+//                                textAlign = TextAlign.End
+//
+//                            )
                         }
 
                     }
@@ -138,7 +136,7 @@ fun AnimeEpisodes(
             onDismissRequest = { opened = false },
             modifier = Modifier.padding(10.dp)
         ) {
-            state.animeEpisodeId?.let { viewModel.getAnimeEpisodeSources(it) }
+//            state.animeEpisodeId?.let { viewModel.getAnimeEpisodeSources(it) }
 
             val episode = state.animeEpisodeSources?.data
             Text(

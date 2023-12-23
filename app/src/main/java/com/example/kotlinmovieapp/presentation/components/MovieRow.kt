@@ -10,6 +10,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
@@ -50,6 +51,7 @@ fun MovieRow(
                     Image(
                         modifier = Modifier
                             .fillMaxSize(),
+                        contentScale = ContentScale.FillBounds,
                         painter = rememberAsyncImagePainter(
                             movie.poster
                         ),

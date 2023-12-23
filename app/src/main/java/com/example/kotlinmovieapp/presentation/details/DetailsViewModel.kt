@@ -1,6 +1,5 @@
 package com.example.kotlinmovieapp.presentation.details
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.kotlinmovieapp.domain.use_case.animeiat.AnimeiatUseCase
@@ -87,58 +86,58 @@ class DetailsViewModel @Inject constructor(
 //        }.launchIn(viewModelScope)
 //    }
 
-    fun getAnimeEpisodes(slug: String, page: Int) {
-        animeiat.getAnimeEpisodes(slug, page).onEach {
-            if (page == 1) {
-            _state.value = MovieState(
-                media = state.value.media,
-                isLoading = false,
-                season = null,
-                watchList = state.value.watchList,
-                animeEpisodes = it.data,
-                animeEpisodeId = state.value.animeEpisodeId,
-                animeEpisodeSources = state.value.animeEpisodeSources
-            )} else {
-                _state.value = MovieState(
-                    media = state.value.media,
-                    isLoading = false,
-                    season = null,
-                    watchList = state.value.watchList,
-                    animeEpisodes = state.value.animeEpisodes.plus(it.data),
-                    animeEpisodeId = state.value.animeEpisodeId,
-                    animeEpisodeSources = state.value.animeEpisodeSources
-                )
-            }
-        }.launchIn(viewModelScope)
-    }
-
-    fun getAnimeEpisodeId(slug: String) {
-        animeiat.getAnimeEpisodeId(slug).onEach {
-            _state.value = MovieState(
-                media = state.value.media,
-                isLoading = false,
-                season = null,
-                watchList = state.value.watchList,
-                animeEpisodes = state.value.animeEpisodes,
-                animeEpisodeId =  it,
-                animeEpisodeSources = null
-            )
-        }.launchIn(viewModelScope)
-    }
-
-    fun getAnimeEpisodeSources(slug: String) {
-        animeiat.getAnimeEpisodeSources(slug).onEach {
-            _state.value =  MovieState(
-                media = state.value.media,
-                isLoading = false,
-                season = null,
-                watchList = state.value.watchList,
-                animeEpisodes = state.value.animeEpisodes,
-                animeEpisodeId =  state.value.animeEpisodeId,
-                animeEpisodeSources = it
-            )
-        }.launchIn(viewModelScope)
-    }
+//    fun getAnimeEpisodes(slug: String, page: Int) {
+//        animeiat.getAnimeEpisodes(slug, page).onEach {
+//            if (page == 1) {
+//            _state.value = MovieState(
+//                media = state.value.media,
+//                isLoading = false,
+//                season = null,
+//                watchList = state.value.watchList,
+//                animeEpisodes = it.data,
+//                animeEpisodeId = state.value.animeEpisodeId,
+//                animeEpisodeSources = state.value.animeEpisodeSources
+//            )} else {
+//                _state.value = MovieState(
+//                    media = state.value.media,
+//                    isLoading = false,
+//                    season = null,
+//                    watchList = state.value.watchList,
+//                    animeEpisodes = state.value.animeEpisodes.plus(it.data),
+//                    animeEpisodeId = state.value.animeEpisodeId,
+//                    animeEpisodeSources = state.value.animeEpisodeSources
+//                )
+//            }
+//        }.launchIn(viewModelScope)
+//    }
+//
+//    fun getAnimeEpisodeId(slug: String) {
+//        animeiat.getAnimeEpisodeId(slug).onEach {
+//            _state.value = MovieState(
+//                media = state.value.media,
+//                isLoading = false,
+//                season = null,
+//                watchList = state.value.watchList,
+//                animeEpisodes = state.value.animeEpisodes,
+//                animeEpisodeId =  it,
+//                animeEpisodeSources = null
+//            )
+//        }.launchIn(viewModelScope)
+//    }
+//
+//    fun getAnimeEpisodeSources(slug: String) {
+//        animeiat.getAnimeEpisodeSources(slug).onEach {
+//            _state.value =  MovieState(
+//                media = state.value.media,
+//                isLoading = false,
+//                season = null,
+//                watchList = state.value.watchList,
+//                animeEpisodes = state.value.animeEpisodes,
+//                animeEpisodeId =  state.value.animeEpisodeId,
+//                animeEpisodeSources = it
+//            )
+//        }.launchIn(viewModelScope)
+//    }
 
     // WatchList
     fun addToWatchList(media: WatchListMedia) {
@@ -166,11 +165,11 @@ class DetailsViewModel @Inject constructor(
     private fun getAnime(slug: String) {
         Okanime.getAnimeDetails(slug).onEach {
                         _state.value = MovieState(
-                media = it,
+                media = it.details,
                 isLoading = false,
                 season = null,
                 watchList = state.value.watchList,
-                animeEpisodes = state.value.animeEpisodes,
+                animeEpisodes = it.episodes,
                 animeEpisodeSources = state.value.animeEpisodeSources
             )
         }.launchIn(viewModelScope)
