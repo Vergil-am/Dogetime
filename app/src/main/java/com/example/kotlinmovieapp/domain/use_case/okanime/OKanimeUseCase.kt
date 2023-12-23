@@ -5,6 +5,7 @@ import com.example.kotlinmovieapp.domain.model.Details
 import com.example.kotlinmovieapp.domain.model.Episode
 import com.example.kotlinmovieapp.domain.model.MovieHome
 import com.example.kotlinmovieapp.domain.model.OkanimeEpisode
+import com.example.kotlinmovieapp.domain.model.Source
 import com.example.kotlinmovieapp.domain.repository.OKanimeRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -54,7 +55,6 @@ class OKanimeUseCase @Inject constructor(
 
             val doc = Jsoup.parse(res).getElementsByClass("container")
             val listInfo = doc.select("div.full-list-info")
-            Log.e("List info", listInfo.toString())
             val runtime = listInfo[2].select("small:eq(1)").text().split(" ")[1]
 
             val details = Details(
@@ -81,19 +81,43 @@ class OKanimeUseCase @Inject constructor(
             val episodes = episodesHtml.map {
                 OkanimeEpisode(
                     title = it.selectFirst("div.anime-title h5 a")?.text() ?: "",
-                    slug = it.selectFirst("div.episode-image a")?.attr("href")?.split("/")?.get(4)
+                    slug = it.selectFirst("div.episode-image a")?.attr("href")?.split("/")?.reversed()?.get(1)
                         ?: "",
                     poster = it.selectFirst("div.episode-image img")?.attr("src") ?: "",
                     episodeNumber = it.selectFirst("div.anime-title h5 a")?.text()?.split(" ")?.get(1)
                         ?: ""
                 )
             }
-            Log.e("Episodes", episodes.toString())
 
-            Log.e("Anime Details", details.toString())
-            Log.e("Runtime", runtime)
             emit(OkanimeDetails(details= details, episodes = episodes))
         }
+    }
+
+    fun getEpisode(slug: String) : Flow<List<Source>> = flow {
+        val doc = repo.getEpisode(slug).body()
+        if (doc != null) {
+            val sources = Jsoup.parse(doc).select("a.ep-link").map {element ->
+                Source(
+                    url = element.attr("href") ?: "",
+                quality = element.selectFirst("span")?.text().let {
+                    when (it)  {
+                        "FHD" -> "1080p"
+                        "HD" -> "720p"
+                        "SD" -> "480p"
+                        else -> "240p"
+                    }
+                },
+                label = element.selectFirst("span")?.text() ?: "?",
+                source = element.text() ?: ""
+                )
+            }
+
+            Log.e("SOURCES", sources.toString())
+
+
+            emit(sources)
+        }
+
     }
 
 }

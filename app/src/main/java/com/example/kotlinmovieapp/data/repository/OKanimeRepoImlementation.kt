@@ -21,4 +21,8 @@ class OKanimeRepoImlementation @Inject constructor(
         return okanime.getAnimeDetails(slug)
     }
 
+    override suspend fun getEpisode(slug: String): Response<String> {
+       return okanime.getEpisode(slug)
+    }
+
 }

@@ -9,4 +9,6 @@ interface OKanimeRepository {
     ) : Response<String>
 
     suspend fun getAnimeDetails(slug: String) : Response<String>
+
+    suspend fun getEpisode(slug: String) : Response<String>
 }

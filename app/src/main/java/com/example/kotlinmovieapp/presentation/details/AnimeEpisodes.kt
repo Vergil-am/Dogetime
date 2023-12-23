@@ -2,6 +2,7 @@ package com.example.kotlinmovieapp.presentation.details
 
 import android.content.Intent
 import android.net.Uri
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -15,6 +16,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.Card
@@ -23,6 +26,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -75,10 +79,11 @@ fun AnimeEpisodes(
         episodes.forEach { episode ->
             item {
                 Card(
-//                    onClick = {
+                    onClick = {
+                              viewModel.getLinks(episode.slug)
 //                        viewModel.getAnimeEpisodeId(episode.slug)
-//                        opened = true
-//                    },
+                        opened = true
+                    },
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(120.dp)
@@ -134,32 +139,32 @@ fun AnimeEpisodes(
     if (opened) {
         ModalBottomSheet(
             onDismissRequest = { opened = false },
-            modifier = Modifier.padding(10.dp)
+//            modifier = Modifier.padding(10.dp),
+            sheetState = rememberModalBottomSheetState()
         ) {
 //            state.animeEpisodeId?.let { viewModel.getAnimeEpisodeSources(it) }
 
-            val episode = state.animeEpisodeSources?.data
+            val sources = state.animeEpisodeSources
             Text(
-                text = "SELECT QUALITY",
+                text = "SELECT SOURCE",
                 modifier = Modifier
                     .fillMaxWidth(),
                 textAlign = TextAlign.Center,
                 style = MaterialTheme.typography.titleLarge
                 )
-            episode?.sources?.forEach {
+            sources?.forEach {
 
                 Card (
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(10.dp),
-                    onClick = {
-                        // This will probably change later on
-                        val intent = Intent(Intent.ACTION_VIEW).apply {
-                            setDataAndType(Uri.parse(it.file), "video/*")
-                            flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                        }
-                        context.startActivity(intent)
-                    }
+//                    onClick = {
+//                        val intent = Intent(Intent.ACTION_VIEW).apply {
+//                            setDataAndType(Uri.parse(it.file), "video/*")
+//                            flags = Intent.FLAG_ACTIVITY_NEW_TASK
+//                        }
+//                        context.startActivity(intent)
+//                    }
                 ) {
                     Row  (
                         horizontalArrangement = Arrangement.SpaceBetween,
@@ -168,8 +173,9 @@ fun AnimeEpisodes(
                             .padding(10.dp)
 
                     ){
+                        Text(text = it.source)
                         Column {
-                            Text(text = it.name.uppercase(Locale.ROOT))
+//                            Text(text = it.label.uppercase(Locale.ROOT))
                             Text(text = "${it.label} ${it.quality}")
                         }
                         Icon(

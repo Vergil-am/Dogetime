@@ -17,4 +17,9 @@ interface OkanimeAPI {
     suspend fun getAnimeDetails(
         @Path("slug") slug: String
     ) : Response<String>
+
+    @GET("episode/{slug}")
+    suspend fun getEpisode(
+        @Path(value = "slug", encoded = true) slug: String
+    ) : Response<String>
 }

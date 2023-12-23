@@ -1,5 +1,6 @@
 package com.example.kotlinmovieapp.presentation.details
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.kotlinmovieapp.domain.use_case.animeiat.AnimeiatUseCase
@@ -171,6 +172,19 @@ class DetailsViewModel @Inject constructor(
                 watchList = state.value.watchList,
                 animeEpisodes = it.episodes,
                 animeEpisodeSources = state.value.animeEpisodeSources
+            )
+        }.launchIn(viewModelScope)
+    }
+
+    fun getLinks(slug: String) {
+        Okanime.getEpisode(slug).onEach {
+            _state.value = MovieState(
+                media = state.value.media,
+                isLoading = false,
+                season = null,
+                watchList = state.value.watchList,
+                animeEpisodes = state.value.animeEpisodes,
+                animeEpisodeSources = it
             )
         }.launchIn(viewModelScope)
     }
