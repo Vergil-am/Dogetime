@@ -13,7 +13,7 @@ android {
 
     defaultConfig {
         applicationId = "com.example.kotlinmovieapp"
-        minSdk = 31
+        minSdk = 21
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"

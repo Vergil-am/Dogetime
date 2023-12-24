@@ -158,13 +158,13 @@ fun AnimeEpisodes(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(10.dp),
-//                    onClick = {
-//                        val intent = Intent(Intent.ACTION_VIEW).apply {
-//                            setDataAndType(Uri.parse(it.file), "video/*")
-//                            flags = Intent.FLAG_ACTIVITY_NEW_TASK
-//                        }
-//                        context.startActivity(intent)
-//                    }
+                    onClick = {
+                        val intent = Intent(Intent.ACTION_VIEW).apply {
+                            setDataAndType(Uri.parse(it.source), "video/*")
+                            flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                        }
+                        context.startActivity(intent)
+                    }
                 ) {
                     Row  (
                         horizontalArrangement = Arrangement.SpaceBetween,
