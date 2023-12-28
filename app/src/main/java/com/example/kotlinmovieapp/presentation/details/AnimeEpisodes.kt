@@ -2,7 +2,8 @@ package com.example.kotlinmovieapp.presentation.details
 
 import android.content.Intent
 import android.net.Uri
-import android.util.Log
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -16,8 +17,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.Card
@@ -40,7 +39,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import coil.compose.rememberAsyncImagePainter
-import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -62,6 +60,10 @@ fun AnimeEpisodes(
         mutableStateOf(false)
     }
     val context = LocalContext.current
+    val openUrl = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult()
+    ) { }
+
 
 //    val hasReachedItem by remember {
 //        derivedStateOf { columnState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ==
@@ -159,11 +161,8 @@ fun AnimeEpisodes(
                         .fillMaxWidth()
                         .padding(10.dp),
                     onClick = {
-                        val intent = Intent(Intent.ACTION_VIEW).apply {
-                            setDataAndType(Uri.parse(it.source), "video/*")
-                            flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                        }
-                        context.startActivity(intent)
+                        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(it.url))
+                        openUrl.launch(intent)
                     }
                 ) {
                     Row  (

@@ -2,7 +2,6 @@ package com.example.kotlinmovieapp.domain.use_case.okanime
 
 import android.util.Log
 import com.example.kotlinmovieapp.domain.model.Details
-import com.example.kotlinmovieapp.domain.model.Episode
 import com.example.kotlinmovieapp.domain.model.MovieHome
 import com.example.kotlinmovieapp.domain.model.OkanimeEpisode
 import com.example.kotlinmovieapp.domain.model.Source
@@ -15,7 +14,7 @@ import javax.inject.Inject
 class OKanimeUseCase @Inject constructor(
     private val repo: OKanimeRepository
 ){
-    fun getLatestEpisdoes(page: Int) : Flow<List<MovieHome>> = flow {
+    fun getLatestEpisodes(page: Int) : Flow<List<MovieHome>> = flow {
         val res = repo.getLatestEpisodes(
 //            page
         ).body()
@@ -98,7 +97,7 @@ class OKanimeUseCase @Inject constructor(
         if (doc != null) {
             val sources = Jsoup.parse(doc).select("a.ep-link").map {element ->
                 Source(
-                    url = element.attr("href") ?: "",
+                    url =  element.attr("data-src") ?: "",
                 quality = element.selectFirst("span")?.text().let {
                     when (it)  {
                         "FHD" -> "1080p"
@@ -108,14 +107,16 @@ class OKanimeUseCase @Inject constructor(
                     }
                 },
                 label = element.selectFirst("span")?.text() ?: "?",
-                source = element.text() ?: ""
+                source = element.childNodes().last().toString()
                 )
             }
 
             Log.e("SOURCES", sources.toString())
 
-
-            emit(sources)
+            val urlRegex = Regex(
+                "((https?|ftp)://|(www\\.)|ftp\\.)[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}(/\\S*)?"
+            )
+            emit(sources.filter { it.url.matches(urlRegex) }.sortedBy { it.label })
         }
 
     }

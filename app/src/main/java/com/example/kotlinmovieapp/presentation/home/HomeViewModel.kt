@@ -63,7 +63,7 @@ class HomeViewModel @Inject constructor (
     }
 
     fun getLatestEpisodes() {
-        okanime.getLatestEpisdoes(1).onEach {
+        okanime.getLatestEpisodes(1).onEach {
             _state.value = MovieListState(movies = state.value.movies, trending = state.value.trending, shows = state.value.shows, anime = it, watchList = state.value.watchList)
             Log.e("ViewModel", it.toString())
         }.launchIn(viewModelScope)
