@@ -2,6 +2,7 @@ package com.example.kotlinmovieapp.presentation.webView
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.pm.ActivityInfo
+import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.webkit.WebChromeClient
@@ -20,28 +21,20 @@ import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
-import com.example.kotlinmovieapp.util.Constants
 
 @RequiresApi(34)
 @SuppressLint("SetJavaScriptEnabled", "SourceLockedOrientationActivity")
 @Composable
 fun VideoPlayer(
-   id: String,
-   season: Int?,
-   episode: Int?,
+   url: String,
    windowCompat: WindowInsetsControllerCompat,
 ) {
+   Log.e("url", url)
    windowCompat.hide(WindowInsetsCompat.Type.systemBars())
    windowCompat.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
    val activity = LocalView.current.context as Activity
    val isFullscreen = remember {
       mutableStateOf(false)
-   }
-   val url: String = if (season != 0 && episode != 0) {
-      "${Constants.VIDEO_URL}tv?tmdb=$id&season=$season&episode=$episode"
-   }
-   else {
-      "${Constants.VIDEO_URL}movie?tmdb=$id"
    }
    DisposableEffect(key1 = activity ) {
       activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE

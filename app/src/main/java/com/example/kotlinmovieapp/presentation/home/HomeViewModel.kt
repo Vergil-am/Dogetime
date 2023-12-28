@@ -7,7 +7,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.kotlinmovieapp.domain.model.MovieHome
-import com.example.kotlinmovieapp.domain.use_case.animeiat.AnimeiatUseCase
 import com.example.kotlinmovieapp.domain.use_case.movies.get_movies.GetMoviesUseCase
 import com.example.kotlinmovieapp.domain.use_case.okanime.OKanimeUseCase
 import com.example.kotlinmovieapp.domain.use_case.watchlist.WatchListUseCase
@@ -19,7 +18,7 @@ import javax.inject.Inject
 @HiltViewModel
 class HomeViewModel @Inject constructor (
     private val getMoviesUseCase: GetMoviesUseCase,
-    private val Animeiat: AnimeiatUseCase,
+//    private val Animeiat: AnimeiatUseCase,
     private val watchList: WatchListUseCase,
     private val okanime: OKanimeUseCase
 ): ViewModel() {

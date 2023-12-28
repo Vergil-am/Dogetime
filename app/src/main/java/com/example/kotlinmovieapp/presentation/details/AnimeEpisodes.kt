@@ -1,9 +1,5 @@
 package com.example.kotlinmovieapp.presentation.details
 
-import android.content.Intent
-import android.net.Uri
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -35,46 +31,26 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
+import java.net.URLEncoder
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AnimeEpisodes(
    viewModel: DetailsViewModel,
-   slug: String
+   slug: String,
+   navController: NavController
 ) {
-//    var page by remember {
-//        mutableIntStateOf(1)
-//    }
-
-//    if (page == 1) {
-//        viewModel.getAnimeEpisodes(slug, 1)
-//    }
     val state = viewModel.state.collectAsState().value
     val columnState = rememberLazyListState()
     val episodes = state.animeEpisodes
     var opened by remember {
         mutableStateOf(false)
     }
-    val context = LocalContext.current
-    val openUrl = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.StartActivityForResult()
-    ) { }
 
-
-//    val hasReachedItem by remember {
-//        derivedStateOf { columnState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ==
-//                columnState.layoutInfo.totalItemsCount - 1
-//        }
-//    }
-
-//    if (hasReachedItem) {
-//        page += 1
-//        viewModel.getAnimeEpisodes(slug, page)
-//    }
     LazyColumn (
         state = columnState
     ) {
@@ -101,7 +77,6 @@ fun AnimeEpisodes(
                                 modifier = Modifier
                                     .fillMaxSize(),
                                 painter = rememberAsyncImagePainter(
-//                                    model = "${Constants.AIMEIAT_IMAGE_URL}/${episode.poster_path}"
                                     model = episode.poster
                                 ),
                                 contentDescription = "Episode ${episode.title}"
@@ -123,12 +98,6 @@ fun AnimeEpisodes(
                             verticalArrangement = Arrangement.SpaceBetween,
                         ) {
                             Text(text = episode.title)
-//                            Text(
-//                                text = episode.published_at.split("T")[0],
-//                                modifier = Modifier.fillMaxWidth(),
-//                                textAlign = TextAlign.End
-//
-//                            )
                         }
 
                     }
@@ -161,8 +130,9 @@ fun AnimeEpisodes(
                         .fillMaxWidth()
                         .padding(10.dp),
                     onClick = {
-                        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(it.url))
-                        openUrl.launch(intent)
+//                        To DO
+                        val url = URLEncoder.encode(it.url)
+                        navController.navigate("web-view/${url}")
                     }
                 ) {
                     Row  (

@@ -33,6 +33,7 @@ import com.example.kotlinmovieapp.presentation.search.Search
 import com.example.kotlinmovieapp.presentation.search.SearchViewModel
 import com.example.kotlinmovieapp.presentation.watchlist.ListViewModel
 import com.example.kotlinmovieapp.presentation.watchlist.WatchList
+import java.net.URLDecoder
 
 
 class Item(val icon: ImageVector, val title: String)
@@ -104,20 +105,28 @@ fun NavGraph (
             }
         }
 
-        composable(Route.VideoPlayer.route) {
-            val id = it.arguments?.getString("id")
-            val season = it.arguments?.getString("season")
-            val episode = it.arguments?.getString("episode")
-            if (id != null && episode != null && season != null) {
-                VideoPlayer(
-                    id = id,
-                    season = season.toInt(),
-                    episode = episode.toInt(),
-                    windowCompat = windowCompat,
-                )
+//        composable(Route.VideoPlayer.route) {
+//            val id = it.arguments?.getString("id")
+//            val season = it.arguments?.getString("season")
+//            val episode = it.arguments?.getString("episode")
+//            if (id != null && episode != null && season != null) {
+//                VideoPlayer(
+//                    id = id,
+//                    season = season.toInt(),
+//                    episode = episode.toInt(),
+//                    windowCompat = windowCompat,
+//                )
+//            }
+//        }
+
+
+        composable(Route.WebView.route) {
+            val url = it.arguments?.getString("url")
+            if (url != null) {
+                val decodedUrl = URLDecoder.decode(url)
+                VideoPlayer(url = decodedUrl, windowCompat = windowCompat)
             }
         }
-
 
         composable(Route.MovieDetails.route) {
             val id = it.arguments?.getString("id")
@@ -165,7 +174,7 @@ fun NavGraph (
         composable(Route.AnimeEpisodes.route) {
             val slug = it.arguments?.getString("slug")
             if (slug != null) {
-                AnimeEpisodes(viewModel = detailsViewModel,  slug = slug)
+                AnimeEpisodes(viewModel = detailsViewModel,  slug = slug, navController)
             }
         }
 

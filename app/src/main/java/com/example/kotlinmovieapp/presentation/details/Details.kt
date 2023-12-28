@@ -24,6 +24,8 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.kotlinmovieapp.data.local.entities.WatchListMedia
 import com.example.kotlinmovieapp.presentation.components.DetailsHeader
+import com.example.kotlinmovieapp.util.Constants
+import java.net.URLEncoder
 
 @Composable
 fun  Details(
@@ -104,7 +106,11 @@ fun  Details(
                     colors = ButtonDefaults.buttonColors(containerColor = Color.White),
                     onClick = {
                         when(type) {
-                            "movie" -> navController.navigate("video_player/${it.id}/0/0")
+                            "movie" ->
+                            {
+                                val url = URLEncoder.encode("${Constants.VIDEO_URL}/movie/$id")
+                                navController.navigate("web-view/$url")
+                            }
                             "show" -> navController.navigate("show/seasons/$id")
                             "anime" -> navController.navigate("anime/episodes/$id")
                         }

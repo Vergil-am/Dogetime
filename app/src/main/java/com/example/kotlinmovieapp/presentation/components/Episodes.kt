@@ -29,6 +29,7 @@ import coil.compose.rememberAsyncImagePainter
 import com.example.kotlinmovieapp.domain.model.Season
 import com.example.kotlinmovieapp.presentation.details.DetailsViewModel
 import com.example.kotlinmovieapp.util.Constants
+import java.net.URLEncoder
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -49,8 +50,9 @@ fun Episodes(
         modifier = Modifier.verticalScroll(rememberScrollState())
     ) {
         state?.episodes?.forEach { episode ->
+            val url = URLEncoder.encode("${Constants.VIDEO_URL}/tv/$id/${episode.season_number}/${episode.episode_number}")
             Card (
-                onClick = {navController.navigate("video_player/$id/${season.season_number}/${episode.episode_number}")},
+                onClick = {navController.navigate("web-view/$url")},
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(120.dp)
