@@ -1,5 +1,6 @@
 package com.example.kotlinmovieapp.data.remote
 
+import com.example.kotlinmovieapp.presentation.navgraph.Route
 import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.Path
@@ -21,5 +22,15 @@ interface OkanimeAPI {
     @GET("episode/{slug}")
     suspend fun getEpisode(
         @Path(value = "slug", encoded = true) slug: String
+    ) : Response<String>
+
+    @GET("anime-list/")
+    suspend fun getAnime(
+        @Query("page") page: Int
+    ) : Response<String>
+
+    @GET("search/")
+    suspend fun searchAnime(
+        @Query("s") query: String
     ) : Response<String>
 }

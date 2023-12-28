@@ -25,4 +25,12 @@ class OKanimeRepoImlementation @Inject constructor(
        return okanime.getEpisode(slug)
     }
 
+    override suspend fun getAnime(page: Int): Response<String> {
+       return okanime.getAnime(page)
+    }
+
+    override suspend fun searchAnime(query: String): Response<String> {
+       return okanime.searchAnime(query)
+    }
+
 }

@@ -13,8 +13,6 @@ sealed class Route (
 
     object Account : Route("account")
 
-//    object VideoPlayer: Route("video_player/{id}/{season}/{episode}")
-
     object WebView: Route("web-view/{url}")
     object MovieDetails: Route("movie/{id}")
 

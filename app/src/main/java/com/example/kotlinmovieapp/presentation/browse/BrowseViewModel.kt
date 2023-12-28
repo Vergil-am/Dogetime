@@ -4,6 +4,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.kotlinmovieapp.domain.use_case.animeiat.AnimeiatUseCase
 import com.example.kotlinmovieapp.domain.use_case.movies.genres.GenresUseCase
 import com.example.kotlinmovieapp.domain.use_case.movies.get_movies.GetMoviesUseCase
+import com.example.kotlinmovieapp.domain.use_case.okanime.OKanimeUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.launchIn
@@ -14,7 +15,8 @@ import javax.inject.Inject
 class BrowseViewModel @Inject constructor(
    private val getMoviesUseCase: GetMoviesUseCase,
     private val genresUseCase: GenresUseCase,
-    private val animeiat: AnimeiatUseCase
+//    private val animeiat: AnimeiatUseCase,
+    private val okanime: OKanimeUseCase
 ) : ViewModel() {
     private val _state = MutableStateFlow(BrowseState())
     var state = _state
@@ -41,7 +43,8 @@ class BrowseViewModel @Inject constructor(
 
                }
            }.launchIn(viewModelScope)
-           "anime" ->              animeiat.getPopularAnime(query = null, page).onEach {
+           "anime" ->
+               okanime.getAnime(page).onEach {
                if (page == 1) {
                    _state.value = BrowseState(movies = it, type = state.value.type, catalog = state.value.catalog, genre = state.value.genre)
                } else if (page > 1) {
@@ -60,4 +63,6 @@ class BrowseViewModel @Inject constructor(
        }.launchIn(viewModelScope)
 
     }
+
+
 }

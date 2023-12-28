@@ -28,7 +28,6 @@ class HomeViewModel @Inject constructor (
     init {
         getAll()
 
-
     }
 
     private fun getAll() {
@@ -67,8 +66,6 @@ class HomeViewModel @Inject constructor (
             Log.e("ViewModel", it.toString())
         }.launchIn(viewModelScope)
     }
-
-
 }
 
 

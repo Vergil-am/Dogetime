@@ -25,7 +25,7 @@ import androidx.core.view.WindowInsetsControllerCompat
 @RequiresApi(34)
 @SuppressLint("SetJavaScriptEnabled", "SourceLockedOrientationActivity")
 @Composable
-fun VideoPlayer(
+fun WebView(
    url: String,
    windowCompat: WindowInsetsControllerCompat,
 ) {

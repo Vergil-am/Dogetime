@@ -27,7 +27,7 @@ fun Home(
     modifier = Modifier
         .verticalScroll(rememberScrollState())
     ) {
-        state.watchList?.let {
+        if (state.watchList?.isNotEmpty() == true) {
             Text(text = "Continue watching",
                 style = MaterialTheme.typography.titleMedium,
                 textAlign = TextAlign.Center,
@@ -35,7 +35,8 @@ fun Home(
                     .fillMaxWidth()
                     .padding(10.dp)
             )
-            MovieRow(data = it, navController = navController)
+             MovieRow(data = state.watchList , navController = navController)
+
         }
 
         state.movies?.let {

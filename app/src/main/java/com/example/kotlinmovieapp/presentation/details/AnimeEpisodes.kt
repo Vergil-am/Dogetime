@@ -130,7 +130,6 @@ fun AnimeEpisodes(
                         .fillMaxWidth()
                         .padding(10.dp),
                     onClick = {
-//                        To DO
                         val url = URLEncoder.encode(it.url)
                         navController.navigate("web-view/${url}")
                     }

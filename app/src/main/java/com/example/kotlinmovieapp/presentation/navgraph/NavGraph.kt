@@ -28,11 +28,11 @@ import com.example.kotlinmovieapp.presentation.details.AnimeEpisodes
 import com.example.kotlinmovieapp.presentation.details.ShowSeasons
 import com.example.kotlinmovieapp.presentation.home.Home
 import com.example.kotlinmovieapp.presentation.home.HomeViewModel
-import com.example.kotlinmovieapp.presentation.webView.VideoPlayer
 import com.example.kotlinmovieapp.presentation.search.Search
 import com.example.kotlinmovieapp.presentation.search.SearchViewModel
 import com.example.kotlinmovieapp.presentation.watchlist.ListViewModel
 import com.example.kotlinmovieapp.presentation.watchlist.WatchList
+import com.example.kotlinmovieapp.presentation.webView.WebView
 import java.net.URLDecoder
 
 
@@ -105,26 +105,11 @@ fun NavGraph (
             }
         }
 
-//        composable(Route.VideoPlayer.route) {
-//            val id = it.arguments?.getString("id")
-//            val season = it.arguments?.getString("season")
-//            val episode = it.arguments?.getString("episode")
-//            if (id != null && episode != null && season != null) {
-//                VideoPlayer(
-//                    id = id,
-//                    season = season.toInt(),
-//                    episode = episode.toInt(),
-//                    windowCompat = windowCompat,
-//                )
-//            }
-//        }
-
-
         composable(Route.WebView.route) {
             val url = it.arguments?.getString("url")
             if (url != null) {
                 val decodedUrl = URLDecoder.decode(url)
-                VideoPlayer(url = decodedUrl, windowCompat = windowCompat)
+                WebView(url = decodedUrl, windowCompat = windowCompat)
             }
         }
 

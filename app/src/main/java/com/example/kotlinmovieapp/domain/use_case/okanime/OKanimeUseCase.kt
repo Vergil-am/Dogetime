@@ -121,4 +121,37 @@ class OKanimeUseCase @Inject constructor(
 
     }
 
+
+    fun getAnime(page: Int) : Flow<List<MovieHome>> = flow {
+        val doc = repo.getAnime(page).body()
+        if (doc != null) {
+            val animes = Jsoup.parse(doc).select("div.anime-card").map {
+                MovieHome(
+                    id = 1,
+                    poster = it.selectFirst("img.img-responsive")?.attr("src") ?: "",
+                    slug = it.selectFirst("a")?.attr("href")?.split("/")?.reversed()?.get(1),
+                    type = "anime",
+                    title = it.selectFirst("h4")?.text() ?: ""
+                )
+            }
+            emit(animes)
+        }
+    }
+
+    fun searchAnime(query: String) : Flow<List<MovieHome>> = flow {
+        val doc = repo.searchAnime(query).body()
+        if (doc != null) {
+            val animes = Jsoup.parse(doc).select("div.anime-card").map {
+                MovieHome(
+                    id = 1,
+                    poster = it.selectFirst("img.img-responsive")?.attr("src") ?: "",
+                    slug = it.selectFirst("a")?.attr("href")?.split("/")?.reversed()?.get(1),
+                    type = "anime",
+                    title = it.selectFirst("h4")?.text() ?: ""
+                )
+            }
+            Log.e("animes", animes.toString())
+            emit(animes)
+        }
+    }
 }

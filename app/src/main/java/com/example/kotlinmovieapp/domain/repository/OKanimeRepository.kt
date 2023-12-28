@@ -11,4 +11,9 @@ interface OKanimeRepository {
     suspend fun getAnimeDetails(slug: String) : Response<String>
 
     suspend fun getEpisode(slug: String) : Response<String>
+
+    suspend fun getAnime(page: Int) : Response<String>
+
+
+    suspend fun searchAnime(query: String) : Response<String>
 }
