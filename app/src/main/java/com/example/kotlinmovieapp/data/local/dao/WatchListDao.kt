@@ -21,7 +21,7 @@ interface WatchListDAO{
 
 
     @Query("SELECT * FROM watchlist WHERE id = :id")
-    suspend fun getMediaById(id: Int) : WatchListMedia
+    suspend fun getMediaById(id: String) : WatchListMedia
 
 
 

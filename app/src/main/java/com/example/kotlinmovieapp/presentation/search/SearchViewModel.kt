@@ -2,7 +2,6 @@ package com.example.kotlinmovieapp.presentation.search
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.kotlinmovieapp.domain.use_case.animeiat.AnimeiatUseCase
 import com.example.kotlinmovieapp.domain.use_case.movies.search.Search
 import com.example.kotlinmovieapp.domain.use_case.okanime.OKanimeUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -14,7 +13,6 @@ import javax.inject.Inject
 @HiltViewModel
 class SearchViewModel @Inject constructor(
     private val search: Search,
-    private val animeiat: AnimeiatUseCase,
     private val oKanime: OKanimeUseCase
 
 ) : ViewModel() {

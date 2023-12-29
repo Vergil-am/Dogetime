@@ -21,7 +21,7 @@ class WatchListRepositoryImpl @Inject constructor(
         return watchList.addToList(media)
     }
 
-    override suspend fun getMediaById(id: Int): WatchListMedia {
+    override suspend fun getMediaById(id: String): WatchListMedia {
         return watchList.getMediaById(id)
     }
 

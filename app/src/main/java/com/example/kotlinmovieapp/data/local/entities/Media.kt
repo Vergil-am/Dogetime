@@ -6,10 +6,9 @@ import androidx.room.PrimaryKey
 @Entity(tableName = "watchlist")
 data class WatchListMedia(
     @PrimaryKey(autoGenerate = false)
-    val id: Int,
+    val id: String,
     val title: String,
     val type: String,
     val poster: String,
     val list: String,
-    val slug: String?
 )

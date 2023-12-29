@@ -7,32 +7,9 @@ import com.example.kotlinmovieapp.data.local.entities.WatchListMedia
 
 @Database(
     entities = [WatchListMedia::class],
-    version = 1,
+    version = 2,
     exportSchema = false
     )
 abstract class ListDatabase : RoomDatabase() {
     abstract fun watchListDao(): WatchListDAO
-
-//    companion object{
-//        @Volatile
-//        private var INSTANCE: ListDatabase? = null
-//
-//
-//        @OptIn(InternalCoroutinesApi::class)
-//        fun getDatabase(context: Context): ListDatabase {
-//            val tempInstance = INSTANCE
-//            if (tempInstance != null) {
-//                return tempInstance
-//            }
-//            synchronized(this) {
-//                val instance = Room.databaseBuilder(
-//                    context.applicationContext,
-//                    ListDatabase::class.java,
-//                    "watchlist_database"
-//                    ).build()
-//                INSTANCE = instance
-//                return instance
-//            }
-//        }
-//    }
 }

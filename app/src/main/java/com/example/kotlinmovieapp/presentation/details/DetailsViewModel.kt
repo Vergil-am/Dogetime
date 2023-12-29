@@ -1,9 +1,7 @@
 package com.example.kotlinmovieapp.presentation.details
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.kotlinmovieapp.domain.use_case.animeiat.AnimeiatUseCase
 import com.example.kotlinmovieapp.domain.use_case.movies.get_movie.GetMovieUseCase
 import com.example.kotlinmovieapp.domain.use_case.watchlist.WatchListUseCase
 import com.example.kotlinmovieapp.data.local.entities.WatchListMedia
@@ -19,7 +17,6 @@ import javax.inject.Inject
 @HiltViewModel
 class DetailsViewModel @Inject constructor(
     private val getMovieUseCase: GetMovieUseCase,
-    private val animeiat: AnimeiatUseCase,
     private val watchList: WatchListUseCase,
     private val Okanime: OKanimeUseCase
 ): ViewModel()  {
@@ -74,72 +71,6 @@ class DetailsViewModel @Inject constructor(
     }
 
 
-//    private fun getAnime(slug: String) {
-//        animeiat.getAnimeDetails(slug).onEach {
-//            _state.value = MovieState(
-//                media = it,
-//                isLoading = false,
-//                season = null,
-//                watchList = state.value.watchList,
-//                animeEpisodes = state.value.animeEpisodes,
-//                animeEpisodeSources = state.value.animeEpisodeSources
-//            )
-//        }.launchIn(viewModelScope)
-//    }
-
-//    fun getAnimeEpisodes(slug: String, page: Int) {
-//        animeiat.getAnimeEpisodes(slug, page).onEach {
-//            if (page == 1) {
-//            _state.value = MovieState(
-//                media = state.value.media,
-//                isLoading = false,
-//                season = null,
-//                watchList = state.value.watchList,
-//                animeEpisodes = it.data,
-//                animeEpisodeId = state.value.animeEpisodeId,
-//                animeEpisodeSources = state.value.animeEpisodeSources
-//            )} else {
-//                _state.value = MovieState(
-//                    media = state.value.media,
-//                    isLoading = false,
-//                    season = null,
-//                    watchList = state.value.watchList,
-//                    animeEpisodes = state.value.animeEpisodes.plus(it.data),
-//                    animeEpisodeId = state.value.animeEpisodeId,
-//                    animeEpisodeSources = state.value.animeEpisodeSources
-//                )
-//            }
-//        }.launchIn(viewModelScope)
-//    }
-//
-//    fun getAnimeEpisodeId(slug: String) {
-//        animeiat.getAnimeEpisodeId(slug).onEach {
-//            _state.value = MovieState(
-//                media = state.value.media,
-//                isLoading = false,
-//                season = null,
-//                watchList = state.value.watchList,
-//                animeEpisodes = state.value.animeEpisodes,
-//                animeEpisodeId =  it,
-//                animeEpisodeSources = null
-//            )
-//        }.launchIn(viewModelScope)
-//    }
-//
-//    fun getAnimeEpisodeSources(slug: String) {
-//        animeiat.getAnimeEpisodeSources(slug).onEach {
-//            _state.value =  MovieState(
-//                media = state.value.media,
-//                isLoading = false,
-//                season = null,
-//                watchList = state.value.watchList,
-//                animeEpisodes = state.value.animeEpisodes,
-//                animeEpisodeId =  state.value.animeEpisodeId,
-//                animeEpisodeSources = it
-//            )
-//        }.launchIn(viewModelScope)
-//    }
-
     // WatchList
     fun addToWatchList(media: WatchListMedia) {
         viewModelScope.launch {
@@ -147,7 +78,7 @@ class DetailsViewModel @Inject constructor(
         }
     }
 
-    fun getMediaFromWatchList(id: Int) {
+    fun getMediaFromWatchList(id: String) {
         viewModelScope.launch {
             watchList.getMediaById(id).onEach {
                 _state.value =  MovieState(

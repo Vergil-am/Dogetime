@@ -36,11 +36,7 @@ fun MovieRow(
                         .width(133.5.dp),
                     onClick = {
                         navController.navigate(
-                            if (movie.type == "anime" && movie.slug != null) {
-                                "${movie.type}/${movie.slug}"
-                            } else {
                                 "${movie.type}/${movie.id}"
-                            }
                         ) {
                             launchSingleTop = true
                             restoreState = true

@@ -1,7 +1,6 @@
 package com.example.kotlinmovieapp.presentation.browse
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.kotlinmovieapp.domain.use_case.animeiat.AnimeiatUseCase
 import com.example.kotlinmovieapp.domain.use_case.movies.genres.GenresUseCase
 import com.example.kotlinmovieapp.domain.use_case.movies.get_movies.GetMoviesUseCase
 import com.example.kotlinmovieapp.domain.use_case.okanime.OKanimeUseCase

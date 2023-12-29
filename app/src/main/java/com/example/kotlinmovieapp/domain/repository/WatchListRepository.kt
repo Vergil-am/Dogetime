@@ -9,6 +9,6 @@ interface WatchListRepository {
 
     suspend fun addToWatchList(media: WatchListMedia)
 
-    suspend fun getMediaById(id: Int) : WatchListMedia
+    suspend fun getMediaById(id: String) : WatchListMedia
 
 }

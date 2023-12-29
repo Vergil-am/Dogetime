@@ -39,13 +39,12 @@ fun DetailsHeader(
     title: String,
     poster: String,
     status: String,
-    id: Int,
+    id: String,
     type: String,
     tagline: String?,
     watchList: WatchListMedia?,
-    slug: String?,
     addToWatchList: (WatchListMedia) -> Unit,
-    getWatchList: (id: Int) -> Unit
+    getWatchList: (id: String) -> Unit
 
 ) {
     getWatchList(id)
@@ -137,7 +136,6 @@ fun DetailsHeader(
                             id = id,
                             title = title,
                             poster = poster,
-                            slug = slug,
                             type = type,
                             list = it
                         )

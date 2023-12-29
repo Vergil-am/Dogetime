@@ -19,11 +19,10 @@ class GetMoviesUseCase @Inject constructor(
         try {
             val movies = repo.getTrending().results.map {
                 MovieHome(
-                    id = it.id,
+                    id = it.id.toString(),
                     title = it.title,
                     type = "movie",
                     poster = "${Constants.IMAGE_BASE_URL}/w200/${it.poster_path}" ,
-                    slug = null
                 )
             }
             emit(movies)
@@ -38,11 +37,10 @@ class GetMoviesUseCase @Inject constructor(
         try {
             val shows = repo.getTrendingShows(1).results.map {
                 MovieHome(
-                    id = it.id,
+                    id = it.id.toString(),
                     title = it.name,
                     type = "show",
                     poster = "${Constants.IMAGE_BASE_URL}/w200/${it.poster_path}" ,
-                    slug = null
                 )
             }
             emit(shows)
@@ -56,11 +54,10 @@ class GetMoviesUseCase @Inject constructor(
         try {
             val movies = repo.getMovies(page = page, catalog).results.map {
                 MovieHome(
-                    id = it.id,
+                    id = it.id.toString(),
                     title = it.title,
                     type = "movie",
                     poster = "${Constants.IMAGE_BASE_URL}/w200/${it.poster_path}" ,
-                    slug = null
                 )
             }
             emit(movies)
@@ -76,11 +73,10 @@ class GetMoviesUseCase @Inject constructor(
         try {
             val shows = repo.getShows(page = page, catalog).results.map {
                 MovieHome(
-                    id = it.id,
+                    id = it.id.toString(),
                     title = it.name,
                     type = "show",
                     poster = "${Constants.IMAGE_BASE_URL}/w200/${it.poster_path}" ,
-                    slug = null
                 )
             }
             emit(shows)

@@ -1,7 +1,7 @@
 package com.example.kotlinmovieapp.domain.model
 
 data class Details(
-    val id: Int,
+    val id: String,
     val imdbId: String?,
     val title: String,
     val backdrop: String,
@@ -18,6 +18,5 @@ data class Details(
     val seasons: List<Season>?,
     val lastAirDate: String?,
     val episodes: String?,
-    val slug: String?
 
 )

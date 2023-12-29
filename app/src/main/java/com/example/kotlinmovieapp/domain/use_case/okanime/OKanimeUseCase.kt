@@ -6,6 +6,10 @@ import com.example.kotlinmovieapp.domain.model.MovieHome
 import com.example.kotlinmovieapp.domain.model.OkanimeEpisode
 import com.example.kotlinmovieapp.domain.model.Source
 import com.example.kotlinmovieapp.domain.repository.OKanimeRepository
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import org.jsoup.Jsoup
@@ -15,31 +19,31 @@ class OKanimeUseCase @Inject constructor(
     private val repo: OKanimeRepository
 ){
     fun getLatestEpisodes(page: Int) : Flow<List<MovieHome>> = flow {
-        val res = repo.getLatestEpisodes(
-//            page
-        ).body()
+        val res = repo.getLatestEpisodes().body()
         if (res != null) {
-
             val doc = Jsoup.parse(res)
             val animeCards = doc.getElementsByClass("anime-card episode-card")
+            val deffered = animeCards.map {card ->
+                CoroutineScope(Dispatchers.Default).async {
+                    val slug = card.getElementsByClass("anime-title").first()?.select("a")?.attr("href")
+                        ?.split("/")?.get(4) ?: ""
 
-            val episodes = mutableListOf<MovieHome>()
+                    val poster = repo.getAnimeDetails(slug).body()?.let {
+                        Jsoup.parse(it).selectFirst("img.shadow-lg")?.attr("src")
+                    }
 
-            for (card in animeCards) {
-                val episode = MovieHome(
-                    id = 1,
-                    title = card.getElementsByClass("anime-title").first()?.select("a")?.text()
-                        ?.trim()
-                        ?: "",
-                    poster = card.select("img").first()?.attr("src") ?: "",
-                    slug = card.getElementsByClass("anime-title").first()?.select("a")?.attr("href")
-                        ?.split("/")?.get(4) ?: "",
-                    type = "anime"
-                )
-                Log.e("episode", episode.toString())
-                episodes.add(episode)
+                    val episode = MovieHome(
+                        id = slug,
+                        title = card.getElementsByClass("anime-title").first()?.select("a")?.text()?.trim()
+                            ?: "",
+                        poster = poster ?: "",
+                        type = "anime"
+                    )
+
+                    episode
+                }
             }
-            Log.e("Episodes", episodes.toString())
+            val episodes = deffered.awaitAll()
             emit(episodes)
         }
     }
@@ -57,7 +61,7 @@ class OKanimeUseCase @Inject constructor(
             val runtime = listInfo[2].select("small:eq(1)").text().split(" ")[1]
 
             val details = Details(
-                    id = 1,
+                    id = slug,
                     imdbId = null,
                     title = doc.select("h1").first()?.text() ?: "",
                     backdrop = doc.select("img.shadow-lg").attr("src"),
@@ -74,7 +78,6 @@ class OKanimeUseCase @Inject constructor(
                     seasons = null ,
                     lastAirDate = null,
                     episodes = listInfo[4].select("small:eq(1)").text(),
-                    slug = slug
             )
             val episodesHtml = doc.select("div.row.no-gutters div.small")
             val episodes = episodesHtml.map {
@@ -126,10 +129,10 @@ class OKanimeUseCase @Inject constructor(
         val doc = repo.getAnime(page).body()
         if (doc != null) {
             val animes = Jsoup.parse(doc).select("div.anime-card").map {
+                val slug = it.selectFirst("a")?.attr("href")?.split("/")?.reversed()?.get(1) ?: ""
                 MovieHome(
-                    id = 1,
+                    id = slug,
                     poster = it.selectFirst("img.img-responsive")?.attr("src") ?: "",
-                    slug = it.selectFirst("a")?.attr("href")?.split("/")?.reversed()?.get(1),
                     type = "anime",
                     title = it.selectFirst("h4")?.text() ?: ""
                 )
@@ -142,10 +145,10 @@ class OKanimeUseCase @Inject constructor(
         val doc = repo.searchAnime(query).body()
         if (doc != null) {
             val animes = Jsoup.parse(doc).select("div.anime-card").map {
+                val slug = it.selectFirst("a")?.attr("href")?.split("/")?.reversed()?.get(1)
                 MovieHome(
-                    id = 1,
+                    id = slug ?: "",
                     poster = it.selectFirst("img.img-responsive")?.attr("src") ?: "",
-                    slug = it.selectFirst("a")?.attr("href")?.split("/")?.reversed()?.get(1),
                     type = "anime",
                     title = it.selectFirst("h4")?.text() ?: ""
                 )

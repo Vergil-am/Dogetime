@@ -100,11 +100,7 @@ fun WatchList(
                                     .padding(10.dp)
                                     .height(155.dp),
                                 onClick = {
-                                    if (it.type == "anime") {
-                                        navController.navigate("anime/${it.slug}")
-                                    } else {
                                         navController.navigate("${it.type}/${it.id}")
-                                    }
                                 }
                             ) {
                                 Image(

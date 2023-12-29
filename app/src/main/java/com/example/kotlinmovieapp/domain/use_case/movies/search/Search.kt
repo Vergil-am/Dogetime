@@ -19,11 +19,10 @@ class Search @Inject constructor(
                 it.poster_path != null
             }.map {
                 MovieHome(
-                    id = it.id,
+                    id = it.id.toString(),
                     title = it.title,
                     type = "show",
                     poster = "${Constants.IMAGE_BASE_URL}/w200/${it.poster_path}",
-                    slug = null
                 )
             }
             Log.e("Search Movies", movies.toString())
@@ -39,11 +38,10 @@ class Search @Inject constructor(
         try {
             val shows = repo.searchShows(query).results.filter { it.poster_path != null }.map {
                 MovieHome(
-                    id = it.id,
+                    id = it.id.toString(),
                     title = it.name,
                     type = "show",
                     poster = "${Constants.IMAGE_BASE_URL}/w200/${it.poster_path}",
-                    slug = null
                 )
             }
 

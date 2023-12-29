@@ -1,7 +1,6 @@
 package com.example.kotlinmovieapp.presentation.home
 
 
-import android.util.Log
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
@@ -18,7 +17,6 @@ import javax.inject.Inject
 @HiltViewModel
 class HomeViewModel @Inject constructor (
     private val getMoviesUseCase: GetMoviesUseCase,
-//    private val Animeiat: AnimeiatUseCase,
     private val watchList: WatchListUseCase,
     private val okanime: OKanimeUseCase
 ): ViewModel() {
@@ -38,10 +36,6 @@ class HomeViewModel @Inject constructor (
         getMoviesUseCase.getTrendingShows().onEach {
                 moviesDTO ->  _state.value = MovieListState(movies = state.value.movies, trending = state.value.trending, shows = moviesDTO, anime = state.value.anime, watchList = state.value.watchList)
         }.launchIn(viewModelScope)
-
-//        Animeiat.getLatestEpisodes().onEach {
-//            _state.value = MovieListState(movies = state.value.movies, trending = state.value.trending, shows = state.value.shows, anime = it, watchList = state.value.watchList)
-//        }.launchIn(viewModelScope)
         getLatestEpisodes()
     }
 
@@ -53,7 +47,6 @@ class HomeViewModel @Inject constructor (
                     title = it.title,
                     poster = it.poster,
                     type = it.type,
-                    slug = it.slug
                     ) }
                 )
 
@@ -63,7 +56,6 @@ class HomeViewModel @Inject constructor (
     fun getLatestEpisodes() {
         okanime.getLatestEpisodes(1).onEach {
             _state.value = MovieListState(movies = state.value.movies, trending = state.value.trending, shows = state.value.shows, anime = it, watchList = state.value.watchList)
-            Log.e("ViewModel", it.toString())
         }.launchIn(viewModelScope)
     }
 }

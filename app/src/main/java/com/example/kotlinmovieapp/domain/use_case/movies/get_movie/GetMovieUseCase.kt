@@ -18,7 +18,7 @@ class GetMovieUseCase @Inject constructor(
         try {
             val res = repo.getMovie(movieId = id)
             val movie = Details(
-                id = res.id ,
+                id = res.id.toString() ,
                 title = res.title,
                 backdrop = "${Constants.IMAGE_BASE_URL}/w500/${res.backdrop_path}",
                 poster =  "${Constants.IMAGE_BASE_URL}/w200/${res.poster_path}" ,
@@ -35,7 +35,6 @@ class GetMovieUseCase @Inject constructor(
                 rating = res.vote_average,
                 runtime = res.runtime,
                 seasons = null,
-                slug = res.title.replace(" ", "-")
             )
             Log.d("MOVIE REPO", movie.toString())
             emit(movie)
@@ -65,7 +64,7 @@ class GetMovieUseCase @Inject constructor(
                 null
             }
             val show = Details(
-                id = res.id ,
+                id = res.id.toString() ,
                 title = res.name,
                 backdrop = "${Constants.IMAGE_BASE_URL}/w500/${res.backdrop_path}" ,
                 poster =  "${Constants.IMAGE_BASE_URL}/w200/${res.poster_path}" ,
@@ -82,7 +81,6 @@ class GetMovieUseCase @Inject constructor(
                 rating = res.vote_average,
                 runtime = episodeRunTime,
                 seasons = res.seasons,
-                slug = res.name.replace(" ", "-")
             )
             Log.e("SHOW REPO", show.toString() )
             emit(show)
