@@ -89,8 +89,6 @@ dependencies {
     // HTML parser
     implementation("org.jsoup:jsoup:1.14.3")
 
-    //JS unpacker
-    implementation("dev.datlag.jsunpacker:jsunpacker:1.0.1")
 
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")

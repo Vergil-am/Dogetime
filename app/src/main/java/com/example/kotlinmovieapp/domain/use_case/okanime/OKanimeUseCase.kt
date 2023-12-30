@@ -1,5 +1,6 @@
 package com.example.kotlinmovieapp.domain.use_case.okanime
 
+import android.util.Base64
 import android.util.Log
 import com.example.kotlinmovieapp.domain.model.Details
 import com.example.kotlinmovieapp.domain.model.MovieHome
@@ -8,6 +9,7 @@ import com.example.kotlinmovieapp.domain.model.Source
 import com.example.kotlinmovieapp.domain.repository.OKanimeRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import okio.ByteString.Companion.decodeBase64
 import org.jsoup.Jsoup
 import javax.inject.Inject
 
@@ -120,7 +122,6 @@ fun getLatestEpisodes(page: Int) : Flow<List<MovieHome>> = flow {
                     episodes = row[3].text().split(":")[1],
             )
             val episodesSection = Jsoup.parse(res).getElementsByClass("hover ehover6")
-            Log.e("Episodes section", episodesSection.toString())
             val episodes = episodesSection.map {episode ->
                 OkanimeEpisode(
                     title = episode.select("h3").text(),
@@ -137,33 +138,44 @@ fun getLatestEpisodes(page: Int) : Flow<List<MovieHome>> = flow {
     fun getEpisode(slug: String) : Flow<List<Source>> = flow {
         val doc = repo.getEpisode(slug).body()
         if (doc != null) {
-            val sources = Jsoup.parse(doc).select("a.ep-link").map {element ->
-                Source(
-                    url =  element.attr("data-src") ?: "",
-                quality = element.selectFirst("span")?.text().let {
-                    when (it)  {
-                        "FHD" -> "1080p"
-                        "HD" -> "720p"
-                        "SD" -> "480p"
-                        else -> "240p"
-                    }
-                },
-                label = element.selectFirst("span")?.text() ?: "?",
-                source = element.childNodes().last().toString()
-                )
-            }
+            val base64 = Jsoup.parse(doc).selectFirst("input[name=wl]")?.attr("value")
+            Log.e("BASE64", base64.toString())
+            val sources = String(Base64.decode(base64, Base64.DEFAULT))
 
-            Log.e("SOURCES", sources.toString())
+            // NEEDS JSON Parse
 
-            val urlRegex = Regex(
-                "((https?|ftp)://|(www\\.)|ftp\\.)[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}(/\\S*)?"
-            )
-            emit(sources.filter { it.url.matches(urlRegex) }.sortedBy { it.label })
+            Log.e("Sources", sources.toString())
+//            val sources = Jsoup.parse(doc).select("a.ep-link").map {element ->
+//                Source(
+//                    url =  element.attr("data-src") ?: "",
+//                quality = element.selectFirst("span")?.text().let {
+//                    when (it)  {
+//                        "FHD" -> "1080p"
+//                        "HD" -> "720p"
+//                        "SD" -> "480p"
+//                        else -> "240p"
+//                    }
+//                },
+//                label = element.selectFirst("span")?.text() ?: "?",
+//                source = element.childNodes().last().toString()
+//                )
+//            }
+
+//            Log.e("SOURCES", sources.toString())
+
+//            val urlRegex = Regex(
+//                "((https?|ftp)://|(www\\.)|ftp\\.)[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}(/\\S*)?"
+//            )
+//            emit(sources.filter { it.url.matches(urlRegex) }.sortedBy { it.label })
+            emit(listOf())
         }
 
     }
 
 
+
+
+    // Unchanged yet
     fun getAnime(page: Int) : Flow<List<MovieHome>> = flow {
         val doc = repo.getAnime(page).body()
         if (doc != null) {
