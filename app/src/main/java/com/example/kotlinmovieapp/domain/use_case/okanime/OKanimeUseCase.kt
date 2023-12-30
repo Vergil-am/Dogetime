@@ -6,10 +6,6 @@ import com.example.kotlinmovieapp.domain.model.MovieHome
 import com.example.kotlinmovieapp.domain.model.OkanimeEpisode
 import com.example.kotlinmovieapp.domain.model.Source
 import com.example.kotlinmovieapp.domain.repository.OKanimeRepository
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import org.jsoup.Jsoup
@@ -18,32 +14,43 @@ import javax.inject.Inject
 class OKanimeUseCase @Inject constructor(
     private val repo: OKanimeRepository
 ){
-    fun getLatestEpisodes(page: Int) : Flow<List<MovieHome>> = flow {
-        val res = repo.getLatestEpisodes().body()
-        if (res != null) {
-            val doc = Jsoup.parse(res)
-            val animeCards = doc.getElementsByClass("anime-card episode-card")
-            val deffered = animeCards.map {card ->
-                CoroutineScope(Dispatchers.Default).async {
-                    val slug = card.getElementsByClass("anime-title").first()?.select("a")?.attr("href")
-                        ?.split("/")?.get(4) ?: ""
+fun getLatestEpisodes(page: Int) : Flow<List<MovieHome>> = flow {
+    val res = repo.getLatestEpisodes().body()
+    if (res != null) {
+        val doc = Jsoup.parse(res)
+//            val animeCards = doc.getElementsByClass("anime-card episode-card")
+            val animeCards = doc.getElementsByClass("anime-card-container")
+            val episodes = animeCards.map { card ->
+                val slug =
+                    card.selectFirst("a")?.attr("href")?.split("/")?.reversed()?.get(1)?.split("%")
+                        ?.get(0)?.dropLast(1)
+//                CoroutineScope(Dispatchers.Default).async {
+//                    val slug = card.getElementsByClass("anime-title").first()?.select("a")?.attr("href")
+//                        ?.split("/")?.get(4) ?: ""
+//
+//                    val poster = repo.getAnimeDetails(slug).body()?.let {
+//                        Jsoup.parse(it).selectFirst("img.shadow-lg")?.attr("src")
+//                    }
+//
+//                    val episode = MovieHome(
+//                        id = slug,
+//                        title = card.getElementsByClass("anime-title").first()?.select("a")?.text()?.trim()
+//                            ?: "",
+//                        poster = poster ?: "",
+//                        type = "anime"
+//                    )
+//
+//                    episode
+//                }
+//            }.awaitAll()
+                 MovieHome(
+                    id = slug ?: "",
+                    title = card.selectFirst("img")?.attr("alt") ?: "",
+                    poster = card.selectFirst("img")?.attr("src") ?: "",
+                    type = "anime"
+                 )
 
-                    val poster = repo.getAnimeDetails(slug).body()?.let {
-                        Jsoup.parse(it).selectFirst("img.shadow-lg")?.attr("src")
-                    }
-
-                    val episode = MovieHome(
-                        id = slug,
-                        title = card.getElementsByClass("anime-title").first()?.select("a")?.text()?.trim()
-                            ?: "",
-                        poster = poster ?: "",
-                        type = "anime"
-                    )
-
-                    episode
-                }
             }
-            val episodes = deffered.awaitAll()
             emit(episodes)
         }
     }
@@ -55,42 +62,74 @@ class OKanimeUseCase @Inject constructor(
     fun getAnimeDetails(slug: String) : Flow<OkanimeDetails> = flow {
         val res = repo.getAnimeDetails(slug).body()
         if (res != null ) {
+//            val doc = Jsoup.parse(res).getElementsByClass("container")
+//            val listInfo = doc.select("div.full-list-info")
+//            val runtime = listInfo[2].select("small:eq(1)").text().split(" ")[1]
+//
+//            val details = Details(
+//                    id = slug,
+//                    imdbId = null,
+//                    title = doc.select("h1").first()?.text() ?: "",
+//                    backdrop = doc.select("img.shadow-lg").attr("src"),
+//                    poster = doc.select("img.shadow-lg").attr("src"),
+//                    homepage = null,
+//                    genres = doc.select("div.review-author-info a").map { it.text() },
+//                    overview = doc.select("p").first()?.text() ?: "",
+//                    releaseDate = listInfo[0].select("small:eq(1)").text(),
+//                    runtime = runtime.toInt(),
+//                    status = listInfo[5].select("small:eq(1)").text(),
+//                    tagline = null,
+//                    rating = null,
+//                    type = "anime",
+//                    seasons = null ,
+//                    lastAirDate = null,
+//                    episodes = listInfo[4].select("small:eq(1)").text(),
+//            )
+//            val episodesHtml = doc.select("div.row.no-gutters div.small")
+//            val episodes = episodesHtml.map {
+//                OkanimeEpisode(
+//                    title = it.selectFirst("div.anime-title h5 a")?.text() ?: "",
+//                    slug = it.selectFirst("div.episode-image a")?.attr("href")?.split("/")?.reversed()?.get(1)
+//                        ?: "",
+//                    poster = it.selectFirst("div.episode-image img")?.attr("src") ?: "",
+//                    episodeNumber = it.selectFirst("div.anime-title h5 a")?.text()?.split(" ")?.get(1)
+//                        ?: ""
+//                )
+//            }
+//
 
-            val doc = Jsoup.parse(res).getElementsByClass("container")
-            val listInfo = doc.select("div.full-list-info")
-            val runtime = listInfo[2].select("small:eq(1)").text().split(" ")[1]
-
+            val info = Jsoup.parse(res).getElementsByClass("anime-info-container")
+            val row = info.select("div.anime-info")
             val details = Details(
                     id = slug,
                     imdbId = null,
-                    title = doc.select("h1").first()?.text() ?: "",
-                    backdrop = doc.select("img.shadow-lg").attr("src"),
-                    poster = doc.select("img.shadow-lg").attr("src"),
-                    homepage = null,
-                    genres = doc.select("div.review-author-info a").map { it.text() },
-                    overview = doc.select("p").first()?.text() ?: "",
-                    releaseDate = listInfo[0].select("small:eq(1)").text(),
-                    runtime = runtime.toInt(),
-                    status = listInfo[5].select("small:eq(1)").text(),
+                    title = info.select("h1.anime-details-title").text() ?: "",
+                    backdrop = info.select("img").attr("src"),
+                    poster = info.select("img").attr("src"),
+                    homepage = "",
+                    genres = info.select("li").map { it.text() },
+                    overview = info.select("p.anime-story").text() ?: "",
+                    releaseDate = row[1].text().split(":")[1],
+                    runtime = row[4].text().split(" ")[2].toInt(),
+                    status = row[2].select("a").text(),
                     tagline = null,
                     rating = null,
                     type = "anime",
                     seasons = null ,
                     lastAirDate = null,
-                    episodes = listInfo[4].select("small:eq(1)").text(),
+                    episodes = row[3].text().split(":")[1],
             )
-            val episodesHtml = doc.select("div.row.no-gutters div.small")
-            val episodes = episodesHtml.map {
+            val episodesSection = Jsoup.parse(res).getElementsByClass("hover ehover6")
+            Log.e("Episodes section", episodesSection.toString())
+            val episodes = episodesSection.map {episode ->
                 OkanimeEpisode(
-                    title = it.selectFirst("div.anime-title h5 a")?.text() ?: "",
-                    slug = it.selectFirst("div.episode-image a")?.attr("href")?.split("/")?.reversed()?.get(1)
-                        ?: "",
-                    poster = it.selectFirst("div.episode-image img")?.attr("src") ?: "",
-                    episodeNumber = it.selectFirst("div.anime-title h5 a")?.text()?.split(" ")?.get(1)
-                        ?: ""
+                    title = episode.select("h3").text(),
+                    slug = episode.select("h3").select("a").attr("href").split("/").reversed()[1],
+                    poster = episode.select("img").attr("src"),
+                    episodeNumber = episode.select("h3").text().split(" ")[1],
+
                 )
             }
-
             emit(OkanimeDetails(details= details, episodes = episodes))
         }
     }

@@ -6,7 +6,7 @@ data class Details(
     val title: String,
     val backdrop: String,
     val poster: String,
-    val homepage: String?,
+    val homepage: String,
     val genres: List<String>,
     val overview: String,
     val releaseDate: String,
@@ -19,4 +19,4 @@ data class Details(
     val lastAirDate: String?,
     val episodes: String?,
 
-)
+    )

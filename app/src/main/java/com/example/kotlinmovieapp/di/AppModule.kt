@@ -15,6 +15,7 @@ import com.example.kotlinmovieapp.data.repository.OKanimeRepoImlementation
 import com.example.kotlinmovieapp.domain.repository.WatchListRepository
 import com.example.kotlinmovieapp.data.repository.WatchListRepositoryImpl
 import com.example.kotlinmovieapp.domain.repository.OKanimeRepository
+import com.example.kotlinmovieapp.util.Constants.ANIME4UP_URL
 import com.example.kotlinmovieapp.util.Constants.ANIMEIAT_BASE_URL
 import com.example.kotlinmovieapp.util.Constants.BASE_URL
 import com.example.kotlinmovieapp.util.Constants.OKANIME_BASE_URL
@@ -92,7 +93,7 @@ object AppModule { @Provides
    @Singleton
    fun provideOkanimeAPI() : OkanimeAPI {
         return Retrofit.Builder()
-            .baseUrl(OKANIME_BASE_URL)
+            .baseUrl(ANIME4UP_URL)
             .addConverterFactory(ScalarsConverterFactory.create())
             .build()
             .create(OkanimeAPI::class.java)

@@ -13,6 +13,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.Card
@@ -110,53 +112,55 @@ fun AnimeEpisodes(
     if (opened) {
         ModalBottomSheet(
             onDismissRequest = { opened = false },
-//            modifier = Modifier.padding(10.dp),
             sheetState = rememberModalBottomSheetState()
         ) {
-//            state.animeEpisodeId?.let { viewModel.getAnimeEpisodeSources(it) }
-
             val sources = state.animeEpisodeSources
-            Text(
-                text = "SELECT SOURCE",
+            Column (
                 modifier = Modifier
-                    .fillMaxWidth(),
-                textAlign = TextAlign.Center,
-                style = MaterialTheme.typography.titleLarge
-                )
-            sources?.forEach {
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState())
+            ) {
 
-                Card (
+                Text(
+                    text = "SELECT SOURCE",
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(10.dp),
-                    onClick = {
-                        val url = URLEncoder.encode(it.url)
-                        navController.navigate("web-view/${url}")
-                    }
-                ) {
-                    Row  (
-                        horizontalArrangement = Arrangement.SpaceBetween,
+                        .fillMaxWidth(),
+                    textAlign = TextAlign.Center,
+                    style = MaterialTheme.typography.titleLarge
+                )
+                sources?.forEach {
+
+                    Card(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(10.dp)
-
-                    ){
-                        Text(text = it.source)
-                        Column {
-//                            Text(text = it.label.uppercase(Locale.ROOT))
-                            Text(text = "${it.label} ${it.quality}")
+                            .padding(10.dp),
+                        onClick = {
+                            val url = URLEncoder.encode(it.url)
+                            navController.navigate("web-view/${url}")
                         }
-                        Icon(
-                            imageVector = Icons.Filled.PlayArrow,
-                            contentDescription = "play"
-                        )
+                    ) {
+                        Row(
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(10.dp)
+
+                        ) {
+                            Text(text = it.source)
+                            Column {
+                                Text(text = "${it.label} ${it.quality}")
+                            }
+                            Icon(
+                                imageVector = Icons.Filled.PlayArrow,
+                                contentDescription = "play"
+                            )
+                        }
                     }
                 }
             }
         }
+
     }
-
-
 }
 
 

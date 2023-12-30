@@ -8,7 +8,10 @@ import retrofit2.http.Query
 
 interface OkanimeAPI {
 
-    @GET("espisode-list")
+    @GET(
+//        "espisode-list"
+        "episode"
+    )
     suspend fun getLatestEpisodes(
 //        @Query("page") page: Int = 1
     ) : Response<String>
