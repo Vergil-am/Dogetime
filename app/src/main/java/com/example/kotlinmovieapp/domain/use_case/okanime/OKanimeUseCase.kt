@@ -6,10 +6,11 @@ import com.example.kotlinmovieapp.domain.model.Details
 import com.example.kotlinmovieapp.domain.model.MovieHome
 import com.example.kotlinmovieapp.domain.model.OkanimeEpisode
 import com.example.kotlinmovieapp.domain.model.Source
+import com.example.kotlinmovieapp.domain.model.VideoLinks
 import com.example.kotlinmovieapp.domain.repository.OKanimeRepository
+import com.google.gson.Gson
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
-import okio.ByteString.Companion.decodeBase64
 import org.jsoup.Jsoup
 import javax.inject.Inject
 
@@ -135,15 +136,14 @@ fun getLatestEpisodes(page: Int) : Flow<List<MovieHome>> = flow {
         }
     }
 
-    fun getEpisode(slug: String) : Flow<List<Source>> = flow {
+    fun getEpisode(slug: String) : Flow<VideoLinks> = flow {
         val doc = repo.getEpisode(slug).body()
         if (doc != null) {
             val base64 = Jsoup.parse(doc).selectFirst("input[name=wl]")?.attr("value")
             Log.e("BASE64", base64.toString())
             val sources = String(Base64.decode(base64, Base64.DEFAULT))
-
             // NEEDS JSON Parse
-
+            val videoLinks : VideoLinks = Gson().fromJson(sources, VideoLinks::class.java)
             Log.e("Sources", sources.toString())
 //            val sources = Jsoup.parse(doc).select("a.ep-link").map {element ->
 //                Source(
@@ -167,7 +167,8 @@ fun getLatestEpisodes(page: Int) : Flow<List<MovieHome>> = flow {
 //                "((https?|ftp)://|(www\\.)|ftp\\.)[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}(/\\S*)?"
 //            )
 //            emit(sources.filter { it.url.matches(urlRegex) }.sortedBy { it.label })
-            emit(listOf())
+            Log.e("VIDEO Links", videoLinks.toString())
+            emit(videoLinks)
         }
 
     }

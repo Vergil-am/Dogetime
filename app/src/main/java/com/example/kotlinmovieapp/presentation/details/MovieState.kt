@@ -6,6 +6,7 @@ import com.example.kotlinmovieapp.data.remote.dto.SeasonDTO
 import com.example.kotlinmovieapp.domain.model.Details
 import com.example.kotlinmovieapp.domain.model.OkanimeEpisode
 import com.example.kotlinmovieapp.domain.model.Source
+import com.example.kotlinmovieapp.domain.model.VideoLinks
 
 data class MovieState(
     val isLoading: Boolean = false,
@@ -16,6 +17,6 @@ data class MovieState(
     var animeEpisodes: List<OkanimeEpisode> = listOf(),
     var animeEpisodeId: String? = null,
 //    var animeEpisodeSources: AnimeiatEpisodeSourcesDTO? = null,
-    var animeEpisodeSources: List<Source>? = null,
+    var animeEpisodeSources: VideoLinks? = null,
     var episodeUrl : String? = null
 )

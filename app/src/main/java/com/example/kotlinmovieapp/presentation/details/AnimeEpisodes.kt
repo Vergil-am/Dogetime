@@ -1,5 +1,7 @@
 package com.example.kotlinmovieapp.presentation.details
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -37,8 +39,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
+import com.example.kotlinmovieapp.presentation.components.Source
 import java.net.URLEncoder
 
+@RequiresApi(Build.VERSION_CODES.N)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AnimeEpisodes(
@@ -128,34 +132,26 @@ fun AnimeEpisodes(
                     textAlign = TextAlign.Center,
                     style = MaterialTheme.typography.titleLarge
                 )
-                sources?.forEach {
-
-                    Card(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(10.dp),
-                        onClick = {
-                            val url = URLEncoder.encode(it.url)
-                            navController.navigate("web-view/${url}")
-                        }
-                    ) {
-                        Row(
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(10.dp)
-
-                        ) {
-                            Text(text = it.source)
-                            Column {
-                                Text(text = "${it.label} ${it.quality}")
-                            }
-                            Icon(
-                                imageVector = Icons.Filled.PlayArrow,
-                                contentDescription = "play"
-                            )
+                if (sources != null) {
+                    if (sources.fhd != null) {
+                        Text(text = "Full HD")
+                        sources.fhd.forEach { (source, link) ->
+                            Source(source = source, link = link, navController)
                         }
                     }
+                    if (sources.hd != null) {
+                        Text(text = "HD")
+                        sources.hd.forEach { (source, link) ->
+                            Source(source = source, link = link, navController  )
+                        }
+                }
+                    if (sources.sd != null) {
+                        Text(text = "Low quality")
+                        sources.sd.forEach { (source, link) ->
+                            Source(source = source, link = link, navController)
+                        }
+                    }
+
                 }
             }
         }
