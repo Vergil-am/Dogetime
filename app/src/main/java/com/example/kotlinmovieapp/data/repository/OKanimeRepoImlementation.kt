@@ -30,7 +30,7 @@ class OKanimeRepoImlementation @Inject constructor(
     }
 
     override suspend fun searchAnime(query: String): Response<String> {
-       return okanime.searchAnime(query)
+       return okanime.searchAnime(param = "animes", query,)
     }
 
 }
