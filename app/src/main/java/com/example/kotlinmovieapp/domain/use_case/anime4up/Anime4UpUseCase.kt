@@ -1,11 +1,11 @@
-package com.example.kotlinmovieapp.domain.use_case.okanime
+package com.example.kotlinmovieapp.domain.use_case.anime4up
 
 import android.util.Base64
 import com.example.kotlinmovieapp.domain.model.Details
 import com.example.kotlinmovieapp.domain.model.MovieHome
 import com.example.kotlinmovieapp.domain.model.OkanimeEpisode
 import com.example.kotlinmovieapp.domain.model.VideoLinks
-import com.example.kotlinmovieapp.domain.repository.OKanimeRepository
+import com.example.kotlinmovieapp.domain.repository.Anime4upRepository
 import com.example.kotlinmovieapp.util.parseAnime
 import com.google.gson.Gson
 import kotlinx.coroutines.flow.Flow
@@ -13,14 +13,13 @@ import kotlinx.coroutines.flow.flow
 import org.jsoup.Jsoup
 import javax.inject.Inject
 
-class OKanimeUseCase @Inject constructor(
-    private val repo: OKanimeRepository
+class Anime4upUseCase @Inject constructor(
+    private val repo: Anime4upRepository
 ){
 fun getLatestEpisodes(page: Int) : Flow<List<MovieHome>> = flow {
     val res = repo.getLatestEpisodes().body()
     if (res != null) {
         val doc = Jsoup.parse(res)
-//            val animeCards = doc.getElementsByClass("anime-card episode-card")
             val animeCards = doc.getElementsByClass("anime-card-container")
             val episodes = animeCards.map { card ->
                 val slug =

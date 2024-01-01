@@ -1,9 +1,9 @@
 package com.example.kotlinmovieapp.presentation.browse
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.kotlinmovieapp.domain.use_case.anime4up.Anime4upUseCase
 import com.example.kotlinmovieapp.domain.use_case.movies.genres.GenresUseCase
 import com.example.kotlinmovieapp.domain.use_case.movies.get_movies.GetMoviesUseCase
-import com.example.kotlinmovieapp.domain.use_case.okanime.OKanimeUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.launchIn
@@ -14,8 +14,7 @@ import javax.inject.Inject
 class BrowseViewModel @Inject constructor(
    private val getMoviesUseCase: GetMoviesUseCase,
     private val genresUseCase: GenresUseCase,
-//    private val animeiat: AnimeiatUseCase,
-    private val okanime: OKanimeUseCase
+    private val anime4up: Anime4upUseCase
 ) : ViewModel() {
     private val _state = MutableStateFlow(BrowseState())
     var state = _state
@@ -43,7 +42,7 @@ class BrowseViewModel @Inject constructor(
                }
            }.launchIn(viewModelScope)
            "anime" ->
-               okanime.getAnime(page).onEach {
+               anime4up.getAnime(page).onEach {
                if (page == 1) {
                    _state.value = BrowseState(movies = it, type = state.value.type, catalog = state.value.catalog, genre = state.value.genre)
                } else if (page > 1) {

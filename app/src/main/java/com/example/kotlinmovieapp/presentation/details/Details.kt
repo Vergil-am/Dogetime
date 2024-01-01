@@ -102,7 +102,11 @@ fun  Details(
                         .fillMaxWidth()
                         .padding(10.dp)
                     ,
-                    colors = ButtonDefaults.buttonColors(containerColor = Color.White),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color.White,
+                        contentColor = Color.Black
+                    ),
+
                     onClick = {
                         when(type) {
                             "movie" ->

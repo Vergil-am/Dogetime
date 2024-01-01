@@ -5,7 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.kotlinmovieapp.domain.use_case.movies.get_movie.GetMovieUseCase
 import com.example.kotlinmovieapp.domain.use_case.watchlist.WatchListUseCase
 import com.example.kotlinmovieapp.data.local.entities.WatchListMedia
-import com.example.kotlinmovieapp.domain.use_case.okanime.OKanimeUseCase
+import com.example.kotlinmovieapp.domain.use_case.anime4up.Anime4upUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -18,7 +18,7 @@ import javax.inject.Inject
 class DetailsViewModel @Inject constructor(
     private val getMovieUseCase: GetMovieUseCase,
     private val watchList: WatchListUseCase,
-    private val Okanime: OKanimeUseCase
+    private val anime4up: Anime4upUseCase
 ): ViewModel()  {
     private val _state = MutableStateFlow(MovieState())
     var state : StateFlow<MovieState> = _state
@@ -95,7 +95,7 @@ class DetailsViewModel @Inject constructor(
 
     }
     private fun getAnime(slug: String) {
-        Okanime.getAnimeDetails(slug).onEach {
+        anime4up.getAnimeDetails(slug).onEach {
                         _state.value = MovieState(
                 media = it.details,
                 isLoading = false,
@@ -108,7 +108,7 @@ class DetailsViewModel @Inject constructor(
     }
 
     fun getLinks(slug: String) {
-        Okanime.getEpisode(slug).onEach {
+        anime4up.getEpisode(slug).onEach {
             _state.value = MovieState(
                 media = state.value.media,
                 isLoading = false,

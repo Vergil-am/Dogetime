@@ -1,13 +1,13 @@
 package com.example.kotlinmovieapp.data.repository
 
-import com.example.kotlinmovieapp.data.remote.OkanimeAPI
-import com.example.kotlinmovieapp.domain.repository.OKanimeRepository
+import com.example.kotlinmovieapp.data.remote.Anime4upAPI
+import com.example.kotlinmovieapp.domain.repository.Anime4upRepository
 import retrofit2.Response
 import javax.inject.Inject
 
-class OKanimeRepoImlementation @Inject constructor(
-    private val okanime: OkanimeAPI
-): OKanimeRepository {
+class Anime4upRepoImplementation @Inject constructor(
+    private val okanime: Anime4upAPI
+): Anime4upRepository {
 
     override suspend fun getLatestEpisodes(
 //        page: Int
@@ -30,7 +30,7 @@ class OKanimeRepoImlementation @Inject constructor(
     }
 
     override suspend fun searchAnime(query: String): Response<String> {
-       return okanime.searchAnime(param = "animes", query,)
+       return okanime.searchAnime(param = "animes", query)
     }
 
 }

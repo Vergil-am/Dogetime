@@ -5,10 +5,9 @@ import retrofit2.http.GET
 import retrofit2.http.Path
 import retrofit2.http.Query
 
-interface OkanimeAPI {
+interface Anime4upAPI {
 
     @GET(
-//        "espisode-list"
         "episode"
     )
     suspend fun getLatestEpisodes(
@@ -28,7 +27,6 @@ interface OkanimeAPI {
 
     @GET("anime-list-3/page/{page}")
     suspend fun getAnime(
-//        @Query("page") page: Int
         @Path("page") page: Int
     ) : Response<String>
 

@@ -10,15 +10,14 @@ import com.example.kotlinmovieapp.domain.repository.AnimeiatRepository
 import com.example.kotlinmovieapp.domain.repository.MovieRepository
 import com.example.kotlinmovieapp.data.local.dao.WatchListDAO
 import com.example.kotlinmovieapp.data.local.database.ListDatabase
-import com.example.kotlinmovieapp.data.remote.OkanimeAPI
-import com.example.kotlinmovieapp.data.repository.OKanimeRepoImlementation
+import com.example.kotlinmovieapp.data.remote.Anime4upAPI
+import com.example.kotlinmovieapp.data.repository.Anime4upRepoImplementation
 import com.example.kotlinmovieapp.domain.repository.WatchListRepository
 import com.example.kotlinmovieapp.data.repository.WatchListRepositoryImpl
-import com.example.kotlinmovieapp.domain.repository.OKanimeRepository
+import com.example.kotlinmovieapp.domain.repository.Anime4upRepository
 import com.example.kotlinmovieapp.util.Constants.ANIME4UP_URL
 import com.example.kotlinmovieapp.util.Constants.ANIMEIAT_BASE_URL
 import com.example.kotlinmovieapp.util.Constants.BASE_URL
-import com.example.kotlinmovieapp.util.Constants.OKANIME_BASE_URL
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -88,20 +87,20 @@ object AppModule { @Provides
         return WatchListRepositoryImpl(dao)
     }
 
-    // Ok anime
+    // anime4up
    @Provides
    @Singleton
-   fun provideOkanimeAPI() : OkanimeAPI {
+   fun provideAnime4upAPI() : Anime4upAPI {
         return Retrofit.Builder()
             .baseUrl(ANIME4UP_URL)
             .addConverterFactory(ScalarsConverterFactory.create())
             .build()
-            .create(OkanimeAPI::class.java)
+            .create(Anime4upAPI::class.java)
    }
 
     @Provides
     @Singleton
-    fun provideOkanimeRepo(api: OkanimeAPI): OKanimeRepository {
-        return OKanimeRepoImlementation(api)
+    fun provideAnime4upRepo(api: Anime4upAPI): Anime4upRepository {
+        return Anime4upRepoImplementation(api)
     }
 }
