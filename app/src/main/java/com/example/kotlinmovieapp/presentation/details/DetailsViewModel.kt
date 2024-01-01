@@ -79,7 +79,6 @@ class DetailsViewModel @Inject constructor(
     }
 
     fun getMediaFromWatchList(id: String) {
-        viewModelScope.launch {
             watchList.getMediaById(id).onEach {
                 _state.value =  MovieState(
                     media = state.value.media,
@@ -90,21 +89,22 @@ class DetailsViewModel @Inject constructor(
                     animeEpisodeId =  state.value.animeEpisodeId,
                     animeEpisodeSources = state.value.animeEpisodeSources
                 )
-            }
-        }
+            }.launchIn(viewModelScope)
 
     }
     private fun getAnime(slug: String) {
-        anime4up.getAnimeDetails(slug).onEach {
-                        _state.value = MovieState(
-                media = it.details,
-                isLoading = false,
-                season = null,
-                watchList = state.value.watchList,
-                animeEpisodes = it.episodes,
-                animeEpisodeSources = state.value.animeEpisodeSources
-            )
-        }.launchIn(viewModelScope)
+            anime4up.getAnimeDetails(slug).onEach {
+                _state.value = MovieState(
+                    media = it.details,
+                    isLoading = false,
+                    season = null,
+                    watchList = state.value.watchList,
+                    animeEpisodes = it.episodes,
+                    animeEpisodeSources = state.value.animeEpisodeSources
+                )
+            }.launchIn(viewModelScope)
+
+
     }
 
     fun getLinks(slug: String) {

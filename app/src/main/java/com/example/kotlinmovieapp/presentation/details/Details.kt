@@ -40,9 +40,7 @@ fun  Details(
     val addToWatchList: (media: WatchListMedia) -> Unit = {
         viewModel.addToWatchList(it)
     }
-    val getWatchList : (id: String) -> Unit = {
-        viewModel.getMediaFromWatchList(it)
-    }
+    viewModel.getMediaFromWatchList(id)
     val media = state.value.media
     Column(
             modifier = Modifier
@@ -62,9 +60,8 @@ fun  Details(
                         id = media.id,
                         type = media.type,
                         tagline = media.tagline,
-                        watchList = state.value.watchList,
+                        watchList = if (state.value.watchList?.id == id) {state.value.watchList} else{ null},
                         addToWatchList = addToWatchList,
-                        getWatchList = getWatchList
                     )
                     Row (
                     modifier = Modifier
