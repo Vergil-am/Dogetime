@@ -107,7 +107,7 @@ fun Account (
    if (opened) {
        ModalBottomSheet(
            onDismissRequest = {opened = false},
-           modifier = Modifier.padding(10.dp)
+           modifier = Modifier
        ) {
            when (chosen) {
                "disclaimer" -> {
@@ -130,13 +130,16 @@ fun Account (
                                    Icon(
                                        imageVector = Icons.Filled.Check,
                                        contentDescription = "check",
-                                       modifier = Modifier.alpha(if (it == state.theme) {1f} else {0.0f})
+                                       modifier = Modifier.alpha(
+                                           if (it == state.theme) {1f} else {0.0f}
+                                       )
                                    )
                                    Text(text = it, modifier = Modifier.padding(horizontal = 10.dp))
                                }
                            },
                            onClick = {
                                viewModel.setTheme(context, it)
+                               state.theme = it
                            })
                    }
                }

@@ -11,9 +11,9 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.PlayArrow
-import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ElevatedSuggestionChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -88,7 +88,7 @@ fun  Details(
 
                 ) {
                     it.genres.forEach{
-                        genre -> AssistChip(
+                        genre -> ElevatedSuggestionChip(
                         onClick = {},
                         label = { Text(text = genre)}
                         )
@@ -103,7 +103,7 @@ fun  Details(
                         containerColor = Color.White,
                         contentColor = Color.Black
                     ),
-
+                    enabled = it.status != "لم يعرض بعد",
                     onClick = {
                         when(type) {
                             "movie" ->

@@ -1,6 +1,7 @@
 package com.example.kotlinmovieapp.domain.use_case.anime4up
 
 import android.util.Base64
+import android.util.Log
 import com.example.kotlinmovieapp.domain.model.Details
 import com.example.kotlinmovieapp.domain.model.MovieHome
 import com.example.kotlinmovieapp.domain.model.OkanimeEpisode
@@ -76,6 +77,7 @@ fun getLatestEpisodes(page: Int) : Flow<List<MovieHome>> = flow {
 
                 )
             }
+            Log.e("EPISODES", episodes.toString())
             emit(OkanimeDetails(details= details, episodes = episodes))
         }
     }

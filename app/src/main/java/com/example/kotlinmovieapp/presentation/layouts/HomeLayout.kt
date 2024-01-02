@@ -45,7 +45,6 @@ fun HomeLayout(
         bottomBar = {
             NavigationBar (
                 contentColor = Color.White,
-
             ) {
                 val navBackStackEntry by navController.currentBackStackEntryAsState()
                 val currentDestination = navBackStackEntry?.destination

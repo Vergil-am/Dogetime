@@ -176,7 +176,8 @@ fun DetailsHeader(
                         )
                         Text(text = "Remove", modifier = Modifier.padding(horizontal = 10.dp))
                     }
-                }, onClick = { /*TODO*/ })
+                },
+                    onClick = { /*TODO*/ })
             }
 
         }
