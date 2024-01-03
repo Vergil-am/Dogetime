@@ -15,11 +15,13 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ElevatedSuggestionChip
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.kotlinmovieapp.data.local.entities.WatchListMedia
@@ -40,6 +42,9 @@ fun  Details(
     val addToWatchList: (media: WatchListMedia) -> Unit = {
         viewModel.addToWatchList(it)
     }
+    val deleteFromList: (media: WatchListMedia) -> Unit = {
+        viewModel.deleteFromList(it)
+    }
     viewModel.getMediaFromWatchList(id)
     val media = state.value.media
     Column(
@@ -59,9 +64,9 @@ fun  Details(
                         status = media.status,
                         id = media.id,
                         type = media.type,
-                        tagline = media.tagline,
                         watchList = if (state.value.watchList?.id == id) {state.value.watchList} else{ null},
                         addToWatchList = addToWatchList,
+                        deleteFromList = deleteFromList
                     )
                     Row (
                     modifier = Modifier
@@ -74,6 +79,16 @@ fun  Details(
                     Text(text = it.releaseDate.split("-")[0])
                     Text(text = "${it.runtime} min")
                     Text(text = it.rating.toString().format("%.f"))
+                }
+                    if (it.tagline != null) {
+                    Text(
+                        text = it.tagline,
+                        style = MaterialTheme.typography.headlineSmall,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier
+                            .fillMaxWidth()
+
+                    )
                 }
                     Text(
                     text = it.overview,

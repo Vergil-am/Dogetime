@@ -46,7 +46,8 @@ interface MoviesAPI {
     suspend fun getMovie (
         @Path("movie_id") movieId: Int,
         @Query("api_key") apiKey: String = API_KEY,
-        @Query("language") lang: String = "ar-SA"
+//        @Query("language") lang: String = "ar-SA"
+        @Query("language") lang: String = "en-US"
     ) : MovieDetailsDTO
 
 
@@ -63,7 +64,8 @@ interface MoviesAPI {
     suspend fun getShow(
         @Path("show_id") movieId: Int,
         @Query("api_key") apiKey: String = API_KEY,
-        @Query("language") lang: String = "ar-SA"
+//        @Query("language") lang: String = "ar-SA",
+        @Query("language") lang: String = "en-US"
     ) : ShowDetailsDTO
 
     @GET("tv/{id}/season/{season}")

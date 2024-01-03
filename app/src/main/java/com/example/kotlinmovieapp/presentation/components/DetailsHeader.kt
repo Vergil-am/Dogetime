@@ -1,7 +1,7 @@
 package com.example.kotlinmovieapp.presentation.components
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
@@ -30,6 +31,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
@@ -47,9 +49,9 @@ fun DetailsHeader(
     status: String,
     id: String,
     type: String,
-    tagline: String?,
     watchList: WatchListMedia?,
     addToWatchList: (WatchListMedia) -> Unit,
+    deleteFromList: (WatchListMedia) -> Unit
 
 ) {
    var expanded by remember {
@@ -58,7 +60,7 @@ fun DetailsHeader(
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .height(220.dp)
+            .height(250.dp)
 
     ) {
 
@@ -70,44 +72,55 @@ fun DetailsHeader(
             painter = rememberAsyncImagePainter(
                backDrop
             ),
-            contentDescription = title
+            contentDescription = title,
+            alignment = Alignment.TopCenter,
         )
+        Box (
+            modifier = Modifier
+                .fillMaxSize()
+                .background(
+                    Brush.verticalGradient(
+                        colors = listOf(Color.Transparent, MaterialTheme.colorScheme.background),
+                    )
+                )
+        ) {
+        }
         Row (
             modifier = Modifier
                 .align(Alignment.BottomCenter)
                 .padding(10.dp)
-                .fillMaxWidth()
+                .fillMaxSize()
             ,
-            horizontalArrangement = Arrangement.SpaceBetween
+//            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.Bottom
         ) {
-            Image(
-                modifier = Modifier
-                    .clip(RoundedCornerShape(8.dp)),
-                painter = rememberAsyncImagePainter(
-                   poster
-                ),
-                contentDescription = title
-            )
+
+                Image(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(8.dp))
+                        .height(150.dp)
+                        .width(100.dp)
+                    ,
+                    painter = rememberAsyncImagePainter(
+                        poster
+                    ),
+                    contentDescription = title,
+                    alignment = Alignment.BottomStart,
+                    contentScale = ContentScale.Crop
+                )
             Column (
                 modifier = Modifier.padding(10.dp)
             ) {
                 Text(
                     text = Ascii.toUpperCase(title),
-                    style = MaterialTheme.typography.titleMedium
+                    style = MaterialTheme.typography.titleMedium,
                 )
                 Text(
                     text = status,
                     style =
-                    MaterialTheme.typography.labelLarge
+                    MaterialTheme.typography.labelLarge,
                 )
-                if (tagline != null) {
-                    Text(
-                        text = tagline,
-                        style = MaterialTheme.typography.headlineSmall,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                    )
-                }
+
                     Button(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -177,7 +190,9 @@ fun DetailsHeader(
                         Text(text = "Remove", modifier = Modifier.padding(horizontal = 10.dp))
                     }
                 },
-                    onClick = { /*TODO*/ })
+                    onClick = {
+                        deleteFromList(watchList)
+                        })
             }
 
         }

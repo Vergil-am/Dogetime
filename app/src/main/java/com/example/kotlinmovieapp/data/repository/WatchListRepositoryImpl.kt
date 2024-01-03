@@ -25,4 +25,8 @@ class WatchListRepositoryImpl @Inject constructor(
         return watchList.getMediaById(id)
     }
 
+    override suspend fun deleteFromList(media: WatchListMedia) {
+        return watchList.deleteFromList(media)
+    }
+
 }

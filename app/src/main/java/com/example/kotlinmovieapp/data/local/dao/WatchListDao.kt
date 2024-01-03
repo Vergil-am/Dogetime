@@ -1,6 +1,7 @@
 package com.example.kotlinmovieapp.data.local.dao
 
 import androidx.room.Dao
+import androidx.room.Delete
 import androidx.room.Query
 import androidx.room.Upsert
 import com.example.kotlinmovieapp.data.local.entities.WatchListMedia
@@ -22,6 +23,9 @@ interface WatchListDAO{
 
     @Query("SELECT * FROM watchlist WHERE id = :id")
     suspend fun getMediaById(id: String) : WatchListMedia
+
+    @Delete
+    suspend fun deleteFromList(media: WatchListMedia)
 
 
 

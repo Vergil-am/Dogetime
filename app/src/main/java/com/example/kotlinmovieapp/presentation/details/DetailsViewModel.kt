@@ -120,4 +120,9 @@ class DetailsViewModel @Inject constructor(
         }.launchIn(viewModelScope)
     }
 
+    fun deleteFromList(media: WatchListMedia) {
+        viewModelScope.launch {
+            watchList.deleteFromList(media)
+        }
+    }
 }

@@ -51,4 +51,12 @@ class WatchListUseCase @Inject constructor(
         }
     }
 
+    suspend fun deleteFromList(media: WatchListMedia) {
+        try {
+            watchList.deleteFromList(media)
+        } catch (e: Exception) {
+            Log.e("WATCHLIST DELETE", e.toString())
+        }
+    }
+
 }

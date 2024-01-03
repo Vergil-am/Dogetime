@@ -2,11 +2,8 @@ package com.example.kotlinmovieapp.di
 
 import android.app.Application
 import androidx.room.Room
-import com.example.kotlinmovieapp.data.remote.AnimeiatAPI
 import com.example.kotlinmovieapp.data.remote.MoviesAPI
-import com.example.kotlinmovieapp.data.repository.AnimeiatRepoImplementation
 import com.example.kotlinmovieapp.data.repository.MovieRepoImplementation
-import com.example.kotlinmovieapp.domain.repository.AnimeiatRepository
 import com.example.kotlinmovieapp.domain.repository.MovieRepository
 import com.example.kotlinmovieapp.data.local.dao.WatchListDAO
 import com.example.kotlinmovieapp.data.local.database.ListDatabase
@@ -16,7 +13,6 @@ import com.example.kotlinmovieapp.domain.repository.WatchListRepository
 import com.example.kotlinmovieapp.data.repository.WatchListRepositoryImpl
 import com.example.kotlinmovieapp.domain.repository.Anime4upRepository
 import com.example.kotlinmovieapp.util.Constants.ANIME4UP_URL
-import com.example.kotlinmovieapp.util.Constants.ANIMEIAT_BASE_URL
 import com.example.kotlinmovieapp.util.Constants.BASE_URL
 import dagger.Module
 import dagger.Provides
@@ -45,23 +41,6 @@ object AppModule { @Provides
         return MovieRepoImplementation(api)
     }
 
-
-
-    @Provides
-    @Singleton
-    fun provideAnimeiatAPI(): AnimeiatAPI {
-        return Retrofit.Builder()
-            .baseUrl(ANIMEIAT_BASE_URL)
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
-            .create(AnimeiatAPI::class.java)
-    }
-
-    @Provides
-    @Singleton
-    fun provideAnimeiatRepo(api:AnimeiatAPI) : AnimeiatRepository {
-        return AnimeiatRepoImplementation(api)
-    }
 
     // Room Database
     @Provides

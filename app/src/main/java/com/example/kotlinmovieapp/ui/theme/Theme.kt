@@ -42,6 +42,8 @@ fun KotlinMovieAppTheme(
 //    dynamicColor: Boolean = true,
     content: @Composable () -> Unit
 ) {
+
+
     val colorScheme = when {
 //        dynamicColor -> {
 //            val context = LocalContext.current

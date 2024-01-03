@@ -11,4 +11,6 @@ interface WatchListRepository {
 
     suspend fun getMediaById(id: String) : WatchListMedia
 
+    suspend fun deleteFromList(media: WatchListMedia)
+
 }
