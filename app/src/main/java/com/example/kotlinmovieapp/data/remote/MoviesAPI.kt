@@ -95,7 +95,7 @@ interface MoviesAPI {
     @GET("genre/{type}/list")
     suspend fun getGenres(
         @Path("type") type : String,
-        @Query("language") language: String = "en-US",
+        @Query("language") language: String = "en",
         @Query("api_key") apiKey : String = API_KEY
     ): GenresDTO
 

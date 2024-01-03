@@ -89,8 +89,10 @@ fun Filters(
                 )
             }
         }
-        "genre" -> FullScreenDialog(showDialog = true, onDismiss = {opened = ""}, title = "genre") {
-            Text(text = "Genres")
+        "genre" -> FullScreenDialog(
+            showDialog = true,
+            onDismiss = {opened = ""},
+            title = "genre") {
             state.genres?.genres?.forEach {
                 ListItem(headlineContent = { Text(text = it.name) })
             }

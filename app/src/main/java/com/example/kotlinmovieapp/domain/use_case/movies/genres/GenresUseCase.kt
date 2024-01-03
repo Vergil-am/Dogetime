@@ -14,6 +14,7 @@ class GenresUseCase @Inject constructor(
     private val repo: MovieRepository
 ){
     fun getGenres(type : String) : Flow<GenresDTO> = flow {
+        Log.e("TYPE", type)
         try {
             val genres = repo.getGenres(type)
             Log.e("GENRES", genres.toString())

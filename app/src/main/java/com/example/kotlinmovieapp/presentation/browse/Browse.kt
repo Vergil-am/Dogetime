@@ -50,9 +50,7 @@ fun Browse(
        Column(
            modifier = Modifier
        ) {
-           Filters(
-               viewModel
-           )
+           Filters(viewModel)
            val movies = state.value.movies
 
            LazyVerticalGrid(
@@ -68,8 +66,8 @@ fun Browse(
                                .height(155.dp),
                            onClick = {
                                when (state.value.type.value) {
-                                   "movies" -> navController.navigate("movie/${movie.id}")
-                                       "anime" -> navController.navigate("anime/${movie.id}")
+                                   "movie" -> navController.navigate("movie/${movie.id}")
+                                   "anime" -> navController.navigate("anime/${movie.id}")
                                    "tv" -> navController.navigate("show/${movie.id}")
                                }
                            }

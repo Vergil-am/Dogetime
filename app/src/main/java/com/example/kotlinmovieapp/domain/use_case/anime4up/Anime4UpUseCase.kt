@@ -17,7 +17,7 @@ import javax.inject.Inject
 class Anime4upUseCase @Inject constructor(
     private val repo: Anime4upRepository
 ){
-fun getLatestEpisodes(page: Int) : Flow<List<MovieHome>> = flow {
+fun getLatestEpisodes() : Flow<List<MovieHome>> = flow {
     val res = repo.getLatestEpisodes().body()
     if (res != null) {
         val doc = Jsoup.parse(res)
@@ -58,7 +58,7 @@ fun getLatestEpisodes(page: Int) : Flow<List<MovieHome>> = flow {
                     genres = info.select("li").map { it.text() },
                     overview = info.select("p.anime-story").text() ?: "",
                     releaseDate = row[1].text().split(":")[1],
-                    runtime = row[4].text().split(" ")[2].toInt(),
+                    runtime = row[4].text().split(" ")[2].toIntOrNull() ,
                     status = row[2].select("a").text(),
                     tagline = null,
                     rating = null,

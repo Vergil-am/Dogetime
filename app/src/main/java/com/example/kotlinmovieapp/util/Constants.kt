@@ -7,13 +7,9 @@ object Constants {
 //    const val VIDEO_URL = "https://vidsrc.xyz/embed"
     const val VIDEO_URL = "https://vidsrc.to/embed"
 
-    const val ANIMEIAT_BASE_URL = "https://api.animeiat.co/v1/"
-    const val AIMEIAT_IMAGE_URL = "https://api.animeiat.co/storage"
-
-
     val lists = listOf("Watching","Planning",  "Completed", "Paused", "Dropped")
 
-    val OKANIME_BASE_URL = "https://www.okanime.xyz/"
+//    val OKANIME_BASE_URL = "https://www.okanime.xyz/"
 
     val ANIME4UP_URL = "https://anime4up.cam/"
 }

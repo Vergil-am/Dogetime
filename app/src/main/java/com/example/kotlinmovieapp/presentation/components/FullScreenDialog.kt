@@ -3,6 +3,8 @@ package com.example.kotlinmovieapp.presentation.components
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -52,7 +54,7 @@ fun FullScreenDialog(
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(it)
-                    ,
+                        .verticalScroll(rememberScrollState()),
 //                shape = MaterialTheme.shapes.extraLarge,
                 ) {
                     Column(
