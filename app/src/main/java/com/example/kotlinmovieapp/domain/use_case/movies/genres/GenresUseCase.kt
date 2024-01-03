@@ -16,11 +16,12 @@ class GenresUseCase @Inject constructor(
     fun getGenres(type : String) : Flow<GenresDTO> = flow {
         try {
             val genres = repo.getGenres(type)
+            Log.e("GENRES", genres.toString())
             emit(genres)
         }catch (e : HttpException) {
-            Log.e("MOVIE REPO", e.toString() )
+            Log.e("GENRES", e.toString() )
         } catch (e: IOException) {
-            Log.e("MOVIE REPO", e.toString() )
+            Log.e("GENRES", e.toString() )
 
         }
     }

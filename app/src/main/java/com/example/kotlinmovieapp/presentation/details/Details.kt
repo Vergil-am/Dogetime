@@ -11,16 +11,15 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.PlayArrow
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ElevatedSuggestionChip
+import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
@@ -47,10 +46,31 @@ fun  Details(
     }
     viewModel.getMediaFromWatchList(id)
     val media = state.value.media
+    Scaffold (
+        floatingActionButton = {
+            ExtendedFloatingActionButton(
+                containerColor = MaterialTheme.colorScheme.primary,
+                onClick = {
+                when(type) {
+                    "movie" ->
+                    {
+                        val url = URLEncoder.encode("${Constants.VIDEO_URL}/movie/$id")
+                        navController.navigate("web-view/$url")
+                    }
+                    "show" -> navController.navigate("show/seasons/$id")
+                    "anime" -> navController.navigate("anime/episodes/$id")
+                }
+            }) {
+                Icon(imageVector = Icons.Filled.PlayArrow, contentDescription = "play" )
+                Text(text = "Watch")
+            }
+        }
+    ) { paddingValues ->
     Column(
             modifier = Modifier
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
+                .padding(paddingValues)
             ,
             verticalArrangement = Arrangement.Top
 
@@ -109,42 +129,34 @@ fun  Details(
                         )
                     }
                 }
-                Button(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(10.dp)
-                    ,
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color.White,
-                        contentColor = Color.Black
-                    ),
-                    enabled = it.status != "لم يعرض بعد",
-                    onClick = {
-                        when(type) {
-                            "movie" ->
-                            {
-                                val url = URLEncoder.encode("${Constants.VIDEO_URL}/movie/$id")
-                                navController.navigate("web-view/$url")
-                            }
-                            "show" -> navController.navigate("show/seasons/$id")
-                            "anime" -> navController.navigate("anime/episodes/$id")
-                        }
-                }
-                ) {
-                    Text(text = "Play")
-                    Icon(
-                        imageVector = Icons.Filled.PlayArrow,
-                        contentDescription = "Play"
-                    )
-
-                }
+//                Button(
+//                    modifier = Modifier
+//                        .fillMaxWidth()
+//                        .padding(10.dp)
+//                    ,
+//                    colors = ButtonDefaults.buttonColors(
+//                        containerColor = Color.White,
+//                        contentColor = Color.Black
+//                    ),
+//                    enabled = it.status != "لم يعرض بعد",
+//                    onClick = {
+//
+//                }
+//                ) {
+//                    Text(text = "Play")
+//                    Icon(
+//                        imageVector = Icons.Filled.PlayArrow,
+//                        contentDescription = "Play"
+//                    )
+//
+//                }
+//
+//
+//                }
 
 
-                }
+            }}
 
 
-            }
-
-
-}
+}}
 

@@ -81,7 +81,6 @@ interface MoviesAPI {
     suspend fun searchMovies(
         @Query("query") query: String,
         @Query("language") language: String = "en-US",
-        @Query("with_original_language") orLang: String = "en",
         @Query("api_key") apiKey : String = API_KEY
     ) : SearchDTO
 
@@ -89,7 +88,6 @@ interface MoviesAPI {
     suspend fun searchShows(
         @Query("query") query: String,
         @Query("language") language: String = "en-US",
-        @Query("with_original_language") orLang: String = "en",
         @Query("api_key") apiKey : String = API_KEY
     ): GetShowsDTO
 
@@ -97,7 +95,8 @@ interface MoviesAPI {
     @GET("genre/{type}/list")
     suspend fun getGenres(
         @Path("type") type : String,
-        @Query("language") language: String = "en"
+        @Query("language") language: String = "en-US",
+        @Query("api_key") apiKey : String = API_KEY
     ): GenresDTO
 
 }

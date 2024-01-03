@@ -90,12 +90,15 @@ fun Account (
                 ,
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                Icon(
-                    modifier = Modifier.padding(horizontal = 10.dp),
-                    imageVector = Icons.Filled.Info,
-                    contentDescription = "theme"
-                )
-                Text(text = "theme")
+                       Icon(
+                           modifier = Modifier.padding(horizontal = 10.dp),
+                           imageVector = Icons.Filled.Info,
+                           contentDescription = "theme"
+                       )
+                       Text(text = "theme")
+
+
+
             }
 
         }
