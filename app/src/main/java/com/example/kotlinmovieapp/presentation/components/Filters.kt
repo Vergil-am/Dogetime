@@ -62,8 +62,9 @@ fun Filters(
                         .fillMaxWidth()
                         .clickable(onClick = {
                             viewModel.getMovies(it.value, page = 1, catalog = state.catalog.value)
-                            viewModel.getGenres(it.value)
                             state.type = it
+                            state.catalog = it.catalog[0]
+                            state.genre = null
                             opened = ""
                     }),
                     headlineContent = {
@@ -93,8 +94,21 @@ fun Filters(
             showDialog = true,
             onDismiss = {opened = ""},
             title = "genre") {
-            state.genres?.genres?.forEach {
-                ListItem(headlineContent = { Text(text = it.name) })
+            state.type.genres.forEach {
+                ListItem(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable (
+                            onClick = {
+                                state.genre = it
+//                                TODO Fetch based on genre
+
+                                opened = ""
+                            }
+                        )
+                    ,
+                    headlineContent = { Text(text = it.name) }
+                )
             }
         }
     }

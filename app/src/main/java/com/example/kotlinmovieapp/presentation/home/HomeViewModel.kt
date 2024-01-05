@@ -54,7 +54,7 @@ class HomeViewModel @Inject constructor (
     }
 
     private fun getLatestEpisodes() {
-        anime4up.getLatestEpisodes(1).onEach {
+        anime4up.getLatestEpisodes().onEach {
             _state.value = MovieListState(movies = state.value.movies, trending = state.value.trending, shows = state.value.shows, anime = it, watchList = state.value.watchList)
         }.launchIn(viewModelScope)
     }

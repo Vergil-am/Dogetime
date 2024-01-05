@@ -1,6 +1,5 @@
 package com.example.kotlinmovieapp.presentation.browse
 import com.example.kotlinmovieapp.data.remote.dto.GenresDTO
-import com.example.kotlinmovieapp.domain.model.Genre
 import com.example.kotlinmovieapp.domain.model.MovieHome
 
 data class BrowseState(

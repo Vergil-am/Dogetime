@@ -25,7 +25,7 @@ class BrowseViewModel @Inject constructor(
     }
     fun getMovies(type: String , catalog: String , page: Int) {
         when (type) {
-           "movie" ->             getMoviesUseCase.getMovies(catalog, page).onEach {
+           "movie" -> getMoviesUseCase.getMovies(catalog, page).onEach {
                if (page == 1) {
                    _state.value = BrowseState(movies = it, type = state.value.type, catalog = state.value.catalog, genre = state.value.genre, page = state.value.page)
                } else if (page > 1) {
