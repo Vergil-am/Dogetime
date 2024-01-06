@@ -27,11 +27,15 @@ fun Filters(
     var opened by remember {
         mutableStateOf("")
     }
-    val state = viewModel.state.collectAsState().value
-    Row (
+    val state by viewModel.state.collectAsState()
+//    LaunchedEffect(state) {
+//        Log.e("Function ran", state.toString())
+//        viewModel.getMovies(type = state.type.value, page = 1, catalog = state.catalog.value)
+//    }
+    Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceAround
-    ){
+    ) {
         TextButton(onClick = {
             opened = "type"
         }) {
@@ -54,63 +58,59 @@ fun Filters(
 
     }
 
-    when(opened) {
-        "type" -> FullScreenDialog(showDialog = true, onDismiss = {opened = ""}, title = "type") {
-            Types.forEach { 
-                ListItem(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable(onClick = {
-                            viewModel.getMovies(it.value, page = 1, catalog = state.catalog.value)
-                            state.type = it
-                            state.catalog = it.catalog[0]
-                            state.genre = null
-                            opened = ""
+    FullScreenDialog(showDialog = opened == "type", onDismiss = { opened = "" }, title = "type") {
+        Types.forEach {
+            ListItem(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable(onClick = {
+                        state.type = it
+                        state.catalog = it.catalog[0]
+                        state.genre = null
+                        opened = ""
                     }),
-                    headlineContent = {
-                        Text(
-                            text = it.title
-                        )
+                headlineContent = {
+                    Text(
+                        text = it.title
+                    )
                 })
-            }
-        }
-        "catalog" -> FullScreenDialog(showDialog = true, onDismiss = {opened = ""} , title = "catalog") {
-            state.type.catalog.forEach {
-                ListItem(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable(onClick = {
-                            viewModel.getMovies(state.type.value, it.value, 1)
-                            state.catalog = it
-                            opened = ""
-                        }),
-                    headlineContent = {
-                        Text(text = it.title)
-                    }
-                )
-            }
-        }
-        "genre" -> FullScreenDialog(
-            showDialog = true,
-            onDismiss = {opened = ""},
-            title = "genre") {
-            state.type.genres.forEach {
-                ListItem(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable (
-                            onClick = {
-                                state.genre = it
-//                                TODO Fetch based on genre
-
-                                opened = ""
-                            }
-                        )
-                    ,
-                    headlineContent = { Text(text = it.name) }
-                )
-            }
         }
     }
-
+    FullScreenDialog(
+        showDialog = opened == "catalog",
+        onDismiss = { opened = "" },
+        title = "catalog") {
+        state.type.catalog.forEach {
+            ListItem(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable(onClick = {
+                        state.catalog = it
+                        opened = ""
+                    }),
+                headlineContent = {
+                    Text(text = it.title)
+                }
+            )
+        }
+    }
+    FullScreenDialog(
+        showDialog = opened == "genre",
+        onDismiss = { opened = "" },
+        title = "genre"
+    ) {
+        state.type.genres.forEach {
+            ListItem(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable(
+                        onClick = {
+                            state.genre = it
+                            opened = ""
+                        }
+                    ),
+                headlineContent = { Text(text = it.name) }
+            )
+        }
+    }
 }

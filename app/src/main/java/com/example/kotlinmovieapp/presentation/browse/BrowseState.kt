@@ -9,4 +9,5 @@ data class BrowseState(
     var genre: Genre? = null,
     val movies: List<MovieHome> = mutableListOf(),
     var page: Int = 1
-)
+) {
+}

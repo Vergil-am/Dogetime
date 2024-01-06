@@ -12,6 +12,7 @@ import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -26,66 +27,63 @@ import com.example.kotlinmovieapp.presentation.components.Filters
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Browse(
-    navController: NavController,
-    viewModel: BrowseViewModel
+    navController: NavController, viewModel: BrowseViewModel
 ) {
-    val state = viewModel.state.collectAsState()
+    val state by viewModel.state.collectAsState()
     val gridState = rememberLazyGridState()
+
+    LaunchedEffect(key1 = state.type) {
+        viewModel.getMovies(
+            type = state.type.value, catalog = state.catalog.value, page = 1
+        )
+    }
+
     val hasReachedLastItem by remember {
         derivedStateOf {
-            gridState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ==
-                    gridState.layoutInfo.totalItemsCount - 1
+            gridState.layoutInfo.visibleItemsInfo.lastOrNull()?.index == gridState.layoutInfo.totalItemsCount - 1
         }
     }
 
     if (hasReachedLastItem) {
         viewModel.getMovies(
-            type = state.value.type.value,
-            catalog = state.value.catalog.value,
-            page = state.value.page + 1
+            type = state.type.value, catalog = state.catalog.value, page = state.page + 1
         )
     }
 
 
-       Column(
-           modifier = Modifier
-       ) {
-           Filters(viewModel)
-           val movies = state.value.movies
+    Column(
+        modifier = Modifier
+    ) {
+        Filters(viewModel)
+        val movies = state.movies
 
-           LazyVerticalGrid(
-               state = gridState,
-               columns = GridCells.Fixed(3),
-               contentPadding = PaddingValues(10.dp)
-           ) {
-               movies.forEachIndexed { _ , movie ->
-                   item {
-                       Card(
-                           modifier = Modifier
-                               .padding(10.dp)
-                               .height(155.dp),
-                           onClick = {
-                               when (state.value.type.value) {
-                                   "movie" -> navController.navigate("movie/${movie.id}")
-                                   "anime" -> navController.navigate("anime/${movie.id}")
-                                   "tv" -> navController.navigate("show/${movie.id}")
-                               }
-                           }
-                       ) {
-                           Image(
-                               modifier = Modifier
-                                   .fillMaxSize(),
-                               contentScale = ContentScale.FillBounds,
-                               painter = rememberAsyncImagePainter(
-                                  movie.poster
-                               ),
-                               contentDescription = movie.title
-                           )
-                       }
-                   }
-               }
-           }
-       }
+        LazyVerticalGrid(
+            state = gridState, columns = GridCells.Fixed(3), contentPadding = PaddingValues(10.dp)
+        ) {
+            movies.forEachIndexed { _, movie ->
+                item {
+                    Card(modifier = Modifier
+                        .padding(10.dp)
+                        .height(155.dp), onClick = {
+                        when (state.type.value) {
+                            "movie" -> navController.navigate("movie/${movie.id}")
+                            "anime" -> navController.navigate("anime/${movie.id}")
+                            "tv" -> navController.navigate("show/${movie.id}")
+                        }
+                    }) {
+                        Image(
+                            modifier = Modifier.fillMaxSize(),
+                            contentScale = ContentScale.FillBounds,
+                            painter = rememberAsyncImagePainter(
+                                movie.poster
+                            ),
+                            contentDescription = movie.title
+                        )
+                    }
+                }
+            }
+        }
+    }
 }
 
 
