@@ -2,13 +2,13 @@ package com.example.kotlinmovieapp.presentation.details
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.kotlinmovieapp.domain.use_case.movies.get_movie.GetMovieUseCase
-import com.example.kotlinmovieapp.domain.use_case.watchlist.WatchListUseCase
 import com.example.kotlinmovieapp.data.local.entities.WatchListMedia
 import com.example.kotlinmovieapp.domain.use_case.anime4up.Anime4upUseCase
+import com.example.kotlinmovieapp.domain.use_case.movies.get_movie.GetMovieUseCase
+import com.example.kotlinmovieapp.domain.use_case.watchlist.WatchListUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
@@ -19,10 +19,9 @@ class DetailsViewModel @Inject constructor(
     private val getMovieUseCase: GetMovieUseCase,
     private val watchList: WatchListUseCase,
     private val anime4up: Anime4upUseCase
-): ViewModel()  {
+) : ViewModel() {
     private val _state = MutableStateFlow(MovieState())
-    var state : StateFlow<MovieState> = _state
-
+    var state = _state.asStateFlow()
 
 
     fun getMedia(type: String, id: String) {
@@ -32,41 +31,24 @@ class DetailsViewModel @Inject constructor(
             "anime" -> getAnime(id)
         }
     }
+
     private fun getMovie(id: Int) {
-            getMovieUseCase.getMovieDetails(id).onEach {
-                _state.value = MovieState(
-                    media = it,
-                    isLoading = false,
-                    watchList = state.value.watchList,
-                    animeEpisodes = listOf()
-                    )
-            }.launchIn(viewModelScope)
+        getMovieUseCase.getMovieDetails(id).onEach {
+            _state.value = _state.value.copy(media = it)
+        }.launchIn(viewModelScope)
 
 
     }
+
     private fun getShow(id: Int) {
-            getMovieUseCase.getShow(id).onEach {
-                _state.value = MovieState(
-                    media = it,
-                    isLoading = false,
-                    season = state.value.season,
-                    watchList = state.value.watchList,
-                    animeEpisodes = listOf(),
-                    animeEpisodeSources = state.value.animeEpisodeSources
-                )
-            }.launchIn(viewModelScope)
+        getMovieUseCase.getShow(id).onEach {
+            _state.value = _state.value.copy(media = it)
+        }.launchIn(viewModelScope)
     }
 
     fun getSeason(id: Int, season: Int) {
         getMovieUseCase.getSeason(id, season).onEach {
-            _state.value = MovieState(
-                media = state.value.media,
-                isLoading = false,
-                season = it,
-                watchList = state.value.watchList,
-                animeEpisodes = listOf(),
-                animeEpisodeSources = state.value.animeEpisodeSources
-            )
+            _state.value = _state.value.copy(season = it)
         }.launchIn(viewModelScope)
     }
 
@@ -79,42 +61,26 @@ class DetailsViewModel @Inject constructor(
     }
 
     fun getMediaFromWatchList(id: String) {
-            watchList.getMediaById(id).onEach {
-                _state.value =  MovieState(
-                    media = state.value.media,
-                    isLoading = false,
-                    season = null,
-                    watchList = it,
-                    animeEpisodes = state.value.animeEpisodes,
-                    animeEpisodeId =  state.value.animeEpisodeId,
-                    animeEpisodeSources = state.value.animeEpisodeSources
-                )
-            }.launchIn(viewModelScope)
+        watchList.getMediaById(id).onEach {
+            _state.value = _state.value.copy(watchList = it)
+        }.launchIn(viewModelScope)
 
     }
+
     private fun getAnime(slug: String) {
-            anime4up.getAnimeDetails(slug).onEach {
-                _state.value = MovieState(
-                    media = it.details,
-                    isLoading = false,
-                    season = null,
-                    watchList = state.value.watchList,
-                    animeEpisodes = it.episodes,
-                    animeEpisodeSources = state.value.animeEpisodeSources
-                )
-            }.launchIn(viewModelScope)
+        anime4up.getAnimeDetails(slug).onEach {
+            _state.value = _state.value.copy(
+                media = it.details,
+                animeEpisodes = it.episodes,
+            )
+        }.launchIn(viewModelScope)
 
 
     }
 
     fun getLinks(slug: String) {
         anime4up.getEpisode(slug).onEach {
-            _state.value = MovieState(
-                media = state.value.media,
-                isLoading = false,
-                season = null,
-                watchList = state.value.watchList,
-                animeEpisodes = state.value.animeEpisodes,
+            _state.value = _state.value.copy(
                 animeEpisodeSources = it
             )
         }.launchIn(viewModelScope)

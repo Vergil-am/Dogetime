@@ -1,8 +1,8 @@
 package com.example.kotlinmovieapp.presentation.webView
+
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.pm.ActivityInfo
-import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.webkit.WebChromeClient
@@ -26,70 +26,73 @@ import androidx.core.view.WindowInsetsControllerCompat
 @SuppressLint("SetJavaScriptEnabled", "SourceLockedOrientationActivity")
 @Composable
 fun WebView(
-   url: String,
-   windowCompat: WindowInsetsControllerCompat,
+    url: String,
+    windowCompat: WindowInsetsControllerCompat,
 ) {
-   Log.e("url", url)
-   windowCompat.hide(WindowInsetsCompat.Type.systemBars())
-   windowCompat.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
-   val activity = LocalView.current.context as Activity
-   val isFullscreen = remember {
-      mutableStateOf(false)
-   }
-   DisposableEffect(key1 = activity ) {
-      activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
-      onDispose {
-         activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
-      }
-   }
+    windowCompat.hide(WindowInsetsCompat.Type.systemBars())
+    windowCompat.systemBarsBehavior =
+        WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+    val activity = LocalView.current.context as Activity
+    val isFullscreen = remember {
+        mutableStateOf(false)
+    }
+    DisposableEffect(key1 = activity) {
+        activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+        onDispose {
+            activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+        }
+    }
 
-      AndroidView(
-         modifier = Modifier
+    AndroidView(
+        modifier = Modifier
             .fillMaxSize(),
-         factory = {
+        factory = {
+
             WebView(it).apply {
-               layoutParams = ViewGroup.LayoutParams(
-                  ViewGroup.LayoutParams.MATCH_PARENT,
-                  ViewGroup.LayoutParams.MATCH_PARENT
-               )
+                layoutParams = ViewGroup.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.MATCH_PARENT
+                )
 
-               settings.javaScriptEnabled = true
-               settings.domStorageEnabled = true
-               webViewClient = object: WebViewClient() {
-                  override fun shouldOverrideUrlLoading(
-                     view: WebView?,
-                     request: WebResourceRequest?
-                  ): Boolean {
-                     return true
-                  }
-               }
-               webChromeClient = object : WebChromeClient() {
-                  var customView: View? = null
-                  override fun onShowCustomView(view: View?, callback: CustomViewCallback?) {
-                     super.onShowCustomView(view, callback)
-                     isFullscreen.value = true
-                     if (this.customView != null) {
-                        onHideCustomView()
-                        return
-                     }
-                     this.customView = view
-                     (activity.window.decorView as FrameLayout).addView(this.customView,
-                        FrameLayout.LayoutParams(
-                        ViewGroup.LayoutParams.MATCH_PARENT,
-                        ViewGroup.LayoutParams.MATCH_PARENT))
-                  }
-
-                  override fun onHideCustomView() {
-                     super.onHideCustomView()
-                     isFullscreen.value = false
-                     (activity.window.decorView as FrameLayout).removeView(this.customView)
-                     this.customView = null
-                  }
-               }
-               loadUrl(url)
+                settings.javaScriptEnabled = true
+                settings.domStorageEnabled = true
+                webViewClient = object : WebViewClient() {
+                    override fun shouldOverrideUrlLoading(
+                        view: WebView?,
+                        request: WebResourceRequest?
+                    ): Boolean {
+                        return true
+                    }
+                }
+                webChromeClient = object : WebChromeClient() {
+                    var customView: View? = null
+                    override fun onShowCustomView(view: View?, callback: CustomViewCallback?) {
+                        super.onShowCustomView(view, callback)
+                        isFullscreen.value = true
+                        if (this.customView != null) {
+                            onHideCustomView()
+                            return
+                        }
+                        this.customView = view
+                        (activity.window.decorView as FrameLayout).addView(
+                            this.customView,
+                            FrameLayout.LayoutParams(
+                                ViewGroup.LayoutParams.MATCH_PARENT,
+                                ViewGroup.LayoutParams.MATCH_PARENT
+                            )
+                        )
+                    }
+                    override fun onHideCustomView() {
+                        super.onHideCustomView()
+                        isFullscreen.value = false
+                        (activity.window.decorView as FrameLayout).removeView(this.customView)
+                        this.customView = null
+                    }
+                }
+                loadUrl(url)
             }
-      },
-      )
-   }
+        },
+    )
+}
 
 

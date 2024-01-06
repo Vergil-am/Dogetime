@@ -31,7 +31,7 @@ class BrowseViewModel @Inject constructor(
                     _state.value = _state.value.copy(movies = it)
                 } else if (page > 1) {
                     val movies  = _state.value.movies.plus(it)
-                    _state.value = _state.value.copy(movies = movies)
+                    _state.value = _state.value.copy(movies = movies, page = page)
                 }
             }.launchIn(viewModelScope)
             "tv" -> getMoviesUseCase.getShows(catalog, page).onEach {
@@ -39,7 +39,7 @@ class BrowseViewModel @Inject constructor(
                     _state.value = _state.value.copy(movies = it)
                 } else if (page > 1) {
                     val movies  = _state.value.movies.plus(it)
-                    _state.value = _state.value.copy(movies = movies)
+                    _state.value = _state.value.copy(movies = movies, page = page)
                 }
             }.launchIn(viewModelScope)
 
@@ -48,14 +48,18 @@ class BrowseViewModel @Inject constructor(
                     _state.value = _state.value.copy(movies = it)
                 } else if (page > 1) {
                     val movies  = _state.value.movies.plus(it)
-                    _state.value = _state.value.copy(movies = movies)
+                    _state.value = _state.value.copy(movies = movies, page = page)
                 }
             }.launchIn(viewModelScope)
         }
     }
 
-//    fun updateState(type: Type?, catalog:Item?, genre: Genre?) {
-//        v
-//    }
+    fun updateType(type: Type, catalog: Item) {
+        _state.value = _state.value.copy(type = type, catalog = catalog, genres = null)
+    }
+
+    fun updateCatalog(catalog: Item) {
+        _state.value = _state.value.copy(catalog = catalog)
+    }
 
 }

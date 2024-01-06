@@ -1,6 +1,5 @@
 package com.example.kotlinmovieapp.presentation.watchlist
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Column
@@ -29,11 +28,10 @@ import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
 import com.example.kotlinmovieapp.util.Constants
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WatchList(
-    viewModel: ListViewModel,
-    navController: NavController
+    viewModel: ListViewModel, navController: NavController
 ) {
 
     val state = viewModel.state.collectAsState().value
@@ -41,98 +39,53 @@ fun WatchList(
     val lists = Constants.lists.plus("All")
     val gridState = rememberLazyGridState()
     var selectedTab by remember { mutableIntStateOf(0) }
-//    val pagerState = rememberPagerState(
-//        pageCount = { lists.count() }
-//    )
-//    LaunchedEffect(pagerState.currentPage) {
-//        selectedTab = pagerState.currentPage
-//    }
-//    LaunchedEffect(selectedTab) {
-//        pagerState.animateScrollToPage(selectedTab)
-//    }
 
-        Column (
-            modifier = Modifier.fillMaxSize()
-        ){
-//           ScrollableTabRow(
-//               selectedTabIndex = selectedTab,
-//               modifier = Modifier
-//                   .fillMaxWidth(),
-//
-//               ) {
-//               lists.forEachIndexed { index, item ->
-//                  Tab(
-//                      selected = selectedTab == index,
-//                      onClick = { selectedTab = index  },
-//                      modifier = Modifier.padding(10.dp),
-//                      selectedContentColor = Color.Red,
-//                      unselectedContentColor = Color.Blue,
-//
-//                  ) {
-//                      Box(modifier = Modifier
-//                      ) {
-//                          Text(text = item)
-//                      }
-//                  }
-//               }
-//           }
 
-//            HorizontalPager(
-//                state = pagerState,
-//                modifier = Modifier
-//                    .fillMaxSize()
-//                ,
-//                ) {page ->
-            Row (
-                modifier = Modifier
-                    .horizontalScroll(rememberScrollState())
-            ) {
-               lists.onEachIndexed { index, item ->
-                   ElevatedFilterChip(
-                       modifier = Modifier.padding(horizontal = 5.dp),
-                       selected = index == selectedTab,
-                       onClick = { selectedTab = index },
-                       label = { Text(text = item)})
-               }
+    Column(
+        modifier = Modifier.fillMaxSize()
+    ) {
+        Row(
+            modifier = Modifier.horizontalScroll(rememberScrollState())
+        ) {
+            lists.onEachIndexed { index, item ->
+                ElevatedFilterChip(modifier = Modifier.padding(horizontal = 5.dp),
+                    selected = index == selectedTab,
+                    onClick = { selectedTab = index },
+                    label = { Text(text = item) })
             }
-                LazyVerticalGrid(
-                    modifier = Modifier.fillMaxSize(),
-                    state = gridState,
-                    columns = GridCells.Fixed(3),
-                    contentPadding = PaddingValues(10.dp),
-                ) {
-                    state.media.filter {
-                        if ( lists[selectedTab] == "All") {
-                           true
-                        } else {
-                            it.list == Constants.lists[selectedTab]
-                        }
-                    }.forEach{
-                        item {
-                            Card(
-                                modifier = Modifier
-                                    .padding(10.dp)
-                                    .height(155.dp),
-                                onClick = {
-                                        navController.navigate("${it.type}/${it.id}")
-                                }
-                            ) {
-                                Image(
-                                    modifier = Modifier
-                                        .fillMaxSize(),
-                                    painter = rememberAsyncImagePainter(
-                                        it.poster
-                                    ),
-                                    contentDescription = it.title
-                                )
-                            }
-                        }
+        }
+        LazyVerticalGrid(
+            modifier = Modifier.fillMaxSize(),
+            state = gridState,
+            columns = GridCells.Fixed(3),
+            contentPadding = PaddingValues(10.dp),
+        ) {
+            state.media.filter {
+                if (lists[selectedTab] == "All") {
+                    true
+                } else {
+                    it.list == Constants.lists[selectedTab]
+                }
+            }.forEach {
+                item {
+                    Card(modifier = Modifier
+                        .padding(10.dp)
+                        .height(155.dp), onClick = {
+                        navController.navigate("${it.type}/${it.id}")
+                    }) {
+                        Image(
+                            modifier = Modifier.fillMaxSize(), painter = rememberAsyncImagePainter(
+                                it.poster
+                            ), contentDescription = it.title
+                        )
                     }
                 }
-
             }
-
         }
+
+    }
+
+}
 
 //    }
 

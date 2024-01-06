@@ -36,7 +36,6 @@ class GetMovieUseCase @Inject constructor(
                 runtime = res.runtime,
                 seasons = null,
             )
-            Log.d("MOVIE REPO", movie.toString())
             emit(movie)
         } catch (e : HttpException) {
             Log.e("MOVIE REPO", e.toString() )
@@ -49,7 +48,6 @@ class GetMovieUseCase @Inject constructor(
         try {
             val  res = repo.getShow(id)
             val runtime = res.episode_run_time.firstOrNull()
-            Log.e("RUNTIME", runtime.toString())
             val episodeRunTime = if (runtime == null) {
                 if (res.origin_country[0] == "JP" || res.genres[0].name == "Animation") {
                     23
@@ -82,7 +80,6 @@ class GetMovieUseCase @Inject constructor(
                 runtime = episodeRunTime,
                 seasons = res.seasons,
             )
-            Log.e("SHOW REPO", show.toString() )
             emit(show)
         }catch (e : HttpException) {
             Log.e("MOVIE REPO", e.toString() )
@@ -95,7 +92,6 @@ class GetMovieUseCase @Inject constructor(
     fun getSeason(id: Int, season: Int): Flow<SeasonDTO> = flow {
         try {
             val res = repo.getSeason(id, season)
-            Log.e("SHOW REPO", season.toString() )
             emit(res)
         }catch (e : HttpException) {
             Log.e("MOVIE REPO", e.toString() )

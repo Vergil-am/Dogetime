@@ -1,6 +1,5 @@
 package com.example.kotlinmovieapp.presentation.search
 
-import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -34,71 +33,72 @@ import com.example.kotlinmovieapp.presentation.navgraph.Route
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Search(
-    navController: NavController,
-    viewModel: SearchViewModel
+    navController: NavController, viewModel: SearchViewModel
 ) {
     var search by remember {
         mutableStateOf("")
     }
-    val state = viewModel.state.collectAsState().value
+    val state by viewModel.state.collectAsState()
 
-    Scaffold (
-        topBar = {
-            TopAppBar(
-                title = { Text(text = "")},
-                actions = {
-                    IconButton(onClick = {
-                        navController.navigate(Route.Browse.route)
-                    }) {
-                        Icon(imageVector = Icons.Outlined.ArrowBack, contentDescription = "Search" )
-                    }
-                    OutlinedTextField(
-                        value = search,
-                        placeholder = { Text(text = "Search")},
-                        singleLine = true,
-                        keyboardActions = KeyboardActions(onDone = {
-                            viewModel.getSearch(search)
-                            Log.d("DONE", search)
-                        }),
-                        trailingIcon = { Icon(imageVector = Icons.Outlined.Search, contentDescription = "Search Icon" )},
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(10.dp)
-                        ,
-                        onValueChange = {value -> search = value })
+    Scaffold(topBar = {
+        TopAppBar(title = { Text(text = "") }, actions = {
+            IconButton(onClick = {
+                navController.navigate(Route.Browse.route)
+            }) {
+                Icon(imageVector = Icons.Outlined.ArrowBack, contentDescription = "Search")
+            }
+            OutlinedTextField(value = search,
+                placeholder = { Text(text = "Search") },
+                singleLine = true,
+                keyboardActions = KeyboardActions(onDone = {
+                    viewModel.getSearch(search)
+                }),
+                trailingIcon = {
+                    Icon(
+                        imageVector = Icons.Outlined.Search,
+                        contentDescription = "Search Icon"
+                    )
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(10.dp),
+                onValueChange = { value -> search = value })
 
 
-                }
-            )
-        }
+        })
+    }
 
     ) { paddingValues ->
         Column(
-            modifier = Modifier.padding(paddingValues)
-            .verticalScroll(rememberScrollState())
+            modifier = Modifier
+                .padding(paddingValues)
+                .verticalScroll(rememberScrollState())
         ) {
             state.movies?.let {
-                Text(text = "Movies",
+                Text(
+                    text = "Movies",
                     style = MaterialTheme.typography.titleMedium,
                     textAlign = TextAlign.Center,
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(10.dp)
                 )
-                MovieRow(data = it, navController = navController )
+                MovieRow(data = it, navController = navController)
             }
             state.shows?.let {
-                    Text(text = "Series",
-                        style = MaterialTheme.typography.titleMedium,
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(10.dp)
-                    )
-                    MovieRow(data = it , navController = navController )
-                }
+                Text(
+                    text = "Series",
+                    style = MaterialTheme.typography.titleMedium,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(10.dp)
+                )
+                MovieRow(data = it, navController = navController)
+            }
             state.anime?.let {
-                Text(text = "Anime",
+                Text(
+                    text = "Anime",
                     style = MaterialTheme.typography.titleMedium,
                     textAlign = TextAlign.Center,
                     modifier = Modifier
@@ -108,10 +108,10 @@ fun Search(
                 MovieRow(data = it, navController = navController)
             }
 
-            }
-
         }
+
     }
+}
 
 
 

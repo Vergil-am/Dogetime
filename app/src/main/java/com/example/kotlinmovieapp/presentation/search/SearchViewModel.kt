@@ -6,7 +6,7 @@ import com.example.kotlinmovieapp.domain.use_case.anime4up.Anime4upUseCase
 import com.example.kotlinmovieapp.domain.use_case.movies.search.Search
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import javax.inject.Inject
@@ -17,18 +17,18 @@ class SearchViewModel @Inject constructor(
 
 ) : ViewModel() {
     private val _state = MutableStateFlow(SearchState())
-    val state : StateFlow<SearchState> = _state
+    val state = _state.asStateFlow()
 
     fun getSearch(query: String) {
         search.searchMovies(query).onEach {
-            _state.value = SearchState(search = state.value.search , movies = it, shows = state.value.shows, anime = state.value.anime)
+            _state.value = _state.value.copy(movies = it)
 
         }.launchIn(viewModelScope)
         search.searchShows(query).onEach {
-            _state.value = SearchState(search = state.value.search , movies = state.value.movies , shows = it, anime = state.value.anime)
+            _state.value = _state.value.copy(shows = it)
         }.launchIn(viewModelScope)
         anime4up.searchAnime(query ).onEach {
-            _state.value = SearchState(search = state.value.search , movies = state.value.movies , shows = state.value.shows, anime = it)
+            _state.value = _state.value.copy(anime = it)
         }.launchIn(viewModelScope)
 
     }

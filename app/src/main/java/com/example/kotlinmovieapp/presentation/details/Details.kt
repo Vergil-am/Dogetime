@@ -19,6 +19,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -29,15 +30,12 @@ import com.example.kotlinmovieapp.util.Constants
 import java.net.URLEncoder
 
 @Composable
-fun  Details(
-    navController: NavController,
-    viewModel: DetailsViewModel,
-    id: String,
-    type: String
+fun Details(
+    navController: NavController, viewModel: DetailsViewModel, id: String, type: String
 
 ) {
-    viewModel.getMedia(type = type ,id = id)
-    val state = viewModel.state.collectAsState()
+    viewModel.getMedia(type = type, id = id)
+    val state by viewModel.state.collectAsState()
     val addToWatchList: (media: WatchListMedia) -> Unit = {
         viewModel.addToWatchList(it)
     }
@@ -45,54 +43,51 @@ fun  Details(
         viewModel.deleteFromList(it)
     }
     viewModel.getMediaFromWatchList(id)
-    val media = state.value.media
-    Scaffold (
-        floatingActionButton = {
-            ExtendedFloatingActionButton(
-                containerColor = MaterialTheme.colorScheme.primary,
-                onClick = {
-                when(type) {
-                    "movie" ->
-                    {
-                        val url = URLEncoder.encode("${Constants.VIDEO_URL}/movie/$id")
-                        navController.navigate("web-view/$url")
-                    }
-                    "show" -> navController.navigate("show/seasons/$id")
-                    "anime" -> navController.navigate("anime/episodes/$id")
+    val media = state.media
+    Scaffold(floatingActionButton = {
+        ExtendedFloatingActionButton(containerColor = MaterialTheme.colorScheme.primary, onClick = {
+            when (type) {
+                "movie" -> {
+                    val url = URLEncoder.encode("${Constants.VIDEO_URL}/movie/$id")
+                    navController.navigate("web-view/$url")
                 }
-            }) {
-                Icon(imageVector = Icons.Filled.PlayArrow, contentDescription = "play" )
-                Text(text = "Watch")
+
+                "show" -> navController.navigate("show/seasons/$id")
+                "anime" -> navController.navigate("anime/episodes/$id")
             }
+        }) {
+            Icon(imageVector = Icons.Filled.PlayArrow, contentDescription = "play")
+            Text(text = "Watch")
         }
-    ) { paddingValues ->
-    Column(
+    }) { paddingValues ->
+        Column(
             modifier = Modifier
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
-                .padding(paddingValues)
-            ,
-            verticalArrangement = Arrangement.Top
+                .padding(paddingValues), verticalArrangement = Arrangement.Top
 
 
         ) {
-                media?.let {
-                    DetailsHeader(
-                        backDrop = media.backdrop ,
-                        title = media.title ,
-                        poster = media.poster,
-                        status = media.status,
-                        id = media.id,
-                        type = media.type,
-                        watchList = if (state.value.watchList?.id == id) {state.value.watchList} else{ null},
-                        addToWatchList = addToWatchList,
-                        deleteFromList = deleteFromList
-                    )
-                    Row (
+            media?.let {
+                DetailsHeader(
+                    backDrop = media.backdrop,
+                    title = media.title,
+                    poster = media.poster,
+                    status = media.status,
+                    id = media.id,
+                    type = media.type,
+                    watchList = if (state.watchList?.id == id) {
+                        state.watchList
+                    } else {
+                        null
+                    },
+                    addToWatchList = addToWatchList,
+                    deleteFromList = deleteFromList
+                )
+                Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(20.dp)
-                    ,
+                        .padding(20.dp),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     Text(text = "Movie")
@@ -100,63 +95,33 @@ fun  Details(
                     Text(text = "${it.runtime} min")
                     Text(text = it.rating.toString().format("%.f"))
                 }
-                    if (it.tagline != null) {
+                if (it.tagline != null) {
                     Text(
                         text = it.tagline,
                         style = MaterialTheme.typography.headlineSmall,
                         textAlign = TextAlign.Center,
-                        modifier = Modifier
-                            .fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth()
 
                     )
                 }
-                    Text(
-                    text = it.overview,
-                    modifier = Modifier.padding(10.dp)
+                Text(
+                    text = it.overview, modifier = Modifier.padding(10.dp)
                 )
-                Row (
+                Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .wrapContentWidth()
-                    ,
+                        .wrapContentWidth(),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
 
                 ) {
-                    it.genres.forEach{
-                        genre -> ElevatedSuggestionChip(
-                        onClick = {},
-                        label = { Text(text = genre)}
-                        )
+                    it.genres.forEach { genre ->
+                        ElevatedSuggestionChip(onClick = {}, label = { Text(text = genre) })
                     }
                 }
-//                Button(
-//                    modifier = Modifier
-//                        .fillMaxWidth()
-//                        .padding(10.dp)
-//                    ,
-//                    colors = ButtonDefaults.buttonColors(
-//                        containerColor = Color.White,
-//                        contentColor = Color.Black
-//                    ),
-//                    enabled = it.status != "لم يعرض بعد",
-//                    onClick = {
-//
-//                }
-//                ) {
-//                    Text(text = "Play")
-//                    Icon(
-//                        imageVector = Icons.Filled.PlayArrow,
-//                        contentDescription = "Play"
-//                    )
-//
-//                }
-//
-//
-//                }
+            }
+        }
 
 
-            }}
-
-
-}}
+    }
+}
 

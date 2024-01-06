@@ -8,6 +8,8 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -20,9 +22,8 @@ fun Home(
     navController: NavController,
     viewModel: HomeViewModel
 ) {
-    val state = viewModel.state.value
+    val state by viewModel.state.collectAsState()
     viewModel.getWatchlist()
-//    viewModel.getLatestEpisodes()
     Column (
     modifier = Modifier
         .verticalScroll(rememberScrollState())
@@ -35,7 +36,7 @@ fun Home(
                     .fillMaxWidth()
                     .padding(10.dp)
             )
-             MovieRow(data = state.watchList , navController = navController)
+             MovieRow(data = state.watchList!!, navController = navController)
 
         }
 

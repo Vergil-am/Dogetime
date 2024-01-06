@@ -29,10 +29,12 @@ import com.example.kotlinmovieapp.presentation.components.Filters
 fun Browse(
     navController: NavController, viewModel: BrowseViewModel
 ) {
-    val state by viewModel.state.collectAsState()
+
     val gridState = rememberLazyGridState()
 
-    LaunchedEffect(key1 = state.type) {
+    val state by viewModel.state.collectAsState()
+
+    LaunchedEffect(key1 = state.type, key2 = state.catalog ) {
         viewModel.getMovies(
             type = state.type.value, catalog = state.catalog.value, page = 1
         )

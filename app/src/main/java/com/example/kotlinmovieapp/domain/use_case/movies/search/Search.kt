@@ -11,32 +11,29 @@ import retrofit2.HttpException
 import javax.inject.Inject
 
 class Search @Inject constructor(
-   private val repo : MovieRepository
+    private val repo: MovieRepository
 ) {
     fun searchMovies(query: String): Flow<List<MovieHome>> = flow {
         try {
-            val movies = repo.searchMovies(query).results.filter {
-                it.poster_path != null
-            }.map {
-                MovieHome(
-                    id = it.id.toString(),
-                    title = it.title,
-                    type = "show",
-                    poster = "${Constants.IMAGE_BASE_URL}/w200/${it.poster_path}",
-                )
-            }
-            Log.e("Search Movies", movies.toString())
+            val movies = repo.searchMovies(query).results.map {
+                    MovieHome(
+                        id = it.id.toString(),
+                        title = it.title,
+                        type = "show",
+                        poster = "${Constants.IMAGE_BASE_URL}/w200/${it.poster_path}",
+                    )
+                }
             emit(movies)
         } catch (_: HttpException) {
             Log.e("Search", "Http exception")
-        }
-        catch(_: IOException) {
+        } catch (_: IOException) {
             Log.e("Search", "Http exception")
         }
     }
+
     fun searchShows(query: String): Flow<List<MovieHome>> = flow {
         try {
-            val shows = repo.searchShows(query).results.filter { it.poster_path != null }.map {
+            val shows = repo.searchShows(query).results.map {
                 MovieHome(
                     id = it.id.toString(),
                     title = it.name,
@@ -45,12 +42,10 @@ class Search @Inject constructor(
                 )
             }
 
-            Log.e("Search Shows", shows.toString())
             emit(shows)
         } catch (_: HttpException) {
             Log.e("Search", "Http exception")
-        }
-        catch(_: IOException) {
+        } catch (_: IOException) {
             Log.e("Search", "Http exception")
         }
     }

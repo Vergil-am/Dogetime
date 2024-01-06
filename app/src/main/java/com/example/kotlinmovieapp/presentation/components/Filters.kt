@@ -18,6 +18,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import com.example.kotlinmovieapp.presentation.browse.BrowseViewModel
+import com.example.kotlinmovieapp.presentation.browse.Type
 import com.example.kotlinmovieapp.presentation.browse.Types
 
 @Composable
@@ -28,10 +29,6 @@ fun Filters(
         mutableStateOf("")
     }
     val state by viewModel.state.collectAsState()
-//    LaunchedEffect(state) {
-//        Log.e("Function ran", state.toString())
-//        viewModel.getMovies(type = state.type.value, page = 1, catalog = state.catalog.value)
-//    }
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceAround
@@ -64,9 +61,16 @@ fun Filters(
                 modifier = Modifier
                     .fillMaxWidth()
                     .clickable(onClick = {
-                        state.type = it
-                        state.catalog = it.catalog[0]
-                        state.genre = null
+                        viewModel.updateType(
+                            Type(
+                                title = it.title,
+                                value = it.value,
+                                catalog = it.catalog,
+                                genres = it.genres
+                            ),
+                            catalog = it.catalog[0]
+                        )
+
                         opened = ""
                     }),
                 headlineContent = {
@@ -85,7 +89,7 @@ fun Filters(
                 modifier = Modifier
                     .fillMaxWidth()
                     .clickable(onClick = {
-                        state.catalog = it
+                        viewModel.updateCatalog(it)
                         opened = ""
                     }),
                 headlineContent = {
