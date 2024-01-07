@@ -96,8 +96,14 @@ fun getLatestEpisodes() : Flow<List<MovieHome>> = flow {
 
 
 
-    fun getAnime(page: Int) : Flow<List<MovieHome>> = flow {
-        val doc = repo.getAnime(page).body()
+    fun getAnime(page: Int, genre: String?, catalog: String?) : Flow<List<MovieHome>> = flow {
+        val doc = if (genre != null) {
+            repo.getAnimeByGenre(genre).body()
+        } else if (catalog != null) {
+            repo.getAnimeByType(catalog).body()
+        } else {
+            repo.getAnime(page).body()
+        }
         if (doc != null) {
             val animeCards = Jsoup.parse(doc).select("div.anime-card-poster")
             val anime = parseAnime(animeCards)

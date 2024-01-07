@@ -20,13 +20,12 @@ class BrowseViewModel @Inject constructor(
     var state = _state.asStateFlow()
 
     init {
-        getMovies(state.value.type.value, state.value.catalog.value, _state.value.page)
+        getMovies(state.value.type.value, state.value.catalog.value, _state.value.page, genre = null)
     }
 
-    fun getMovies(type: String, catalog: String, page: Int) {
-        Log.e("page", page.toString())
+    fun getMovies(type: String, catalog: String?, page: Int, genre: Genre?) {
         when (type) {
-            "movie" -> getMoviesUseCase.getMovies(catalog, page).onEach {
+            "movie" -> getMoviesUseCase.getMovies(catalog ?: "popular", page).onEach {
                 if (page == 1) {
                     _state.value = _state.value.copy(movies = it)
                 } else if (page > 1) {
@@ -34,7 +33,7 @@ class BrowseViewModel @Inject constructor(
                     _state.value = _state.value.copy(movies = movies, page = page)
                 }
             }.launchIn(viewModelScope)
-            "tv" -> getMoviesUseCase.getShows(catalog, page).onEach {
+            "tv" -> getMoviesUseCase.getShows(catalog ?: "popular", page).onEach {
                 if (page == 1) {
                     _state.value = _state.value.copy(movies = it)
                 } else if (page > 1) {
@@ -43,23 +42,28 @@ class BrowseViewModel @Inject constructor(
                 }
             }.launchIn(viewModelScope)
 
-            "anime" -> anime4up.getAnime(page).onEach {
+            "anime" -> anime4up.getAnime(page, genre?.name, catalog).onEach {
                 if (page == 1) {
                     _state.value = _state.value.copy(movies = it)
-                } else if (page > 1) {
+                } else if (page > 1 && genre == null) {
                     val movies  = _state.value.movies.plus(it)
                     _state.value = _state.value.copy(movies = movies, page = page)
+                } else {
+                    Log.e("ELSE", "")
                 }
             }.launchIn(viewModelScope)
         }
     }
 
     fun updateType(type: Type, catalog: Item) {
-        _state.value = _state.value.copy(type = type, catalog = catalog, genres = null)
+        _state.value = _state.value.copy(type = type, catalog = catalog, genre = null)
     }
 
     fun updateCatalog(catalog: Item) {
         _state.value = _state.value.copy(catalog = catalog)
+    }
+    fun updateGenre(genre: Genre) {
+        _state.value = _state.value.copy(genre = genre)
     }
 
 }

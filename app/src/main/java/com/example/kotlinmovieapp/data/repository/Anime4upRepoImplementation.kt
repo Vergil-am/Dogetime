@@ -6,31 +6,39 @@ import retrofit2.Response
 import javax.inject.Inject
 
 class Anime4upRepoImplementation @Inject constructor(
-    private val okanime: Anime4upAPI
+    private val repo : Anime4upAPI
 ): Anime4upRepository {
 
     override suspend fun getLatestEpisodes(
 //        page: Int
     ): Response<String> {
-        return okanime.getLatestEpisodes(
+        return repo.getLatestEpisodes(
 //            page
         )
     }
 
     override suspend fun getAnimeDetails(slug: String): Response<String> {
-        return okanime.getAnimeDetails(slug)
+        return repo.getAnimeDetails(slug)
     }
 
     override suspend fun getEpisode(slug: String): Response<String> {
-       return okanime.getEpisode(slug)
+       return repo.getEpisode(slug)
     }
 
     override suspend fun getAnime(page: Int): Response<String> {
-       return okanime.getAnime(page)
+       return repo.getAnime(page)
     }
 
     override suspend fun searchAnime(query: String): Response<String> {
-       return okanime.searchAnime(param = "animes", query)
+       return repo.searchAnime(param = "animes", query)
+    }
+
+    override suspend fun getAnimeByGenre(genre: String): Response<String> {
+       return repo.getAnimeByGenre(genre)
+    }
+
+    override suspend fun getAnimeByType(catalog: String): Response<String> {
+       return repo.getAnimeByType(catalog)
     }
 
 }

@@ -23,6 +23,13 @@ val ShowCatalog = listOf(
     Item("Airing today", "airing_today"),
     Item("On Air", "on_the_air")
 )
+val AnimeCatalog = listOf(
+    Item("Movie", "movie-3"),
+    Item("ONA", "ona1"),
+    Item("OVA", "ova1"),
+    Item("Special", "special1"),
+            Item("TV", "tv2")
+)
 
 val MovieGenres = listOf(
     Genre(28, "Action"),
@@ -112,7 +119,7 @@ val animeGenres = listOf(
 val Types = listOf(
     Type("Movies", "movie", MovieCatalog, MovieGenres),
     Type("Shows", "tv", ShowCatalog, TvGenres),
-    Type("anime", "anime", MovieCatalog, animeGenres)
+    Type("Anime", "anime", AnimeCatalog , animeGenres)
 )
 
 data class Genre(

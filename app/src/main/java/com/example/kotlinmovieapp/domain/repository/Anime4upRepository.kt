@@ -14,6 +14,9 @@ interface Anime4upRepository {
 
     suspend fun getAnime(page: Int) : Response<String>
 
-
     suspend fun searchAnime(query: String) : Response<String>
+
+    suspend fun getAnimeByGenre(genre: String) : Response<String>
+
+    suspend fun getAnimeByType(catalog: String) : Response<String>
 }

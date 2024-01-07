@@ -109,7 +109,7 @@ fun Filters(
                     .fillMaxWidth()
                     .clickable(
                         onClick = {
-                            state.genre = it
+                            viewModel.updateGenre(it)
                             opened = ""
                         }
                     ),

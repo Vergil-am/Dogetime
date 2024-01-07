@@ -35,4 +35,14 @@ interface Anime4upAPI {
         @Query("search_param") param: String = "animes",
         @Query("s") query: String
     ) : Response<String>
+
+    @GET("anime-genre/{genre}")
+    suspend fun getAnimeByGenre(
+        @Path("genre") genre: String
+    ) : Response<String>
+
+    @GET("anime-type/{type}")
+    suspend fun getAnimeByType(
+        @Path("type") catalog: String
+    ) : Response<String>
 }

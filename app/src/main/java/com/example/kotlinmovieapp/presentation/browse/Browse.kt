@@ -34,9 +34,9 @@ fun Browse(
 
     val state by viewModel.state.collectAsState()
 
-    LaunchedEffect(key1 = state.type, key2 = state.catalog ) {
+    LaunchedEffect(key1 = state.type, key2 = state.catalog , key3 = state.genre) {
         viewModel.getMovies(
-            type = state.type.value, catalog = state.catalog.value, page = 1
+            type = state.type.value, catalog = state.catalog.value, page = 1, state.genre
         )
     }
 
@@ -47,9 +47,10 @@ fun Browse(
     }
 
     if (hasReachedLastItem) {
-        viewModel.getMovies(
-            type = state.type.value, catalog = state.catalog.value, page = state.page + 1
-        )
+            viewModel.getMovies(
+                type = state.type.value, catalog = state.catalog.value, page = state.page + 1, genre = state.genre
+            )
+
     }
 
 
@@ -57,12 +58,11 @@ fun Browse(
         modifier = Modifier
     ) {
         Filters(viewModel)
-        val movies = state.movies
 
         LazyVerticalGrid(
             state = gridState, columns = GridCells.Fixed(3), contentPadding = PaddingValues(10.dp)
         ) {
-            movies.forEachIndexed { _, movie ->
+            state.movies.forEachIndexed { _, movie ->
                 item {
                     Card(modifier = Modifier
                         .padding(10.dp)
