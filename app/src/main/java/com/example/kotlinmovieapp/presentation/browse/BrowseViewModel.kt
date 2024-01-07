@@ -20,7 +20,12 @@ class BrowseViewModel @Inject constructor(
     var state = _state.asStateFlow()
 
     init {
-        getMovies(state.value.type.value, state.value.catalog.value, _state.value.page, genre = null)
+        getMovies(
+            state.value.type.value,
+            state.value.catalog.value,
+            _state.value.page,
+            genre = null
+        )
     }
 
     fun getMovies(type: String, catalog: String?, page: Int, genre: Genre?) {
@@ -29,15 +34,16 @@ class BrowseViewModel @Inject constructor(
                 if (page == 1) {
                     _state.value = _state.value.copy(movies = it)
                 } else if (page > 1) {
-                    val movies  = _state.value.movies.plus(it)
+                    val movies = _state.value.movies.plus(it)
                     _state.value = _state.value.copy(movies = movies, page = page)
                 }
             }.launchIn(viewModelScope)
+
             "tv" -> getMoviesUseCase.getShows(catalog ?: "popular", page).onEach {
                 if (page == 1) {
                     _state.value = _state.value.copy(movies = it)
                 } else if (page > 1) {
-                    val movies  = _state.value.movies.plus(it)
+                    val movies = _state.value.movies.plus(it)
                     _state.value = _state.value.copy(movies = movies, page = page)
                 }
             }.launchIn(viewModelScope)
@@ -46,7 +52,7 @@ class BrowseViewModel @Inject constructor(
                 if (page == 1) {
                     _state.value = _state.value.copy(movies = it)
                 } else if (page > 1 && genre == null) {
-                    val movies  = _state.value.movies.plus(it)
+                    val movies = _state.value.movies.plus(it)
                     _state.value = _state.value.copy(movies = movies, page = page)
                 } else {
                     Log.e("ELSE", "")
@@ -62,6 +68,7 @@ class BrowseViewModel @Inject constructor(
     fun updateCatalog(catalog: Item) {
         _state.value = _state.value.copy(catalog = catalog)
     }
+
     fun updateGenre(genre: Genre) {
         _state.value = _state.value.copy(genre = genre)
     }

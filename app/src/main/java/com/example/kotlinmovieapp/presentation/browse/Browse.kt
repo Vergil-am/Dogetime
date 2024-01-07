@@ -34,7 +34,7 @@ fun Browse(
 
     val state by viewModel.state.collectAsState()
 
-    LaunchedEffect(key1 = state.type, key2 = state.catalog , key3 = state.genre) {
+    LaunchedEffect(key1 = state.type, key2 = state.catalog, key3 = state.genre) {
         viewModel.getMovies(
             type = state.type.value, catalog = state.catalog.value, page = 1, state.genre
         )
@@ -47,9 +47,12 @@ fun Browse(
     }
 
     if (hasReachedLastItem) {
-            viewModel.getMovies(
-                type = state.type.value, catalog = state.catalog.value, page = state.page + 1, genre = state.genre
-            )
+        viewModel.getMovies(
+            type = state.type.value,
+            catalog = state.catalog.value,
+            page = state.page + 1,
+            genre = state.genre
+        )
 
     }
 

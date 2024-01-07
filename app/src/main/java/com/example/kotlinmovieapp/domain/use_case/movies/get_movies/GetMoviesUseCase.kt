@@ -56,13 +56,13 @@ class GetMoviesUseCase @Inject constructor(
     fun getMovies(catalog: String, page: Int): Flow<List<MovieHome>> = flow {
         try {
             val movies = repo.getMovies(page = page, catalog).results.map {
-                    MovieHome(
-                        id = it.id.toString(),
-                        title = it.title,
-                        type = "movie",
-                        poster = "${Constants.IMAGE_BASE_URL}/w200/${it.poster_path}",
-                    )
-                }
+                MovieHome(
+                    id = it.id.toString(),
+                    title = it.title,
+                    type = "movie",
+                    poster = "${Constants.IMAGE_BASE_URL}/w200/${it.poster_path}",
+                )
+            }
             emit(movies)
         } catch (_: HttpException) {
             Log.e("POPULAR", "Http exception")
@@ -76,13 +76,13 @@ class GetMoviesUseCase @Inject constructor(
     fun getShows(catalog: String, page: Int): Flow<List<MovieHome>> = flow {
         try {
             val shows = repo.getShows(page = page, catalog).results.map {
-                    MovieHome(
-                        id = it.id.toString(),
-                        title = it.name,
-                        type = "show",
-                        poster = "${Constants.IMAGE_BASE_URL}/w200/${it.poster_path}",
-                    )
-                }
+                MovieHome(
+                    id = it.id.toString(),
+                    title = it.name,
+                    type = "show",
+                    poster = "${Constants.IMAGE_BASE_URL}/w200/${it.poster_path}",
+                )
+            }
             emit(shows)
         } catch (_: HttpException) {
             Log.e("POPULAR", "Http exception")
