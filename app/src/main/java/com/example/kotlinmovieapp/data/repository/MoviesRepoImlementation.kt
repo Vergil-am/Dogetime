@@ -1,7 +1,6 @@
 package com.example.kotlinmovieapp.data.repository
 
 import com.example.kotlinmovieapp.data.remote.MoviesAPI
-import com.example.kotlinmovieapp.data.remote.dto.GenresDTO
 import com.example.kotlinmovieapp.data.remote.dto.GetShowsDTO
 import com.example.kotlinmovieapp.data.remote.dto.MovieDetailsDTO
 import com.example.kotlinmovieapp.data.remote.dto.MoviesDTO
@@ -51,10 +50,6 @@ class MovieRepoImplementation @Inject constructor(
 
     override suspend fun searchShows(query: String): GetShowsDTO {
         return api.searchShows(query)
-    }
-
-    override suspend fun getGenres(type: String): GenresDTO {
-        return api.getGenres(type)
     }
 
 }

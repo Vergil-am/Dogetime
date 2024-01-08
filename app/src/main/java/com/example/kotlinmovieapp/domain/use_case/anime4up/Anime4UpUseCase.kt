@@ -1,7 +1,6 @@
 package com.example.kotlinmovieapp.domain.use_case.anime4up
 
 import android.util.Base64
-import android.util.Log
 import com.example.kotlinmovieapp.domain.model.Details
 import com.example.kotlinmovieapp.domain.model.MovieHome
 import com.example.kotlinmovieapp.domain.model.OkanimeEpisode
@@ -46,7 +45,7 @@ fun getLatestEpisodes() : Flow<List<MovieHome>> = flow {
         val res = repo.getAnimeDetails(slug).body()
         if (res != null ) {
             val info = Jsoup.parse(res).getElementsByClass("anime-info-container")
-            val malLink = info.select("div.anime-external-links").select("a")[1].attr("href")
+            val malLink = info.select("div.anime-external-links").select("a").getOrNull(1)?.attr("href")
             val row = info.select("div.anime-info")
             val details = Details(
                     id = slug,
@@ -54,7 +53,7 @@ fun getLatestEpisodes() : Flow<List<MovieHome>> = flow {
                     title = info.select("h1.anime-details-title").text() ?: "",
                     backdrop = info.select("img").attr("src"),
                     poster = info.select("img").attr("src"),
-                    homepage = malLink,
+                    homepage = malLink ?: "",
                     genres = info.select("li").map { it.text() },
                     overview = info.select("p.anime-story").text() ?: "",
                     releaseDate = row[1].text().split(":")[1],
@@ -77,7 +76,6 @@ fun getLatestEpisodes() : Flow<List<MovieHome>> = flow {
 
                 )
             }
-            Log.e("EPISODES", episodes.toString())
             emit(OkanimeDetails(details= details, episodes = episodes))
         }
     }
