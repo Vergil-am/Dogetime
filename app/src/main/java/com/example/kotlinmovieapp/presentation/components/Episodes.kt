@@ -26,6 +26,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
+import com.example.kotlinmovieapp.data.local.entities.WatchListMedia
 import com.example.kotlinmovieapp.domain.model.Season
 import com.example.kotlinmovieapp.presentation.details.DetailsViewModel
 import com.example.kotlinmovieapp.util.Constants
@@ -34,45 +35,55 @@ import java.net.URLEncoder
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Episodes(
-    season: Season,
-    viewModel: DetailsViewModel,
-    id: Int,
-    navController: NavController
+    season: Season, viewModel: DetailsViewModel, id: Int, navController: NavController
 ) {
-    val state  = viewModel.state.collectAsState().value.season
+    val state = viewModel.state.collectAsState().value
 
-    LaunchedEffect(key1 = season, key2 = id ) {
-            viewModel.getSeason(id, season.season_number)
+    LaunchedEffect(key1 = season, key2 = id) {
+        viewModel.getSeason(id, season.season_number)
     }
 
 
-    Column (
+    Column(
         modifier = Modifier.verticalScroll(rememberScrollState())
     ) {
-        state?.episodes?.forEach { episode ->
-            val url = URLEncoder.encode("${Constants.VIDEO_URL}/tv/$id/${episode.season_number}/${episode.episode_number}")
-            Card (
-                onClick = {navController.navigate("web-view/$url")},
+
+        state.season?.episodes?.forEach { episode ->
+            val url =
+                URLEncoder.encode("${Constants.VIDEO_URL}/tv/$id/${episode.season_number}/${episode.episode_number}")
+            Card(
+                onClick = {
+                    viewModel.addToWatchList(
+                        WatchListMedia(
+                            id = id.toString(),
+                            list = "Watching",
+                            season = season.season_number,
+                            episode = episode.episode_number,
+                            poster = state.media?.poster ?: season.poster_path,
+                            title = state.media?.title ?: season.name,
+                            type = "show"
+                        )
+                    )
+                    navController.navigate("web-view/$url")
+                },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(120.dp)
-                    .padding(10.dp)
-                ,
+                    .padding(10.dp),
             ) {
                 Row {
-                    Box (
-                        modifier = Modifier
-                            .width(180.dp)
+                    Box(
+                        modifier = Modifier.width(180.dp)
                     ) {
                         Image(
                             alignment = Alignment.TopStart,
-                            modifier = Modifier
-                                .fillMaxSize()
-                            ,
+                            modifier = Modifier.fillMaxSize(),
                             painter = rememberAsyncImagePainter(
-                                model = "${Constants.IMAGE_BASE_URL}/w200${episode.still_path}" ),
-                            contentDescription = "Episode ${episode.episode_number}" )
-                        Box (
+                                model = "${Constants.IMAGE_BASE_URL}/w200${episode.still_path}"
+                            ),
+                            contentDescription = "Episode ${episode.episode_number}"
+                        )
+                        Box(
                             modifier = Modifier
                                 .align(Alignment.BottomEnd)
                                 .background(Color.Black)
@@ -82,23 +93,34 @@ fun Episodes(
                         }
                     }
 
-                    Column (
+                    Column(
                         modifier = Modifier
                             .fillMaxSize()
                             .padding(10.dp),
                         verticalArrangement = Arrangement.SpaceBetween,
                     ) {
+                        val progressSeason = state.watchList?.season
+                        val progressEpisode = state.watchList?.episode
+                        if (progressEpisode != null && progressSeason != null) {
+                            if (progressEpisode >= season.season_number && progressEpisode >= episode.episode_number) {
+                                Text(text = "Watched")
+                            }
+                        }
                         episode.name?.let { Text(text = it) }
-                        episode.air_date?.let { Text(text = it,
-                            modifier = Modifier.fillMaxWidth(),
-                            textAlign = TextAlign.End
+                        episode.air_date?.let {
+                            Text(
+                                text = it,
+                                modifier = Modifier.fillMaxWidth(),
+                                textAlign = TextAlign.End
 
-                            ) }
-                        Text(text = "${episode.runtime} min",
+                            )
+                        }
+                        Text(
+                            text = "${episode.runtime} min",
                             modifier = Modifier.fillMaxWidth(),
                             textAlign = TextAlign.End
                         )
-                        
+
                     }
                 }
             }

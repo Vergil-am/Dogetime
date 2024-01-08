@@ -170,7 +170,9 @@ fun DetailsHeader(
                             title = title,
                             poster = poster,
                             type = type,
-                            list = it
+                            list = it,
+                            season = null,
+                            episode = null
                         )
                     )
                     expanded = false

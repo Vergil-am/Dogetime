@@ -16,7 +16,7 @@ class WatchListUseCase @Inject constructor(
             val watchList = watchList.getAllLists()
             emit(watchList)
         } catch (e: Exception) {
-            Log.e("WATCHLIST", e.toString())
+            Log.e("GET ALL WATCHLIST", e.toString())
         }
 
     }
@@ -27,7 +27,7 @@ class WatchListUseCase @Inject constructor(
             val watchList = watchList.getList(list)
             emit(watchList)
         } catch (e: Exception) {
-            Log.e("WATCHLIST", e.toString())
+            Log.e("GET WATCHLIST", e.toString())
         }
 
     }
@@ -36,18 +36,19 @@ class WatchListUseCase @Inject constructor(
         try {
             watchList.addToWatchList(media)
         } catch (e: Exception) {
-            Log.e("WATCHLIST", e.toString())
+            Log.e("ADD TO WATCHLIST", e.toString())
         }
 
     }
 
-    fun getMediaById(id: String) : Flow<WatchListMedia> = flow {
+    fun getMediaById(id: String) : Flow<WatchListMedia?> = flow {
         try {
            val res = watchList.getMediaById(id)
             Log.e("RES", res.toString())
             emit(res)
         } catch (e: Exception) {
-            Log.e("WATCHLIST", e.toString())
+            emit(null)
+            Log.e("GET WATCHLIST BY ID", e.toString())
         }
     }
 
@@ -55,7 +56,7 @@ class WatchListUseCase @Inject constructor(
         try {
             watchList.deleteFromList(media)
         } catch (e: Exception) {
-            Log.e("WATCHLIST DELETE", e.toString())
+            Log.e("DELETE WATCHLIST", e.toString())
         }
     }
 

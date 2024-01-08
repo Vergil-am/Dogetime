@@ -9,6 +9,8 @@ data class WatchListMedia(
     val id: String,
     val title: String,
     val type: String,
+    val season: Int?,
+    val episode: Int?,
     val poster: String,
     val list: String,
 )

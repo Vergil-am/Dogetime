@@ -1,6 +1,7 @@
 package com.example.kotlinmovieapp.presentation.details
 
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -36,15 +37,14 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
+import com.example.kotlinmovieapp.data.local.entities.WatchListMedia
 import com.example.kotlinmovieapp.presentation.components.Source
 
 @RequiresApi(Build.VERSION_CODES.N)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AnimeEpisodes(
-   viewModel: DetailsViewModel,
-   slug: String,
-   navController: NavController
+    viewModel: DetailsViewModel, slug: String, navController: NavController
 ) {
     val state = viewModel.state.collectAsState().value
     val columnState = rememberLazyListState()
@@ -53,14 +53,28 @@ fun AnimeEpisodes(
         mutableStateOf(false)
     }
 
-    LazyColumn (
+    LazyColumn(
         state = columnState
     ) {
         episodes.forEach { episode ->
             item {
                 Card(
                     onClick = {
-                              viewModel.getLinks(episode.slug)
+                        val media = state.media
+                        if (media != null) {
+                            viewModel.addToWatchList(
+                                WatchListMedia(
+                                    id = media.id,
+                                    title = media.title,
+                                    poster = media.poster,
+                                    type = media.type,
+                                    list = "Watching",
+                                    season = null,
+                                    episode = episode.episodeNumber.toIntOrNull()
+                                )
+                            )
+                        }
+                        viewModel.getLinks(episode.slug)
                         opened = true
                     },
                     modifier = Modifier
@@ -70,13 +84,11 @@ fun AnimeEpisodes(
                 ) {
                     Row {
                         Box(
-                            modifier = Modifier
-                                .width(180.dp)
+                            modifier = Modifier.width(180.dp)
                         ) {
                             Image(
                                 alignment = Alignment.TopStart,
-                                modifier = Modifier
-                                    .fillMaxSize(),
+                                modifier = Modifier.fillMaxSize(),
                                 painter = rememberAsyncImagePainter(
                                     model = episode.poster
                                 ),
@@ -99,6 +111,14 @@ fun AnimeEpisodes(
                             verticalArrangement = Arrangement.SpaceBetween,
                         ) {
                             Text(text = episode.title)
+                            val episodeNum = episode.episodeNumber.toIntOrNull()
+                            val progress = state.watchList?.episode
+                            Log.e("Progress $progress", "episode number: $episodeNum")
+                            if (progress != null && episodeNum != null) {
+                                if (progress >= episodeNum) {
+                                    Text(text = "Watched")
+                                }
+                            }
                         }
 
                     }
@@ -110,11 +130,10 @@ fun AnimeEpisodes(
 
     if (opened) {
         ModalBottomSheet(
-            onDismissRequest = { opened = false },
-            sheetState = rememberModalBottomSheetState()
+            onDismissRequest = { opened = false }, sheetState = rememberModalBottomSheetState()
         ) {
             val sources = state.animeEpisodeSources
-            Column (
+            Column(
                 modifier = Modifier
                     .fillMaxSize()
                     .verticalScroll(rememberScrollState())
@@ -122,8 +141,7 @@ fun AnimeEpisodes(
 
                 Text(
                     text = "SELECT SOURCE",
-                    modifier = Modifier
-                        .fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth(),
                     textAlign = TextAlign.Center,
                     style = MaterialTheme.typography.titleLarge
                 )
@@ -137,9 +155,9 @@ fun AnimeEpisodes(
                     if (sources.hd != null) {
                         Text(text = "HD")
                         sources.hd.forEach { (source, link) ->
-                            Source(source = source, link = link, navController  )
+                            Source(source = source, link = link, navController)
                         }
-                }
+                    }
                     if (sources.sd != null) {
                         Text(text = "Low quality")
                         sources.sd.forEach { (source, link) ->

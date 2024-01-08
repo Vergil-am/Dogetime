@@ -7,7 +7,7 @@ import com.example.kotlinmovieapp.data.local.entities.WatchListMedia
 
 @Database(
     entities = [WatchListMedia::class],
-    version = 2,
+    version = 3,
     exportSchema = false
     )
 abstract class ListDatabase : RoomDatabase() {
