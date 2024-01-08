@@ -58,6 +58,7 @@ class DetailsViewModel @Inject constructor(
         viewModelScope.launch {
             watchList.addToWatchList(media)
         }
+        _state.value = _state.value.copy(watchList = media)
     }
 
     fun getMediaFromWatchList(id: String) {
@@ -90,5 +91,6 @@ class DetailsViewModel @Inject constructor(
         viewModelScope.launch {
             watchList.deleteFromList(media)
         }
+        _state.value = _state.value.copy(watchList = null)
     }
 }
