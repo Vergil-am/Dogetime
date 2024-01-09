@@ -22,10 +22,12 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
+import com.example.kotlinmovieapp.R
 import com.example.kotlinmovieapp.data.local.entities.WatchListMedia
 import com.example.kotlinmovieapp.domain.model.Season
 import com.example.kotlinmovieapp.presentation.details.DetailsViewModel
@@ -71,57 +73,78 @@ fun Episodes(
                     .height(120.dp)
                     .padding(10.dp),
             ) {
-                Row {
-                    Box(
-                        modifier = Modifier.width(180.dp)
-                    ) {
-                        Image(
-                            alignment = Alignment.TopStart,
-                            modifier = Modifier.fillMaxSize(),
-                            painter = rememberAsyncImagePainter(
-                                model = "${Constants.IMAGE_BASE_URL}/w200${episode.still_path}"
-                            ),
-                            contentDescription = "Episode ${episode.episode_number}"
-                        )
+                Box(modifier = Modifier.fillMaxSize()) {
+                    Row {
                         Box(
-                            modifier = Modifier
-                                .align(Alignment.BottomEnd)
-                                .background(Color.Black)
-
+                            modifier = Modifier.width(180.dp)
                         ) {
-                            Text(text = "EP ${episode.episode_number}")
-                        }
-                    }
+                            Image(
+                                alignment = Alignment.TopStart,
+                                modifier = Modifier.fillMaxSize(),
+                                painter = rememberAsyncImagePainter(
+                                    model = "${Constants.IMAGE_BASE_URL}/w200${episode.still_path}"
+                                ),
+                                contentDescription = "Episode ${episode.episode_number}"
+                            )
+                            Box(
+                                modifier = Modifier
+                                    .align(Alignment.BottomEnd)
+                                    .background(Color.Black)
 
-                    Column(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(10.dp),
-                        verticalArrangement = Arrangement.SpaceBetween,
-                    ) {
-                        val progressSeason = state.watchList?.season
-                        val progressEpisode = state.watchList?.episode
-                        if (progressEpisode != null && progressSeason != null) {
-                            if (progressEpisode >= season.season_number && progressEpisode >= episode.episode_number) {
-                                Text(text = "Watched")
+                            ) {
+                                Text(text = "EP ${episode.episode_number}")
                             }
                         }
-                        episode.name?.let { Text(text = it) }
-                        episode.air_date?.let {
+
+                        Column(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(10.dp),
+                            verticalArrangement = Arrangement.SpaceBetween,
+                        ) {
+                            episode.name?.let { Text(text = it) }
+                            episode.air_date?.let {
+                                Text(
+                                    text = it,
+                                    modifier = Modifier.fillMaxWidth(),
+                                    textAlign = TextAlign.End
+
+                                )
+                            }
                             Text(
-                                text = it,
+                                text = "${episode.runtime} min",
                                 modifier = Modifier.fillMaxWidth(),
                                 textAlign = TextAlign.End
-
                             )
-                        }
-                        Text(
-                            text = "${episode.runtime} min",
-                            modifier = Modifier.fillMaxWidth(),
-                            textAlign = TextAlign.End
-                        )
 
+                        }
                     }
+                    val progressSeason = state.watchList?.season
+                    val progressEpisode = state.watchList?.episode
+                    if (progressEpisode != null && progressSeason != null) {
+                        if (progressEpisode >= season.season_number && progressEpisode >= episode.episode_number) {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .background(Color.Black.copy(alpha = 0.2f))
+                            ) {
+                                Box(modifier = Modifier.width(180.dp)) {
+                                    Image(
+                                        modifier = Modifier
+                                            .fillMaxSize()
+                                            .align(Alignment.Center),
+                                        painter = painterResource(
+                                            id = R.drawable.visibility_white_64dp
+                                        ),
+                                        contentDescription = "",
+                                        alpha = 0.8f
+                                    )
+                                }
+                            }
+
+                        }
+                    }
+
                 }
             }
 

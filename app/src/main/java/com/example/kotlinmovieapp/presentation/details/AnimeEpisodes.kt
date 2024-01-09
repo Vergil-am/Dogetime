@@ -33,10 +33,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
+import com.example.kotlinmovieapp.R
 import com.example.kotlinmovieapp.data.local.entities.WatchListMedia
 import com.example.kotlinmovieapp.presentation.components.Source
 
@@ -82,41 +84,63 @@ fun AnimeEpisodes(
                         .height(120.dp)
                         .padding(10.dp),
                 ) {
-                    Row {
-                        Box(
-                            modifier = Modifier.width(180.dp)
-                        ) {
-                            Image(
-                                alignment = Alignment.TopStart,
-                                modifier = Modifier.fillMaxSize(),
-                                painter = rememberAsyncImagePainter(
-                                    model = episode.poster
-                                ),
-                                contentDescription = "Episode ${episode.title}"
-                            )
+                    Box(
+                        modifier = Modifier.fillMaxSize()
+                    ) {
+                        Row {
                             Box(
-                                modifier = Modifier
-                                    .align(Alignment.BottomEnd)
-                                    .background(Color.Black)
-
+                                modifier = Modifier.width(180.dp)
                             ) {
-                                Text(text = "EP ${episode.episodeNumber}")
-                            }
-                        }
+                                Image(
+                                    alignment = Alignment.TopStart,
+                                    modifier = Modifier.fillMaxSize(),
+                                    painter = rememberAsyncImagePainter(
+                                        model = episode.poster
+                                    ),
+                                    contentDescription = "Episode ${episode.title}"
+                                )
+                                Box(
+                                    modifier = Modifier
+                                        .align(Alignment.BottomEnd)
+                                        .background(Color.Black)
 
-                        Column(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .padding(10.dp),
-                            verticalArrangement = Arrangement.SpaceBetween,
-                        ) {
-                            Text(text = episode.title)
-                            val episodeNum = episode.episodeNumber.toIntOrNull()
-                            val progress = state.watchList?.episode
-                            Log.e("Progress $progress", "episode number: $episodeNum")
-                            if (progress != null && episodeNum != null) {
-                                if (progress >= episodeNum) {
-                                    Text(text = "Watched")
+                                ) {
+                                    Text(text = "EP ${episode.episodeNumber}")
+                                }
+                            }
+
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .padding(10.dp),
+                                verticalArrangement = Arrangement.SpaceBetween,
+                            ) {
+                                Text(text = episode.title)
+                            }
+
+                        }
+                        val episodeNum = episode.episodeNumber.toIntOrNull()
+                        val progress = state.watchList?.episode
+                        Log.e("Progress $progress", "episode number: $episodeNum")
+                        if (progress != null && episodeNum != null) {
+                            if (progress >= episodeNum) {
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .background(Color.Black.copy(alpha = 0.2f))
+                                ) {
+                                    Box(modifier = Modifier.width(180.dp)) {
+                                        Image(
+                                            modifier = Modifier
+                                                .fillMaxSize()
+                                                .align(Alignment.Center),
+                                            painter = painterResource(
+                                                id = R.drawable.visibility_white_64dp
+                                            ),
+                                            contentDescription = "",
+                                            alpha = 0.8f
+                                        )
+                                    }
                                 }
                             }
                         }

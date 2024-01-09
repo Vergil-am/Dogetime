@@ -94,6 +94,7 @@ fun WebView(
                 state?.let { savedState ->
                     restoreState(savedState) ?: loadUrl(url)
                 }
+                loadUrl(url)
 
             }
         },
