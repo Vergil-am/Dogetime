@@ -21,6 +21,7 @@ import com.example.kotlinmovieapp.presentation.home.HomeViewModel
 import com.example.kotlinmovieapp.presentation.navgraph.NavGraph
 import com.example.kotlinmovieapp.presentation.search.SearchViewModel
 import com.example.kotlinmovieapp.presentation.watchlist.ListViewModel
+import com.example.kotlinmovieapp.presentation.webView.WebViewViewModel
 import com.example.kotlinmovieapp.ui.theme.KotlinMovieAppTheme
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
@@ -36,6 +37,7 @@ class MainActivity : ComponentActivity() {
     private val searchViewModel: SearchViewModel by viewModels()
     private val accountViewModel: SettingsViewModel by viewModels()
     private val listViewModel by viewModels<ListViewModel >()
+    private val webViewViewModel by viewModels<WebViewViewModel>()
     val context by lazy { this }
     @RequiresApi(34)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -73,7 +75,9 @@ class MainActivity : ComponentActivity() {
                         searchViewModel = searchViewModel,
                         accountViewModel= accountViewModel,
                         listViewModel = listViewModel,
+                        webViewViewModel = webViewViewModel,
                         windowCompat = windowCompat
+
                     )
                 }
             }

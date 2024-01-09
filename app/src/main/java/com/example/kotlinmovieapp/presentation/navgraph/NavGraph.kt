@@ -19,27 +19,29 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.kotlinmovieapp.presentation.browse.Browse
 import com.example.kotlinmovieapp.presentation.browse.BrowseViewModel
-import com.example.kotlinmovieapp.presentation.layouts.HomeLayout
+import com.example.kotlinmovieapp.presentation.details.AnimeEpisodes
 import com.example.kotlinmovieapp.presentation.details.Details
 import com.example.kotlinmovieapp.presentation.details.DetailsViewModel
-import com.example.kotlinmovieapp.presentation.settings.Account
-import com.example.kotlinmovieapp.presentation.settings.SettingsViewModel
-import com.example.kotlinmovieapp.presentation.details.AnimeEpisodes
 import com.example.kotlinmovieapp.presentation.details.ShowSeasons
 import com.example.kotlinmovieapp.presentation.home.Home
 import com.example.kotlinmovieapp.presentation.home.HomeViewModel
+import com.example.kotlinmovieapp.presentation.layouts.HomeLayout
 import com.example.kotlinmovieapp.presentation.search.Search
 import com.example.kotlinmovieapp.presentation.search.SearchViewModel
+import com.example.kotlinmovieapp.presentation.settings.Account
+import com.example.kotlinmovieapp.presentation.settings.SettingsViewModel
 import com.example.kotlinmovieapp.presentation.watchlist.ListViewModel
 import com.example.kotlinmovieapp.presentation.watchlist.WatchList
 import com.example.kotlinmovieapp.presentation.webView.WebView
+import com.example.kotlinmovieapp.presentation.webView.WebViewViewModel
 import java.net.URLDecoder
 
 
 class Item(val icon: ImageVector, val title: String)
+
 val Items = listOf(
     Item(icon = Icons.Outlined.Home, Route.Home.route),
-    Item(icon = Icons.Outlined.Menu , Route.Browse.route),
+    Item(icon = Icons.Outlined.Menu, Route.Browse.route),
     Item(icon = Icons.Outlined.FavoriteBorder, Route.WatchList.route),
     Item(icon = Icons.Outlined.Settings, Route.Account.route),
 
@@ -48,7 +50,7 @@ val Items = listOf(
 @SuppressLint("SourceLockedOrientationActivity")
 @RequiresApi(34)
 @Composable
-fun NavGraph (
+fun NavGraph(
     startDestination: String,
     homeViewModel: HomeViewModel,
     detailsViewModel: DetailsViewModel,
@@ -56,16 +58,17 @@ fun NavGraph (
     searchViewModel: SearchViewModel,
     accountViewModel: SettingsViewModel,
     listViewModel: ListViewModel,
+    webViewViewModel: WebViewViewModel,
     windowCompat: WindowInsetsControllerCompat
 ) {
     val navController = rememberNavController()
     val activity = LocalView.current.context as Activity
     activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
     NavHost(
-            navController = navController,
-            startDestination = startDestination,
-            modifier = Modifier
-        ) {
+        navController = navController,
+        startDestination = startDestination,
+        modifier = Modifier
+    ) {
         composable(route = Route.Home.route) {
             HomeLayout(navController = navController) {
                 Home(navController = navController, viewModel = homeViewModel)
@@ -82,10 +85,10 @@ fun NavGraph (
         }
         composable(route = Route.Search.route) {
 
-                Search(
-                    navController,
-                    searchViewModel
-                )
+            Search(
+                navController,
+                searchViewModel
+            )
         }
         composable(route = Route.WatchList.route) {
 
@@ -102,14 +105,6 @@ fun NavGraph (
                 Account(
                     accountViewModel
                 )
-            }
-        }
-
-        composable(Route.WebView.route) {
-            val url = it.arguments?.getString("url")
-            if (url != null) {
-                val decodedUrl = URLDecoder.decode(url)
-                WebView(url = decodedUrl, windowCompat = windowCompat)
             }
         }
 
@@ -139,7 +134,11 @@ fun NavGraph (
         composable(Route.ShowSeasons.route) {
             val id = it.arguments?.getString("id")
             if (id != null) {
-                ShowSeasons(viewModel = detailsViewModel, navController = navController, id = id.toInt())
+                ShowSeasons(
+                    viewModel = detailsViewModel,
+                    navController = navController,
+                    id = id.toInt()
+                )
             }
         }
 
@@ -159,7 +158,16 @@ fun NavGraph (
         composable(Route.AnimeEpisodes.route) {
             val slug = it.arguments?.getString("slug")
             if (slug != null) {
-                AnimeEpisodes(viewModel = detailsViewModel,  slug = slug, navController)
+                AnimeEpisodes(viewModel = detailsViewModel, slug = slug, navController)
+            }
+        }
+
+        composable(Route.WebView.route) {
+            webViewViewModel.updateState(null)
+            val url = it.arguments?.getString("url")
+            if (url != null) {
+                val decodedUrl = URLDecoder.decode(url)
+                WebView(url = decodedUrl, windowCompat = windowCompat, viewModel = webViewViewModel)
             }
         }
 
