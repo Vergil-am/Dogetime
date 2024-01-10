@@ -29,12 +29,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
-import com.example.kotlinmovieapp.R
 import com.example.kotlinmovieapp.data.local.entities.WatchListMedia
 import com.example.kotlinmovieapp.domain.model.Season
 import com.example.kotlinmovieapp.presentation.details.DetailsViewModel
@@ -42,9 +40,9 @@ import com.example.kotlinmovieapp.util.Constants
 import java.net.URLEncoder
 
 data class SelectedEpisode(
-    val season: Int,
-    val episode: Int
+    val season: Int, val episode: Int
 )
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Episodes(
@@ -84,8 +82,9 @@ fun Episodes(
                         )
                     )
                     opened = true
-                    selected = SelectedEpisode(season = season.season_number, episode = episode.episode_number)
-//                    navController.navigate("web-view/$url")
+                    selected = SelectedEpisode(
+                        season = season.season_number, episode = episode.episode_number
+                    )
                 },
                 modifier = Modifier
                     .fillMaxWidth()
@@ -141,26 +140,10 @@ fun Episodes(
                     val progressSeason = state.watchList?.season
                     val progressEpisode = state.watchList?.episode
                     if (progressEpisode != null && progressSeason != null) {
-                        if (progressEpisode >= season.season_number && progressEpisode >= episode.episode_number) {
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .background(Color.Black.copy(alpha = 0.2f))
-                            ) {
-                                Box(modifier = Modifier.width(180.dp)) {
-                                    Image(
-                                        modifier = Modifier
-                                            .fillMaxSize()
-                                            .align(Alignment.Center),
-                                        painter = painterResource(
-                                            id = R.drawable.visibility_white_64dp
-                                        ),
-                                        contentDescription = "",
-                                        alpha = 0.8f
-                                    )
-                                }
-                            }
-
+                        if (progressSeason > season.season_number) {
+                            WatchedIndicator()
+                        } else if (progressSeason == season.season_number && progressEpisode >= episode.episode_number) {
+                            WatchedIndicator()
                         }
                     }
 
@@ -184,18 +167,12 @@ fun Episodes(
                     textAlign = TextAlign.Center,
                     style = MaterialTheme.typography.titleLarge
                 )
-                Source(
-                    source = "FHD 1080p",
-                    link = URLEncoder.encode("${Constants.VIDSRC_FHD}/tv/$id/${selected.season}/${selected.episode}?ds_langs=en,fr,ar"
-                    ),
-                    navController = navController
-                )
-                Source(
-                    source = "Multi",
-                    link = URLEncoder.encode("${Constants.VIDSRC_MULTI}/tv/$id/${selected.season}/${selected.episode}"
-                    ),
-                    navController = navController
-                )
+                Source(source = "FHD 1080p", info = "Progress", link = URLEncoder.encode(
+                    "${Constants.VIDSRC_FHD}/tv/$id/${selected.season}/${selected.episode}?ds_langs=en,fr,ar"
+                ), navController = navController, onClick = { opened = false })
+                Source(source = "Multi quality", info = "No progress", link = URLEncoder.encode(
+                    "${Constants.VIDSRC_MULTI}/tv/$id/${selected.season}/${selected.episode}"
+                ), navController = navController, onClick = { opened = false })
 
             }
         }

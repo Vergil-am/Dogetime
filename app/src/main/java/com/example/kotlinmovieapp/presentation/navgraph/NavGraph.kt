@@ -61,9 +61,7 @@ fun NavGraph(
 //    val activity = LocalView.current.context as Activity
 //    activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
     NavHost(
-        navController = navController,
-        startDestination = startDestination,
-        modifier = Modifier
+        navController = navController, startDestination = startDestination, modifier = Modifier
     ) {
         composable(route = Route.Home.route) {
             HomeLayout(navController = navController) {
@@ -74,24 +72,21 @@ fun NavGraph(
 
             HomeLayout(navController = navController) {
                 Browse(
-                    navController,
-                    browseViewModel
+                    navController, browseViewModel
                 )
             }
         }
         composable(route = Route.Search.route) {
 
             Search(
-                navController,
-                searchViewModel
+                navController, searchViewModel
             )
         }
         composable(route = Route.WatchList.route) {
 
             HomeLayout(navController = navController) {
                 WatchList(
-                    listViewModel,
-                    navController
+                    listViewModel, navController
                 )
             }
         }
@@ -131,9 +126,7 @@ fun NavGraph(
             val id = it.arguments?.getString("id")
             if (id != null) {
                 ShowSeasons(
-                    viewModel = detailsViewModel,
-                    navController = navController,
-                    id = id.toInt()
+                    viewModel = detailsViewModel, navController = navController, id = id.toInt()
                 )
             }
         }

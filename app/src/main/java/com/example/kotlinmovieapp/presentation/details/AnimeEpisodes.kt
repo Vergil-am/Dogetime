@@ -33,14 +33,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
-import com.example.kotlinmovieapp.R
 import com.example.kotlinmovieapp.data.local.entities.WatchListMedia
 import com.example.kotlinmovieapp.presentation.components.Source
+import com.example.kotlinmovieapp.presentation.components.WatchedIndicator
 
 @RequiresApi(Build.VERSION_CODES.N)
 @OptIn(ExperimentalMaterial3Api::class)
@@ -124,24 +123,7 @@ fun AnimeEpisodes(
                         Log.e("Progress $progress", "episode number: $episodeNum")
                         if (progress != null && episodeNum != null) {
                             if (progress >= episodeNum) {
-                                Box(
-                                    modifier = Modifier
-                                        .fillMaxSize()
-                                        .background(Color.Black.copy(alpha = 0.2f))
-                                ) {
-                                    Box(modifier = Modifier.width(180.dp)) {
-                                        Image(
-                                            modifier = Modifier
-                                                .fillMaxSize()
-                                                .align(Alignment.Center),
-                                            painter = painterResource(
-                                                id = R.drawable.visibility_white_64dp
-                                            ),
-                                            contentDescription = "",
-                                            alpha = 0.8f
-                                        )
-                                    }
-                                }
+                                WatchedIndicator()
                             }
                         }
 
@@ -173,19 +155,34 @@ fun AnimeEpisodes(
                     if (sources.fhd != null) {
                         Text(text = "Full HD")
                         sources.fhd.forEach { (source, link) ->
-                            Source(source = source, link = link, navController)
+                            Source(
+                                source = source,
+                                info = "1080p",
+                                link = link,
+                                navController,
+                                onClick = { opened = false })
                         }
                     }
                     if (sources.hd != null) {
                         Text(text = "HD")
                         sources.hd.forEach { (source, link) ->
-                            Source(source = source, link = link, navController)
+                            Source(
+                                source = source,
+                                info = "720p",
+                                link = link,
+                                navController,
+                                onClick = { opened = false })
                         }
                     }
                     if (sources.sd != null) {
                         Text(text = "Low quality")
                         sources.sd.forEach { (source, link) ->
-                            Source(source = source, link = link, navController)
+                            Source(
+                                source = source,
+                                info = "480p",
+                                link = link,
+                                navController,
+                                onClick = { opened = false })
                         }
                     }
 

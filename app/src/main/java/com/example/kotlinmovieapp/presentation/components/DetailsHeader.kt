@@ -23,9 +23,9 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -54,9 +54,9 @@ fun DetailsHeader(
     deleteFromList: (WatchListMedia) -> Unit
 
 ) {
-   var expanded by remember {
-       mutableStateOf(false)
-   }
+    var expanded by remember {
+        mutableStateOf(false)
+    }
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -70,12 +70,12 @@ fun DetailsHeader(
                 .blur(5.dp),
             contentScale = ContentScale.FillWidth,
             painter = rememberAsyncImagePainter(
-               backDrop
+                backDrop
             ),
             contentDescription = title,
             alignment = Alignment.TopCenter,
         )
-        Box (
+        Box(
             modifier = Modifier
                 .fillMaxSize()
                 .background(
@@ -85,30 +85,27 @@ fun DetailsHeader(
                 )
         ) {
         }
-        Row (
+        Row(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
                 .padding(10.dp)
-                .fillMaxSize()
-            ,
-//            horizontalArrangement = Arrangement.SpaceBetween,
+                .fillMaxSize(),
             verticalAlignment = Alignment.Bottom
         ) {
 
-                Image(
-                    modifier = Modifier
-                        .clip(RoundedCornerShape(8.dp))
-                        .height(150.dp)
-                        .width(100.dp)
-                    ,
-                    painter = rememberAsyncImagePainter(
-                        poster
-                    ),
-                    contentDescription = title,
-                    alignment = Alignment.BottomStart,
-                    contentScale = ContentScale.Crop
-                )
-            Column (
+            Image(
+                modifier = Modifier
+                    .clip(RoundedCornerShape(8.dp))
+                    .height(150.dp)
+                    .width(100.dp),
+                painter = rememberAsyncImagePainter(
+                    poster
+                ),
+                contentDescription = title,
+                alignment = Alignment.BottomStart,
+                contentScale = ContentScale.Crop
+            )
+            Column(
                 modifier = Modifier.padding(10.dp)
             ) {
                 Text(
@@ -121,28 +118,28 @@ fun DetailsHeader(
                     MaterialTheme.typography.labelLarge,
                 )
 
-                    Button(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(10.dp),
-                        onClick = {
-                           expanded = true
-                        },
-                        colors = ButtonDefaults.buttonColors(
-                            contentColor = Color.Black,
-                            containerColor = Color.White
-                        )
-                    ) {
-                        if (watchList != null) {
-                            Text(text = watchList.list)
-                        } else {
-                            Text(text = "ADD TO WATCHLIST")
-                        }
+                Button(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(10.dp),
+                    onClick = {
+                        expanded = true
+                    },
+                    colors = ButtonDefaults.buttonColors(
+                        contentColor = Color.Black,
+                        containerColor = Color.White
+                    )
+                ) {
+                    if (watchList != null) {
+                        Text(text = watchList.list)
+                    } else {
+                        Text(text = "ADD TO WATCHLIST")
                     }
-
                 }
+
             }
         }
+    }
 
     if (expanded) {
         ModalBottomSheet(onDismissRequest = {
@@ -151,38 +148,53 @@ fun DetailsHeader(
             Constants.lists.forEach {
                 DropdownMenuItem(
                     text = {
-                                Row (modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(10.dp)
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Filled.Check,
-                                        contentDescription = "check",
-                                        modifier = Modifier.alpha(if (watchList?.list == it) {1f} else {0.0f})
-                                    )
-                                    Text(text = it, modifier = Modifier.padding(horizontal = 10.dp))
-                                }
-                           },
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(10.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Filled.Check,
+                                contentDescription = "check",
+                                modifier = Modifier.alpha(
+                                    if (watchList?.list == it) {
+                                        1f
+                                    } else {
+                                        0.0f
+                                    }
+                                )
+                            )
+                            Text(text = it, modifier = Modifier.padding(horizontal = 10.dp))
+                        }
+                    },
                     onClick = {
-                    addToWatchList(
-                        WatchListMedia(
-                            id = id,
-                            title = title,
-                            poster = poster,
-                            type = type,
-                            list = it,
-                            season = null,
-                            episode = null
-                        )
-                    )
-                    expanded = false
-                })
+                        if (watchList == null) {
+                            addToWatchList(
+                                WatchListMedia(
+                                    id = id,
+                                    title = title,
+                                    poster = poster,
+                                    type = type,
+                                    list = it,
+                                    season = null,
+                                    episode = null
+                                )
+                            )
+                        } else {
+                            addToWatchList(
+                                watchList.copy(list = it)
+                            )
+                        }
+
+                        expanded = false
+                    })
             }
             if (watchList != null) {
                 DropdownMenuItem(text = {
-                    Row (modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(10.dp)
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(10.dp)
                     ) {
                         Icon(
                             imageVector = Icons.Filled.Check,
@@ -194,12 +206,11 @@ fun DetailsHeader(
                 },
                     onClick = {
                         deleteFromList(watchList)
-                        })
+                    })
             }
 
         }
     }
-
 
 
 }

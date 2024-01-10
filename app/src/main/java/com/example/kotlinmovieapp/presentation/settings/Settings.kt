@@ -1,5 +1,6 @@
 package com.example.kotlinmovieapp.presentation.settings
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -24,7 +25,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import com.example.kotlinmovieapp.R
 import com.example.kotlinmovieapp.presentation.components.DMCA
 import com.example.kotlinmovieapp.presentation.components.FullScreenDialog
 
@@ -51,11 +54,9 @@ fun Account(
             onClick = {
                 chosen = "disclaimer"
             },
-        )
-        {
+        ) {
             Row(
-                modifier = Modifier
-                    .fillMaxSize(),
+                modifier = Modifier.fillMaxSize(),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Icon(
@@ -75,19 +76,42 @@ fun Account(
             onClick = {
                 chosen = "theme"
             },
-        )
-        {
+        ) {
             Row(
-                modifier = Modifier
-                    .fillMaxSize(),
+                modifier = Modifier.fillMaxSize(),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                Icon(
-                    modifier = Modifier.padding(horizontal = 10.dp),
-                    imageVector = Icons.Filled.Info,
-                    contentDescription = "theme"
+
+                Image(
+                    painter = painterResource(id = R.drawable.theme),
+                    contentDescription = "Theme",
+                    modifier = Modifier.padding(horizontal = 10.dp)
                 )
-                Text(text = "theme")
+                Text(text = "Theme")
+
+
+            }
+
+        }
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(70.dp)
+                .padding(10.dp),
+            onClick = {
+                chosen = "backup"
+            },
+        ) {
+            Row(
+                modifier = Modifier.fillMaxSize(),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.sync),
+                    contentDescription = "Restore",
+                    modifier = Modifier.padding(horizontal = 10.dp)
+                )
+                Text(text = "Backup & Restore")
 
 
             }
@@ -98,43 +122,73 @@ fun Account(
     }
 
     FullScreenDialog(
-        showDialog = chosen == "disclaimer",
-        onDismiss = { chosen = "" },
-        title = "Disclaimer"
+        showDialog = chosen == "disclaimer", onDismiss = { chosen = "" }, title = "Disclaimer"
     ) {
         DMCA()
     }
     FullScreenDialog(showDialog = chosen == "theme", onDismiss = { chosen = "" }, title = "Theme") {
         val themes = listOf("dark", "light", "system")
         themes.forEach {
-            DropdownMenuItem(
-                text = {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(10.dp)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Filled.Check,
-                            contentDescription = "check",
-                            modifier = Modifier.alpha(
-                                if (it == state.theme) {
-                                    1f
-                                } else {
-                                    0.0f
-                                }
-                            )
+            DropdownMenuItem(text = {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(10.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.Check,
+                        contentDescription = "check",
+                        modifier = Modifier.alpha(
+                            if (it == state.theme) {
+                                1f
+                            } else {
+                                0.0f
+                            }
                         )
-                        Text(text = it, modifier = Modifier.padding(horizontal = 10.dp))
-                    }
-                },
-                onClick = {
-                    viewModel.setTheme(context, it)
-                    state.theme = it
-                })
+                    )
+                    Text(text = it, modifier = Modifier.padding(horizontal = 10.dp))
+                }
+            }, onClick = {
+                viewModel.setTheme(context, it)
+                state.theme = it
+            })
         }
 
 
     }
+
+    FullScreenDialog(
+        showDialog = chosen == "backup", onDismiss = { chosen = "" }, title = "Backup & Restore"
+    ) {
+        DropdownMenuItem(text = {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(10.dp)
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.restore),
+                    contentDescription = "Restore",
+                    modifier = Modifier.padding(horizontal = 10.dp)
+                )
+                Text(text = "Backup", modifier = Modifier.padding(horizontal = 10.dp))
+            }
+        }, onClick = { })
+        DropdownMenuItem(text = {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(10.dp)
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.restore),
+                    contentDescription = "Restore",
+                    modifier = Modifier.padding(horizontal = 10.dp)
+                )
+                Text(text = "Restore", modifier = Modifier.padding(horizontal = 10.dp))
+            }
+        }, onClick = { })
+    }
+
 
 }

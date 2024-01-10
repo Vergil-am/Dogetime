@@ -20,20 +20,16 @@ import java.net.URLEncoder
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Source(
-    source: String,
-    link: String,
-    navController: NavController
+    source: String, info: String, link: String, navController: NavController, onClick: () -> Unit
 ) {
 
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(10.dp),
-        onClick = {
-            val url = URLEncoder.encode(link)
-            navController.navigate("web-view/${url}")
-        }
-    ) {
+    Card(modifier = Modifier
+        .fillMaxWidth()
+        .padding(10.dp), onClick = {
+        val url = URLEncoder.encode(link)
+        navController.navigate("web-view/${url}")
+        onClick()
+    }) {
         Row(
             horizontalArrangement = Arrangement.SpaceBetween,
             modifier = Modifier
@@ -43,12 +39,10 @@ fun Source(
         ) {
             Text(text = source)
             Column {
-//                Text(text = "${it.label} ${it.quality}")
-                Text(text = source)
+                Text(text = info)
             }
             Icon(
-                imageVector = Icons.Filled.PlayArrow,
-                contentDescription = "play"
+                imageVector = Icons.Filled.PlayArrow, contentDescription = "play"
             )
         }
     }
