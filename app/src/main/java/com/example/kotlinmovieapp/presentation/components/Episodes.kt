@@ -15,10 +15,17 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -34,6 +41,10 @@ import com.example.kotlinmovieapp.presentation.details.DetailsViewModel
 import com.example.kotlinmovieapp.util.Constants
 import java.net.URLEncoder
 
+data class SelectedEpisode(
+    val season: Int,
+    val episode: Int
+)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Episodes(
@@ -41,6 +52,12 @@ fun Episodes(
 ) {
     val state = viewModel.state.collectAsState().value
 
+    var opened by remember {
+        mutableStateOf(false)
+    }
+    var selected by remember {
+        mutableStateOf(SelectedEpisode(season = 1, episode = 1))
+    }
     LaunchedEffect(key1 = season, key2 = id) {
         viewModel.getSeason(id, season.season_number)
     }
@@ -51,8 +68,8 @@ fun Episodes(
     ) {
 
         state.season?.episodes?.forEach { episode ->
-            val url =
-                URLEncoder.encode("${Constants.VIDEO_URL}/tv/$id/${episode.season_number}/${episode.episode_number}")
+//            val url =
+//
             Card(
                 onClick = {
                     viewModel.addToWatchList(
@@ -66,7 +83,9 @@ fun Episodes(
                             type = "show"
                         )
                     )
-                    navController.navigate("web-view/$url")
+                    opened = true
+                    selected = SelectedEpisode(season = season.season_number, episode = episode.episode_number)
+//                    navController.navigate("web-view/$url")
                 },
                 modifier = Modifier
                     .fillMaxWidth()
@@ -150,6 +169,36 @@ fun Episodes(
 
         }
     }
+    if (opened) {
+        ModalBottomSheet(
+            onDismissRequest = { opened = false }, sheetState = rememberModalBottomSheetState()
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState())
+            ) {
+                Text(
+                    text = "SELECT SOURCE",
+                    modifier = Modifier.fillMaxWidth(),
+                    textAlign = TextAlign.Center,
+                    style = MaterialTheme.typography.titleLarge
+                )
+                Source(
+                    source = "FHD 1080p",
+                    link = URLEncoder.encode("${Constants.VIDSRC_FHD}/tv/$id/${selected.season}/${selected.episode}?ds_langs=en,fr,ar"
+                    ),
+                    navController = navController
+                )
+                Source(
+                    source = "Multi",
+                    link = URLEncoder.encode("${Constants.VIDSRC_MULTI}/tv/$id/${selected.season}/${selected.episode}"
+                    ),
+                    navController = navController
+                )
 
+            }
+        }
+    }
 }
 

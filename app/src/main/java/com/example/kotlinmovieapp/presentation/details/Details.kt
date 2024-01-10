@@ -12,23 +12,31 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.ElevatedSuggestionChip
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.kotlinmovieapp.data.local.entities.WatchListMedia
 import com.example.kotlinmovieapp.presentation.components.DetailsHeader
+import com.example.kotlinmovieapp.presentation.components.Source
 import com.example.kotlinmovieapp.util.Constants
 import java.net.URLEncoder
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Details(
     navController: NavController, viewModel: DetailsViewModel, id: String, type: String
@@ -44,12 +52,15 @@ fun Details(
     }
     viewModel.getMediaFromWatchList(id)
     val media = state.media
+
+    var opened by remember {
+        mutableStateOf(false)
+    }
     Scaffold(floatingActionButton = {
         ExtendedFloatingActionButton(containerColor = MaterialTheme.colorScheme.primary, onClick = {
             when (type) {
                 "movie" -> {
-                    val url = URLEncoder.encode("${Constants.VIDEO_URL}/movie/$id")
-                    navController.navigate("web-view/$url")
+                    opened = true
                 }
 
                 "show" -> navController.navigate("show/seasons/$id")
@@ -122,6 +133,27 @@ fun Details(
         }
 
 
+    }
+    if (opened) {
+        ModalBottomSheet(
+            onDismissRequest = { opened = false }, sheetState = rememberModalBottomSheetState()
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState())
+            ) {
+                Text(
+                    text = "SELECT SOURCE",
+                    modifier = Modifier.fillMaxWidth(),
+                    textAlign = TextAlign.Center,
+                    style = MaterialTheme.typography.titleLarge
+                )
+                Source(source = "FHD 1080p", link = URLEncoder.encode("${Constants.VIDSRC_FHD}/movie/$id?ds_langs=en,ar,fr"), navController = navController)
+                Source(source = "Multi", link = URLEncoder.encode("${Constants.VIDSRC_MULTI}/movie/$id"), navController = navController)
+
+            }
+        }
     }
 }
 

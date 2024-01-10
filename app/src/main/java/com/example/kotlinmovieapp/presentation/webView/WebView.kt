@@ -2,8 +2,7 @@ package com.example.kotlinmovieapp.presentation.webView
 
 import android.annotation.SuppressLint
 import android.app.Activity
-import android.content.pm.ActivityInfo
-import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.webkit.WebChromeClient
@@ -14,9 +13,6 @@ import android.widget.FrameLayout
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -29,10 +25,9 @@ import androidx.core.view.WindowInsetsControllerCompat
 @SuppressLint("SetJavaScriptEnabled", "SourceLockedOrientationActivity")
 @Composable
 fun WebView(
-    url: String, windowCompat: WindowInsetsControllerCompat, viewModel: WebViewViewModel
+    url: String, windowCompat: WindowInsetsControllerCompat
 ) {
-    val state by viewModel.state.collectAsState()
-
+    Log.e("URL", url)
     val activity = LocalView.current.context as Activity
     val isFullscreen = remember {
         mutableStateOf(false)
@@ -40,13 +35,6 @@ fun WebView(
     windowCompat.hide(WindowInsetsCompat.Type.systemBars())
     windowCompat.systemBarsBehavior =
         WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
-    DisposableEffect(key1 = activity) {
-        activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
-        onDispose {
-            viewModel.updateState(null)
-            activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
-        }
-    }
 
     AndroidView(
         modifier = Modifier.fillMaxSize(),
@@ -64,6 +52,10 @@ fun WebView(
                         view: WebView?, request: WebResourceRequest?
                     ): Boolean {
                         return true
+                    }
+
+                    override fun onPageFinished(view: WebView?, url: String?) {
+                        super.onPageFinished(view, url)
                     }
                 }
                 webChromeClient = object : WebChromeClient() {
@@ -90,19 +82,12 @@ fun WebView(
                         (activity.window.decorView as FrameLayout).removeView(this.customView)
                         this.customView = null
                     }
-                }
-                state?.let { savedState ->
-                    restoreState(savedState) ?: loadUrl(url)
+
                 }
                 loadUrl(url)
 
             }
         },
-        update = {view ->
-            val bundle = Bundle()
-            view.saveState(bundle)
-            viewModel.updateState(bundle)
-        }
     )
 
 

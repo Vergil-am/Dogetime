@@ -1,8 +1,7 @@
 package com.example.kotlinmovieapp.presentation.navgraph
 
 import android.annotation.SuppressLint
-import android.app.Activity
-import android.content.pm.ActivityInfo
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.FavoriteBorder
@@ -12,7 +11,6 @@ import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -33,7 +31,6 @@ import com.example.kotlinmovieapp.presentation.settings.SettingsViewModel
 import com.example.kotlinmovieapp.presentation.watchlist.ListViewModel
 import com.example.kotlinmovieapp.presentation.watchlist.WatchList
 import com.example.kotlinmovieapp.presentation.webView.WebView
-import com.example.kotlinmovieapp.presentation.webView.WebViewViewModel
 import java.net.URLDecoder
 
 
@@ -58,12 +55,11 @@ fun NavGraph(
     searchViewModel: SearchViewModel,
     accountViewModel: SettingsViewModel,
     listViewModel: ListViewModel,
-    webViewViewModel: WebViewViewModel,
     windowCompat: WindowInsetsControllerCompat
 ) {
     val navController = rememberNavController()
-    val activity = LocalView.current.context as Activity
-    activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+//    val activity = LocalView.current.context as Activity
+//    activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
     NavHost(
         navController = navController,
         startDestination = startDestination,
@@ -163,11 +159,11 @@ fun NavGraph(
         }
 
         composable(Route.WebView.route) {
-            webViewViewModel.updateState(null)
             val url = it.arguments?.getString("url")
             if (url != null) {
                 val decodedUrl = URLDecoder.decode(url)
-                WebView(url = decodedUrl, windowCompat = windowCompat, viewModel = webViewViewModel)
+                Log.e("URL", url)
+                WebView(url = decodedUrl, windowCompat = windowCompat)
             }
         }
 
