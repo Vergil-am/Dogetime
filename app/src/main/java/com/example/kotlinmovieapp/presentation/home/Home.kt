@@ -40,7 +40,7 @@ fun Home(
 
         }
 
-        state.movies?.let {
+        state.movies?.data?.let {
             Text(text = "Trending movies",
                 style = MaterialTheme.typography.titleMedium,
                 textAlign = TextAlign.Center,
@@ -50,8 +50,7 @@ fun Home(
                 )
             MovieRow(data = it, navController = navController)
         }
-        state.shows?.let {
-
+        state.shows?.data?.let {
             Text(text = "Trending series",
                 style = MaterialTheme.typography.titleMedium,
                 textAlign = TextAlign.Center,
@@ -59,7 +58,7 @@ fun Home(
                     .fillMaxWidth()
                     .padding(10.dp)
                 )
-            MovieRow(data = it, navController = navController)
+            MovieRow(data = it , navController = navController)
         }
 
         state.anime?.let {
@@ -73,10 +72,6 @@ fun Home(
             MovieRow(data = it, navController = navController)
 
         }
-
-            
-
-
     }
 }
 
