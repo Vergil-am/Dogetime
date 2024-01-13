@@ -6,6 +6,7 @@ import com.example.kotlinmovieapp.data.local.entities.WatchListMedia
 import com.example.kotlinmovieapp.domain.use_case.anime4up.Anime4upUseCase
 import com.example.kotlinmovieapp.domain.use_case.movies.get_movie.GetMovieUseCase
 import com.example.kotlinmovieapp.domain.use_case.watchlist.WatchListUseCase
+import com.example.kotlinmovieapp.util.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -34,7 +35,17 @@ class DetailsViewModel @Inject constructor(
 
     private fun getMovie(id: Int) {
         getMovieUseCase.getMovieDetails(id).onEach {
-            _state.value = _state.value.copy(media = it)
+            when (it) {
+                is Resource.Loading -> {
+                    _state.value = _state.value.copy(isLoading = true, media = null)
+                }
+                is Resource.Success -> {
+                   _state.value = _state.value.copy(isLoading = false, media = it.data)
+                }
+                is Resource.Error ->
+                    _state.value = _state.value.copy(isLoading = false, media = null)
+            }
+//            _state.value = _state.value.copy(media = it)
         }.launchIn(viewModelScope)
 
 
@@ -42,13 +53,23 @@ class DetailsViewModel @Inject constructor(
 
     private fun getShow(id: Int) {
         getMovieUseCase.getShow(id).onEach {
-            _state.value = _state.value.copy(media = it)
+            when (it) {
+                is Resource.Loading -> {
+                    _state.value = _state.value.copy(isLoading = true, media = null)
+                }
+                is Resource.Success -> {
+                    _state.value = _state.value.copy(isLoading = false, media = it.data)
+                }
+                is Resource.Error ->
+                    _state.value = _state.value.copy(isLoading = false, media = null)
+            }
+//            _state.value = _state.value.copy(media = it)
         }.launchIn(viewModelScope)
     }
 
     fun getSeason(id: Int, season: Int) {
         getMovieUseCase.getSeason(id, season).onEach {
-            _state.value = _state.value.copy(season = it)
+//            _state.value = _state.value.copy(season = it)
         }.launchIn(viewModelScope)
     }
 

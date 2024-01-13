@@ -11,6 +11,7 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -56,41 +57,43 @@ fun Browse(
 
     }
 
-
-    Column(
-        modifier = Modifier
-    ) {
-        Filters(viewModel)
-
-        LazyVerticalGrid(
-            state = gridState, columns = GridCells.Fixed(3), contentPadding = PaddingValues(10.dp)
+    when (state.isLoading) {
+        true -> Text(text = "Loading ...")
+        false -> Column(
+            modifier = Modifier
         ) {
-            state.movies.forEachIndexed { _, movie ->
-                item {
-                    Card(modifier = Modifier
-                        .padding(10.dp)
-                        .height(155.dp), onClick = {
-                        when (state.type.value) {
-                            "movie" -> navController.navigate("movie/${movie.id}")
-                            "anime" -> navController.navigate("anime/${movie.id}")
-                            "tv" -> navController.navigate("show/${movie.id}")
+            Filters(viewModel)
+
+            LazyVerticalGrid(
+                state = gridState,
+                columns = GridCells.Fixed(3),
+                contentPadding = PaddingValues(10.dp)
+            ) {
+                state.movies?.data?.forEachIndexed { _, movie ->
+                    item {
+                        Card(modifier = Modifier
+                            .padding(10.dp)
+                            .height(155.dp), onClick = {
+                            when (state.type.value) {
+                                "movie" -> navController.navigate("movie/${movie.id}")
+                                "anime" -> navController.navigate("anime/${movie.id}")
+                                "tv" -> navController.navigate("show/${movie.id}")
+                            }
+                        }) {
+                            Image(
+                                modifier = Modifier.fillMaxSize(),
+                                contentScale = ContentScale.FillBounds,
+                                painter = rememberAsyncImagePainter(
+                                    movie.poster
+                                ),
+                                contentDescription = movie.title
+                            )
                         }
-                    }) {
-                        Image(
-                            modifier = Modifier.fillMaxSize(),
-                            contentScale = ContentScale.FillBounds,
-                            painter = rememberAsyncImagePainter(
-                                movie.poster
-                            ),
-                            contentDescription = movie.title
-                        )
                     }
                 }
             }
         }
     }
+
+
 }
-
-
-
-

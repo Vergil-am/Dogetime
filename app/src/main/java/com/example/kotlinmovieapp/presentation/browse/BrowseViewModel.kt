@@ -1,10 +1,11 @@
 package com.example.kotlinmovieapp.presentation.browse
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.kotlinmovieapp.domain.model.MovieHome
 import com.example.kotlinmovieapp.domain.use_case.anime4up.Anime4upUseCase
 import com.example.kotlinmovieapp.domain.use_case.movies.get_movies.GetMoviesUseCase
+import com.example.kotlinmovieapp.util.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -34,8 +35,17 @@ class BrowseViewModel @Inject constructor(
                 if (page == 1) {
                     _state.value = _state.value.copy(movies = it)
                 } else if (page > 1) {
-                    val movies = _state.value.movies.plus(it)
-                    _state.value = _state.value.copy(movies = movies, page = page)
+//                    val movies = _state.value.movies.plus(it)
+                    when (it) {
+                        is Resource.Success<List<MovieHome>> -> {
+                            val data = it.data ?: emptyList()
+                            val currentMovies = _state.value.movies?.data ?: emptyList()
+                            val combinedMovies = (currentMovies + data)
+                            _state.value = _state.value.copy(movies = Resource.Success(combinedMovies))
+                        }
+                        else -> _state.value = _state.value
+                    }
+//                    _state.value = _state.value.copy(movies = movies, page = page)
                 }
             }.launchIn(viewModelScope)
 
@@ -43,21 +53,28 @@ class BrowseViewModel @Inject constructor(
                 if (page == 1) {
                     _state.value = _state.value.copy(movies = it)
                 } else if (page > 1) {
-                    val movies = _state.value.movies.plus(it)
-                    _state.value = _state.value.copy(movies = movies, page = page)
+                    when (it) {
+                        is Resource.Success<List<MovieHome>> -> {
+                            val data = it.data ?: emptyList()
+                            val currentMovies = _state.value.movies?.data ?: emptyList()
+                            val combinedMovies = (currentMovies + data)
+                            _state.value = _state.value.copy(movies = Resource.Success(combinedMovies))
+                        }
+                        else -> _state.value = _state.value
+                    }
                 }
             }.launchIn(viewModelScope)
 
-            "anime" -> anime4up.getAnime(page, genre?.name, catalog).onEach {
-                if (page == 1) {
-                    _state.value = _state.value.copy(movies = it)
-                } else if (page > 1 && genre == null) {
-                    val movies = _state.value.movies.plus(it)
-                    _state.value = _state.value.copy(movies = movies, page = page)
-                } else {
-                    Log.e("ELSE", "")
-                }
-            }.launchIn(viewModelScope)
+//            "anime" -> anime4up.getAnime(page, genre?.name, catalog).onEach {
+//                if (page == 1) {
+//                    _state.value = _state.value.copy(movies = it)
+//                } else if (page > 1 && genre == null) {
+//                    val movies = _state.value.movies.plus(it)
+//                    _state.value = _state.value.copy(movies = movies, page = page)
+//                } else {
+//                    Log.e("ELSE", "")
+//                }
+//            }.launchIn(viewModelScope)
         }
     }
 

@@ -56,84 +56,92 @@ fun Details(
     var opened by remember {
         mutableStateOf(false)
     }
-    Scaffold(floatingActionButton = {
-        ExtendedFloatingActionButton(containerColor = MaterialTheme.colorScheme.primary, onClick = {
-            when (type) {
-                "movie" -> {
-                    opened = true
+
+    when (state.isLoading) {
+        true -> Text(text = "Loading ...")
+        false ->
+            Scaffold(floatingActionButton = {
+                ExtendedFloatingActionButton(
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    onClick = {
+                        when (type) {
+                            "movie" -> {
+                                opened = true
+                            }
+
+                            "show" -> navController.navigate("show/seasons/$id")
+                            "anime" -> navController.navigate("anime/episodes/$id")
+                        }
+                    }) {
+                    Icon(imageVector = Icons.Filled.PlayArrow, contentDescription = "play")
+                    Text(text = "Watch")
                 }
-
-                "show" -> navController.navigate("show/seasons/$id")
-                "anime" -> navController.navigate("anime/episodes/$id")
-            }
-        }) {
-            Icon(imageVector = Icons.Filled.PlayArrow, contentDescription = "play")
-            Text(text = "Watch")
-        }
-    }) { paddingValues ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .verticalScroll(rememberScrollState())
-                .padding(paddingValues), verticalArrangement = Arrangement.Top
-
-
-        ) {
-            media?.let {
-                DetailsHeader(
-                    backDrop = media.backdrop,
-                    title = media.title,
-                    poster = media.poster,
-                    status = media.status,
-                    id = media.id,
-                    type = media.type,
-                    watchList = if (state.watchList?.id == id) {
-                        state.watchList
-                    } else {
-                        null
-                    },
-                    addToWatchList = addToWatchList,
-                    deleteFromList = deleteFromList
-                )
-                Row(
+            }) { paddingValues ->
+                Column(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(20.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Text(text = "Movie")
-                    Text(text = it.releaseDate.split("-")[0])
-                    Text(text = "${it.runtime} min")
-                    Text(text = it.rating.toString().format("%.f"))
-                }
-                if (it.tagline != null) {
-                    Text(
-                        text = it.tagline,
-                        style = MaterialTheme.typography.headlineSmall,
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier.fillMaxWidth()
+                        .fillMaxSize()
+                        .verticalScroll(rememberScrollState())
+                        .padding(paddingValues), verticalArrangement = Arrangement.Top
 
-                    )
-                }
-                Text(
-                    text = it.overview, modifier = Modifier.padding(10.dp)
-                )
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .wrapContentWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
 
                 ) {
-                    it.genres.forEach { genre ->
-                        ElevatedSuggestionChip(onClick = {}, label = { Text(text = genre) })
+                    media?.let {
+                        DetailsHeader(
+                            backDrop = media.backdrop,
+                            title = media.title,
+                            poster = media.poster,
+                            status = media.status,
+                            id = media.id,
+                            type = media.type,
+                            watchList = if (state.watchList?.id == id) {
+                                state.watchList
+                            } else {
+                                null
+                            },
+                            addToWatchList = addToWatchList,
+                            deleteFromList = deleteFromList
+                        )
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(20.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Text(text = "Movie")
+                            Text(text = it.releaseDate.split("-")[0])
+                            Text(text = "${it.runtime} min")
+                            Text(text = it.rating.toString().format("%.f"))
+                        }
+                        if (it.tagline != null) {
+                            Text(
+                                text = it.tagline,
+                                style = MaterialTheme.typography.headlineSmall,
+                                textAlign = TextAlign.Center,
+                                modifier = Modifier.fillMaxWidth()
+
+                            )
+                        }
+                        Text(
+                            text = it.overview, modifier = Modifier.padding(10.dp)
+                        )
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .wrapContentWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+
+                        ) {
+                            it.genres.forEach { genre ->
+                                ElevatedSuggestionChip(onClick = {}, label = { Text(text = genre) })
+                            }
+                        }
                     }
                 }
+
+
             }
-        }
-
-
     }
+
     if (opened) {
         ModalBottomSheet(
             onDismissRequest = { opened = false }, sheetState = rememberModalBottomSheetState()
@@ -163,5 +171,5 @@ fun Details(
             }
         }
     }
-}
 
+}

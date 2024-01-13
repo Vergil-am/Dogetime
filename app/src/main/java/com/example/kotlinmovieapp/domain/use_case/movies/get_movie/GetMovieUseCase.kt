@@ -16,8 +16,7 @@ class GetMovieUseCase @Inject constructor(
     private val repo: MovieRepository
 ) {
     fun getMovieDetails(id: Int): Flow<Resource<Details>> = flow {
-
-        emit(Resource.Loading(true))
+        emit(Resource.Loading())
         try {
             val res = repo.getMovie(movieId = id)
             val movie = Details(
@@ -42,18 +41,15 @@ class GetMovieUseCase @Inject constructor(
             emit(Resource.Success(movie))
         } catch (e: HttpException) {
             Log.e("MOVIE REPO", e.toString())
-
             emit(Resource.Error("HTTP exception"))
         } catch (e: IOException) {
             Log.e("MOVIE REPO", e.toString())
-
             emit(Resource.Error("IO exception"))
-
         }
     }
 
     fun getShow(id: Int): Flow<Resource<Details>> = flow {
-        emit(Resource.Loading(true))
+        emit(Resource.Loading())
         try {
             val res = repo.getShow(id)
             val runtime = res.episode_run_time.firstOrNull()
@@ -90,33 +86,26 @@ class GetMovieUseCase @Inject constructor(
                 seasons = res.seasons,
             )
             emit(Resource.Success(show))
-            emit(Resource.Loading(false))
         } catch (e: HttpException) {
             Log.e("MOVIE REPO", e.toString())
             emit(Resource.Error("http exception"))
-            emit(Resource.Loading(false))
         } catch (e: IOException) {
             Log.e("MOVIE REPO", e.toString())
             emit(Resource.Error("IO exception"))
-            emit(Resource.Loading(false))
         }
     }
 
     fun getSeason(id: Int, season: Int): Flow<Resource<SeasonDTO>> = flow {
-        emit(Resource.Loading(true))
+        emit(Resource.Loading())
         try {
             val res = repo.getSeason(id, season)
             emit(Resource.Success(res))
-            emit(Resource.Loading(false))
         } catch (e: HttpException) {
             Log.e("MOVIE REPO", e.toString())
             emit(Resource.Error("http exception"))
-            emit(Resource.Loading(false))
         } catch (e: IOException) {
             Log.e("MOVIE REPO", e.toString())
             emit(Resource.Error("IO exception"))
-            emit(Resource.Loading(false))
-
         }
 
     }
