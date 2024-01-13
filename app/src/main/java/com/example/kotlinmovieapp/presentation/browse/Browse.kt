@@ -63,13 +63,12 @@ fun Browse(
             modifier = Modifier
         ) {
             Filters(viewModel)
-
             LazyVerticalGrid(
                 state = gridState,
                 columns = GridCells.Fixed(3),
                 contentPadding = PaddingValues(10.dp)
             ) {
-                state.movies?.data?.forEachIndexed { _, movie ->
+                state.movies.forEachIndexed { _, movie ->
                     item {
                         Card(modifier = Modifier
                             .padding(10.dp)

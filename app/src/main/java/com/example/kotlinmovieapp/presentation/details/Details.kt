@@ -21,6 +21,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -42,8 +43,10 @@ fun Details(
     navController: NavController, viewModel: DetailsViewModel, id: String, type: String
 
 ) {
-    viewModel.getMedia(type = type, id = id)
     val state by viewModel.state.collectAsState()
+    LaunchedEffect(key1 = id ) {
+        viewModel.getMedia(type = type, id = id)
+    }
     val addToWatchList: (media: WatchListMedia) -> Unit = {
         viewModel.addToWatchList(it)
     }

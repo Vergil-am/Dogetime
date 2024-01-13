@@ -1,5 +1,6 @@
 package com.example.kotlinmovieapp.presentation.details
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.kotlinmovieapp.data.local.entities.WatchListMedia
@@ -34,16 +35,19 @@ class DetailsViewModel @Inject constructor(
     }
 
     private fun getMovie(id: Int) {
+        Log.e("Function ", "Ran")
         getMovieUseCase.getMovieDetails(id).onEach {
             when (it) {
                 is Resource.Loading -> {
                     _state.value = _state.value.copy(isLoading = true, media = null)
                 }
+
                 is Resource.Success -> {
-                   _state.value = _state.value.copy(isLoading = false, media = it.data)
+                    _state.value = _state.value.copy(isLoading = false, media = it.data)
                 }
-                is Resource.Error ->
-                    _state.value = _state.value.copy(isLoading = false, media = null)
+
+                is Resource.Error -> _state.value =
+                    _state.value.copy(isLoading = false, media = null)
             }
 //            _state.value = _state.value.copy(media = it)
         }.launchIn(viewModelScope)
@@ -57,11 +61,13 @@ class DetailsViewModel @Inject constructor(
                 is Resource.Loading -> {
                     _state.value = _state.value.copy(isLoading = true, media = null)
                 }
+
                 is Resource.Success -> {
                     _state.value = _state.value.copy(isLoading = false, media = it.data)
                 }
-                is Resource.Error ->
-                    _state.value = _state.value.copy(isLoading = false, media = null)
+
+                is Resource.Error -> _state.value =
+                    _state.value.copy(isLoading = false, media = null)
             }
 //            _state.value = _state.value.copy(media = it)
         }.launchIn(viewModelScope)
@@ -91,10 +97,22 @@ class DetailsViewModel @Inject constructor(
 
     private fun getAnime(slug: String) {
         anime4up.getAnimeDetails(slug).onEach {
-            _state.value = _state.value.copy(
-                media = it.details,
-                animeEpisodes = it.episodes,
-            )
+            when (it) {
+                is Resource.Loading -> _state.value = _state.value.copy(isLoading = true)
+                is Resource.Success -> _state.value = _state.value.copy(
+                    media = it.data?.details,
+                    animeEpisodes = it.data?.episodes ?: emptyList(),
+                    isLoading = false
+                )
+
+                is Resource.Error -> {
+                    TODO()
+                }
+            }
+//            _state.value = _state.value.copy(
+//                media = it.data.details,
+//                animeEpisodes = it.episodes,
+//            )
         }.launchIn(viewModelScope)
 
 

@@ -6,48 +6,61 @@ import com.example.kotlinmovieapp.domain.model.MovieHome
 import com.example.kotlinmovieapp.domain.model.OkanimeEpisode
 import com.example.kotlinmovieapp.domain.model.VideoLinks
 import com.example.kotlinmovieapp.domain.repository.Anime4upRepository
+import com.example.kotlinmovieapp.util.Resource
 import com.example.kotlinmovieapp.util.parseAnime
 import com.google.gson.Gson
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import okio.IOException
 import org.jsoup.Jsoup
+import retrofit2.HttpException
 import javax.inject.Inject
 
 class Anime4upUseCase @Inject constructor(
     private val repo: Anime4upRepository
-){
-fun getLatestEpisodes() : Flow<List<MovieHome>> = flow {
-    val res = repo.getLatestEpisodes().body()
-    if (res != null) {
-        val doc = Jsoup.parse(res)
-            val animeCards = doc.getElementsByClass("anime-card-container")
-            val episodes = animeCards.map { card ->
-                val slug =
-                    card.selectFirst("a")?.attr("href")?.split("/")?.reversed()?.get(1)?.split("%")
-                        ?.get(0)?.dropLast(1)
-                 MovieHome(
-                    id = slug ?: "",
-                    title = card.selectFirst("img")?.attr("alt") ?: "",
-                    poster = card.selectFirst("img")?.attr("src") ?: "",
-                    type = "anime"
-                 )
+) {
+    fun getLatestEpisodes(): Flow<Resource<List<MovieHome>>> = flow {
+        emit(Resource.Loading())
+        try {
+            val res = repo.getLatestEpisodes().body()
+            if (res != null) {
+                val doc = Jsoup.parse(res)
+                val animeCards = doc.getElementsByClass("anime-card-container")
+                val episodes = animeCards.map { card ->
+                    val slug = card.selectFirst("a")?.attr("href")?.split("/")?.reversed()?.get(1)
+                        ?.split("%")?.get(0)?.dropLast(1)
+                    MovieHome(
+                        id = slug ?: "",
+                        title = card.selectFirst("img")?.attr("alt") ?: "",
+                        poster = card.selectFirst("img")?.attr("src") ?: "",
+                        type = "anime"
+                    )
 
+                }
+                emit(Resource.Success(episodes))
             }
-            emit(episodes)
+        } catch (e: HttpException) {
+            emit(Resource.Error("HTTP Error"))
+        } catch (e: IOException) {
+            emit(Resource.Error("IO Error"))
         }
     }
 
-    data class OkanimeDetails(
+    data class AnimeDetails(
         val details: Details,
         val episodes: List<OkanimeEpisode>,
     )
-    fun getAnimeDetails(slug: String) : Flow<OkanimeDetails> = flow {
-        val res = repo.getAnimeDetails(slug).body()
-        if (res != null ) {
-            val info = Jsoup.parse(res).getElementsByClass("anime-info-container")
-            val malLink = info.select("div.anime-external-links").select("a").getOrNull(1)?.attr("href")
-            val row = info.select("div.anime-info")
-            val details = Details(
+
+    fun getAnimeDetails(slug: String): Flow<Resource<AnimeDetails>> = flow {
+        emit(Resource.Loading())
+        try {
+            val res = repo.getAnimeDetails(slug).body()
+            if (res != null) {
+                val info = Jsoup.parse(res).getElementsByClass("anime-info-container")
+                val malLink =
+                    info.select("div.anime-external-links").select("a").getOrNull(1)?.attr("href")
+                val row = info.select("div.anime-info")
+                val details = Details(
                     id = slug,
                     imdbId = null,
                     title = info.select("h1.anime-details-title").text() ?: "",
@@ -57,59 +70,71 @@ fun getLatestEpisodes() : Flow<List<MovieHome>> = flow {
                     genres = info.select("li").map { it.text() },
                     overview = info.select("p.anime-story").text() ?: "",
                     releaseDate = row[1].text().split(":")[1],
-                    runtime = row[4].text().split(" ")[2].toIntOrNull() ,
+                    runtime = row[4].text().split(" ")[2].toIntOrNull(),
                     status = row[2].select("a").text(),
                     tagline = null,
                     rating = null,
                     type = "anime",
-                    seasons = null ,
+                    seasons = null,
                     lastAirDate = null,
                     episodes = row[3].text().split(":")[1],
-            )
-            val episodesSection = Jsoup.parse(res).getElementsByClass("hover ehover6")
-            val episodes = episodesSection.map {episode ->
-                OkanimeEpisode(
-                    title = episode.select("h3").text(),
-                    slug = episode.select("h3").select("a").attr("href").split("/").reversed()[1],
-                    poster = episode.select("img").attr("src"),
-                    episodeNumber = episode.select("h3").text().split(" ")[1],
-
                 )
+                val episodesSection = Jsoup.parse(res).getElementsByClass("hover ehover6")
+                val episodes = episodesSection.map { episode ->
+                    OkanimeEpisode(
+                        title = episode.select("h3").text(),
+                        slug = episode.select("h3").select("a").attr("href").split("/")
+                            .reversed()[1],
+                        poster = episode.select("img").attr("src"),
+                        episodeNumber = episode.select("h3").text().split(" ")[1],
+
+                        )
+                }
+                emit(Resource.Success(AnimeDetails(details = details, episodes = episodes)))
             }
-            emit(OkanimeDetails(details= details, episodes = episodes))
+        } catch (e: HttpException) {
+            emit(Resource.Error("HTTP exception"))
+        } catch (e: HttpException) {
+            emit(Resource.Error("IO exception"))
         }
     }
 
-    fun getEpisode(slug: String) : Flow<VideoLinks> = flow {
+    fun getEpisode(slug: String): Flow<VideoLinks> = flow {
         val doc = repo.getEpisode(slug).body()
         if (doc != null) {
             val base64 = Jsoup.parse(doc).selectFirst("input[name=wl]")?.attr("value")
             val sources = String(Base64.decode(base64, Base64.DEFAULT))
-            val videoLinks : VideoLinks = Gson().fromJson(sources, VideoLinks::class.java)
+            val videoLinks: VideoLinks = Gson().fromJson(sources, VideoLinks::class.java)
             emit(videoLinks)
         }
 
     }
 
 
-
-
-    fun getAnime(page: Int, genre: String?, catalog: String?) : Flow<List<MovieHome>> = flow {
-        val doc = if (genre != null) {
-            repo.getAnimeByGenre(genre).body()
-        } else if (catalog != null) {
-            repo.getAnimeByType(catalog).body()
-        } else {
-            repo.getAnime(page).body()
+    fun getAnime(page: Int, genre: String?, catalog: String?): Flow<Resource<List<MovieHome>>> =
+        flow {
+            emit(Resource.Loading())
+            try {
+                val doc = if (genre != null) {
+                    repo.getAnimeByGenre(genre).body()
+                } else if (catalog != null) {
+                    repo.getAnimeByType(catalog).body()
+                } else {
+                    repo.getAnime(page).body()
+                }
+                if (doc != null) {
+                    val animeCards = Jsoup.parse(doc).select("div.anime-card-poster")
+                    val anime = parseAnime(animeCards)
+                    emit(Resource.Success(anime))
+                }
+            } catch (e: HttpException) {
+                emit(Resource.Error("HTTP Error"))
+            } catch (e: IOException) {
+                emit(Resource.Error("HTTP Error"))
+            }
         }
-        if (doc != null) {
-            val animeCards = Jsoup.parse(doc).select("div.anime-card-poster")
-            val anime = parseAnime(animeCards)
-            emit(anime)
-        }
-    }
 
-    fun searchAnime(query: String) : Flow<List<MovieHome>> = flow {
+    fun searchAnime(query: String): Flow<List<MovieHome>> = flow {
         val doc = repo.searchAnime(query).body()
         if (doc != null) {
             val animeCards = Jsoup.parse(doc).select("div.anime-card-poster")

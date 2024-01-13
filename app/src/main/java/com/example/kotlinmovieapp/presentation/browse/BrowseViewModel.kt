@@ -22,10 +22,7 @@ class BrowseViewModel @Inject constructor(
 
     init {
         getMovies(
-            state.value.type.value,
-            state.value.catalog.value,
-            _state.value.page,
-            genre = null
+            state.value.type.value, state.value.catalog.value, _state.value.page, genre = null
         )
     }
 
@@ -33,48 +30,78 @@ class BrowseViewModel @Inject constructor(
         when (type) {
             "movie" -> getMoviesUseCase.getMovies(catalog ?: "popular", page).onEach {
                 if (page == 1) {
-                    _state.value = _state.value.copy(movies = it)
+                    when (it) {
+                        is Resource.Loading -> _state.value = _state.value.copy(isLoading = true)
+                        is Resource.Success -> _state.value =
+                            _state.value.copy(movies = it.data ?: emptyList(), isLoading = false)
+
+                        is Resource.Error -> {
+                            TODO()
+                        }
+                    }
                 } else if (page > 1) {
-//                    val movies = _state.value.movies.plus(it)
                     when (it) {
                         is Resource.Success<List<MovieHome>> -> {
-                            val data = it.data ?: emptyList()
-                            val currentMovies = _state.value.movies?.data ?: emptyList()
-                            val combinedMovies = (currentMovies + data)
-                            _state.value = _state.value.copy(movies = Resource.Success(combinedMovies))
+                            val movies = _state.value.movies.plus(it.data ?: emptyList())
+                            _state.value = _state.value.copy(
+                                movies = movies, page = page
+                            )
                         }
-                        else -> _state.value = _state.value
+
+                        else -> {}
                     }
-//                    _state.value = _state.value.copy(movies = movies, page = page)
                 }
             }.launchIn(viewModelScope)
 
             "tv" -> getMoviesUseCase.getShows(catalog ?: "popular", page).onEach {
                 if (page == 1) {
-                    _state.value = _state.value.copy(movies = it)
+                    when (it) {
+                        is Resource.Loading -> _state.value = _state.value.copy(isLoading = true)
+                        is Resource.Success -> _state.value =
+                            _state.value.copy(movies = it.data ?: emptyList(), isLoading = false)
+
+                        is Resource.Error -> {
+                            TODO()
+                        }
+                    }
                 } else if (page > 1) {
                     when (it) {
                         is Resource.Success<List<MovieHome>> -> {
-                            val data = it.data ?: emptyList()
-                            val currentMovies = _state.value.movies?.data ?: emptyList()
-                            val combinedMovies = (currentMovies + data)
-                            _state.value = _state.value.copy(movies = Resource.Success(combinedMovies))
+                            val movies = _state.value.movies.plus(it.data ?: emptyList())
+                            _state.value = _state.value.copy(
+                                movies = movies, page = page
+                            )
                         }
-                        else -> _state.value = _state.value
+
+                        else -> {}
                     }
                 }
             }.launchIn(viewModelScope)
 
-//            "anime" -> anime4up.getAnime(page, genre?.name, catalog).onEach {
-//                if (page == 1) {
-//                    _state.value = _state.value.copy(movies = it)
-//                } else if (page > 1 && genre == null) {
-//                    val movies = _state.value.movies.plus(it)
-//                    _state.value = _state.value.copy(movies = movies, page = page)
-//                } else {
-//                    Log.e("ELSE", "")
-//                }
-//            }.launchIn(viewModelScope)
+            "anime" -> anime4up.getAnime(page, genre?.name, catalog).onEach {
+                if (page == 1) {
+                    when (it) {
+                        is Resource.Loading -> _state.value = _state.value.copy(isLoading = true)
+                        is Resource.Success -> _state.value =
+                            _state.value.copy(movies = it.data ?: emptyList(), isLoading = false)
+
+                        is Resource.Error -> {
+                            TODO()
+                        }
+                    }
+                } else if (page > 1 && genre == null) {
+                    when (it) {
+                        is Resource.Success<List<MovieHome>> -> {
+                            val movies = _state.value.movies.plus(it.data ?: emptyList())
+                            _state.value = _state.value.copy(
+                                movies = movies, page = page
+                            )
+                        }
+
+                        else -> {}
+                    }
+                }
+            }.launchIn(viewModelScope)
         }
     }
 

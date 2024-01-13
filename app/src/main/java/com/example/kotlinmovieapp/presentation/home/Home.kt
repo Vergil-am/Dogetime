@@ -19,56 +19,58 @@ import com.example.kotlinmovieapp.presentation.components.MovieRow
 
 @Composable
 fun Home(
-    navController: NavController,
-    viewModel: HomeViewModel
+    navController: NavController, viewModel: HomeViewModel
 ) {
     val state by viewModel.state.collectAsState()
     viewModel.getWatchlist()
-    Column (
-    modifier = Modifier
-        .verticalScroll(rememberScrollState())
+    Column(
+        modifier = Modifier.verticalScroll(rememberScrollState())
     ) {
         if (state.watchList?.isNotEmpty() == true) {
-            Text(text = "Continue watching",
+            Text(
+                text = "Continue watching",
                 style = MaterialTheme.typography.titleMedium,
                 textAlign = TextAlign.Center,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(10.dp)
             )
-             MovieRow(data = state.watchList!!, navController = navController)
+            MovieRow(data = state.watchList!!, navController = navController)
 
         }
 
         state.movies?.data?.let {
-            Text(text = "Trending movies",
+            Text(
+                text = "Trending movies",
                 style = MaterialTheme.typography.titleMedium,
                 textAlign = TextAlign.Center,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(10.dp)
-                )
+            )
             MovieRow(data = it, navController = navController)
         }
         state.shows?.data?.let {
-            Text(text = "Trending series",
+            Text(
+                text = "Trending series",
                 style = MaterialTheme.typography.titleMedium,
                 textAlign = TextAlign.Center,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(10.dp)
-                )
-            MovieRow(data = it , navController = navController)
+            )
+            MovieRow(data = it, navController = navController)
         }
 
-        state.anime?.let {
-            Text(text = "Latest anime updates",
+        state.anime?.data?.let {
+            Text(
+                text = "Latest anime updates",
                 style = MaterialTheme.typography.titleMedium,
                 textAlign = TextAlign.Center,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(10.dp)
-                )
+            )
             MovieRow(data = it, navController = navController)
 
         }
