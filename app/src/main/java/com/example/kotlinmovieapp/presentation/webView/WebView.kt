@@ -2,6 +2,7 @@ package com.example.kotlinmovieapp.presentation.webView
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.webkit.WebChromeClient
@@ -44,7 +45,7 @@ fun WebView(
     windowCompat.systemBarsBehavior =
         WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
 
-    BackHandler (opened) {
+    BackHandler(opened) {
         opened = true
     }
     AndroidView(
@@ -62,12 +63,27 @@ fun WebView(
                     override fun shouldOverrideUrlLoading(
                         view: WebView?, request: WebResourceRequest?
                     ): Boolean {
-                        return true
+                        Log.e("REQUEST", request?.url.toString())
+                        return !request?.url.toString().contains("jamiesamewalk.com")
                     }
 
                     override fun onPageFinished(view: WebView?, url: String?) {
                         super.onPageFinished(view, url)
                     }
+
+//                    override fun shouldInterceptRequest(
+//                        view: WebView?, request: WebResourceRequest?
+//                    ): WebResourceResponse? {
+//                        val domain = request?.url.toString()
+//                        val contains = Constants.FilterList.any{string ->
+//                            domain.contains(string)
+//                        }
+//                        return if (contains) {
+//                            WebResourceResponse("text/plain", "utf-8", null)
+//                        } else {
+//                            super.shouldInterceptRequest(view, request)
+//                        }
+//                    }
                 }
                 webChromeClient = object : WebChromeClient() {
                     var customView: View? = null
@@ -102,12 +118,10 @@ fun WebView(
     )
 
     if (opened) {
-        AlertDialog(onDismissRequest = {opened = false}) {
+        AlertDialog(onDismissRequest = { opened = false }) {
 
             Text(text = "Hello")
         }
     }
 
 }
-
-

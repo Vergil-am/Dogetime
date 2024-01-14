@@ -7,7 +7,7 @@ object Constants {
     const val VIDSRC_FHD = "https://vidsrc.xyz/embed"
     const val VIDSRC_MULTI = "https://vidsrc.to/embed"
 
-//    val OKANIME_BASE_URL = "https://www.okanime.xyz/"
+    //    val OKANIME_BASE_URL = "https://www.okanime.xyz/"
 
     const val ANIME4UP_URL = "https://anime4up.cam/"
 }
