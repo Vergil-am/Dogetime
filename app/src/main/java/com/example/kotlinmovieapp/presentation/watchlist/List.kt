@@ -1,5 +1,6 @@
 package com.example.kotlinmovieapp.presentation.watchlist
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Column
@@ -26,17 +27,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
-import com.example.kotlinmovieapp.util.Constants
+import com.example.kotlinmovieapp.util.ListsClass
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WatchList(
     viewModel: ListViewModel, navController: NavController
 ) {
-
+    val lists = ListsClass.lists.plus(ListsClass.All)
+    Log.e("Lists", lists.toString())
     val state = viewModel.state.collectAsState().value
     viewModel.getWatchList()
-    val lists = Constants.lists.plus("All")
     val gridState = rememberLazyGridState()
     var selectedTab by remember { mutableIntStateOf(0) }
 
@@ -48,10 +49,11 @@ fun WatchList(
             modifier = Modifier.horizontalScroll(rememberScrollState())
         ) {
             lists.onEachIndexed { index, item ->
+                Log.e("LISt", item.name)
                 ElevatedFilterChip(modifier = Modifier.padding(horizontal = 5.dp),
                     selected = index == selectedTab,
                     onClick = { selectedTab = index },
-                    label = { Text(text = item) })
+                    label = { Text(text = item.name) })
             }
         }
         LazyVerticalGrid(
@@ -61,10 +63,10 @@ fun WatchList(
             contentPadding = PaddingValues(10.dp),
         ) {
             state.media.filter {
-                if (lists[selectedTab] == "All") {
+                if (lists[selectedTab].value == "all") {
                     true
                 } else {
-                    it.list == Constants.lists[selectedTab]
+                    it.list == lists[selectedTab].value
                 }
             }.forEach {
                 item {
@@ -87,5 +89,4 @@ fun WatchList(
 
 }
 
-//    }
 

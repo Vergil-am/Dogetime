@@ -39,40 +39,53 @@ fun Home(
 
         }
 
-        state.movies?.data?.let {
-            Text(
-                text = "Trending movies",
-                style = MaterialTheme.typography.titleMedium,
-                textAlign = TextAlign.Center,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(10.dp)
-            )
-            MovieRow(data = it, navController = navController)
-        }
-        state.shows?.data?.let {
-            Text(
-                text = "Trending series",
-                style = MaterialTheme.typography.titleMedium,
-                textAlign = TextAlign.Center,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(10.dp)
-            )
-            MovieRow(data = it, navController = navController)
+        when (state.movies.isLoading) {
+            true -> Text(text = "Loading ...")
+            false -> state.movies.data?.let {
+                Text(
+                    text = "Trending movies",
+                    style = MaterialTheme.typography.titleMedium,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(10.dp)
+                )
+                MovieRow(data = it, navController = navController)
+            }
         }
 
-        state.anime?.data?.let {
-            Text(
-                text = "Latest anime updates",
-                style = MaterialTheme.typography.titleMedium,
-                textAlign = TextAlign.Center,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(10.dp)
-            )
-            MovieRow(data = it, navController = navController)
 
+
+
+
+        when (state.shows.isLoading) {
+            true -> Text(text = "Loading ...")
+            false -> state.shows.data?.let {
+                Text(
+                    text = "Trending series",
+                    style = MaterialTheme.typography.titleMedium,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(10.dp)
+                )
+                MovieRow(data = it, navController = navController)
+            }
+        }
+
+        when (state.anime.isLoading) {
+            true -> Text(text = "Loading ... ")
+            false -> state.anime.data?.let {
+                Text(
+                    text = "Latest anime updates",
+                    style = MaterialTheme.typography.titleMedium,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(10.dp)
+                )
+                MovieRow(data = it, navController = navController)
+            }
         }
     }
 }

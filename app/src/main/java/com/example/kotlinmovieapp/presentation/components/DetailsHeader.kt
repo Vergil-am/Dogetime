@@ -37,7 +37,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import coil.compose.rememberAsyncImagePainter
 import com.example.kotlinmovieapp.data.local.entities.WatchListMedia
-import com.example.kotlinmovieapp.util.Constants
+import com.example.kotlinmovieapp.util.ListsClass
 import com.google.common.base.Ascii
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -145,7 +145,7 @@ fun DetailsHeader(
         ModalBottomSheet(onDismissRequest = {
             expanded = false
         }) {
-            Constants.lists.forEach {
+            ListsClass.lists.forEach {
                 DropdownMenuItem(
                     text = {
                         Row(
@@ -157,14 +157,14 @@ fun DetailsHeader(
                                 imageVector = Icons.Filled.Check,
                                 contentDescription = "check",
                                 modifier = Modifier.alpha(
-                                    if (watchList?.list == it) {
+                                    if (watchList?.list == it.value) {
                                         1f
                                     } else {
                                         0.0f
                                     }
                                 )
                             )
-                            Text(text = it, modifier = Modifier.padding(horizontal = 10.dp))
+                            Text(text = it.name, modifier = Modifier.padding(horizontal = 10.dp))
                         }
                     },
                     onClick = {
@@ -175,14 +175,14 @@ fun DetailsHeader(
                                     title = title,
                                     poster = poster,
                                     type = type,
-                                    list = it,
+                                    list = it.value,
                                     season = null,
                                     episode = null
                                 )
                             )
                         } else {
                             addToWatchList(
-                                watchList.copy(list = it)
+                                watchList.copy(list = it.name)
                             )
                         }
 
