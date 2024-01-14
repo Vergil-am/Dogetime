@@ -147,7 +147,7 @@ fun NavGraph(
         composable(Route.AnimeEpisodes.route) {
             val slug = it.arguments?.getString("slug")
             if (slug != null) {
-                AnimeEpisodes(viewModel = detailsViewModel, slug = slug, navController)
+                AnimeEpisodes(viewModel = detailsViewModel,  navController)
             }
         }
 

@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.webkit.WebChromeClient
 import android.webkit.WebResourceRequest
+import android.webkit.WebResourceResponse
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.FrameLayout
@@ -41,6 +42,7 @@ fun WebView(
     var opened by remember {
         mutableStateOf(false)
     }
+
     windowCompat.hide(WindowInsetsCompat.Type.systemBars())
     windowCompat.systemBarsBehavior =
         WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
@@ -71,10 +73,10 @@ fun WebView(
                         super.onPageFinished(view, url)
                     }
 
-//                    override fun shouldInterceptRequest(
-//                        view: WebView?, request: WebResourceRequest?
-//                    ): WebResourceResponse? {
-//                        val domain = request?.url.toString()
+                    override fun shouldInterceptRequest(
+                        view: WebView?, request: WebResourceRequest?
+                    ): WebResourceResponse? {
+
 //                        val contains = Constants.FilterList.any{string ->
 //                            domain.contains(string)
 //                        }
@@ -83,7 +85,9 @@ fun WebView(
 //                        } else {
 //                            super.shouldInterceptRequest(view, request)
 //                        }
-//                    }
+
+                            return super.shouldInterceptRequest(view, request)
+                    }
                 }
                 webChromeClient = object : WebChromeClient() {
                     var customView: View? = null
