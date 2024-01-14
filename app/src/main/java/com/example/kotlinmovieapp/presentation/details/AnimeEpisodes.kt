@@ -45,7 +45,7 @@ import com.example.kotlinmovieapp.presentation.components.WatchedIndicator
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AnimeEpisodes(
-    viewModel: DetailsViewModel, slug: String, navController: NavController
+    viewModel: DetailsViewModel, navController: NavController
 ) {
     val state = viewModel.state.collectAsState().value
     val columnState = rememberLazyListState()
@@ -69,7 +69,7 @@ fun AnimeEpisodes(
                                     title = media.title,
                                     poster = media.poster,
                                     type = media.type,
-                                    list = "Watching",
+                                    list = "watching",
                                     season = null,
                                     episode = episode.episodeNumber.toIntOrNull()
                                 )
@@ -155,8 +155,7 @@ fun AnimeEpisodes(
                     if (sources.fhd != null) {
                         Text(text = "Full HD")
                         sources.fhd.forEach { (source, link) ->
-                            Source(
-                                source = source,
+                            Source(source = source,
                                 info = "1080p",
                                 link = link,
                                 navController,
@@ -166,8 +165,7 @@ fun AnimeEpisodes(
                     if (sources.hd != null) {
                         Text(text = "HD")
                         sources.hd.forEach { (source, link) ->
-                            Source(
-                                source = source,
+                            Source(source = source,
                                 info = "720p",
                                 link = link,
                                 navController,
@@ -177,8 +175,7 @@ fun AnimeEpisodes(
                     if (sources.sd != null) {
                         Text(text = "Low quality")
                         sources.sd.forEach { (source, link) ->
-                            Source(
-                                source = source,
+                            Source(source = source,
                                 info = "480p",
                                 link = link,
                                 navController,

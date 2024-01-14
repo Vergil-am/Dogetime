@@ -73,7 +73,7 @@ fun Episodes(
                     viewModel.addToWatchList(
                         WatchListMedia(
                             id = id.toString(),
-                            list = "Watching",
+                            list = "watching",
                             season = season.season_number,
                             episode = episode.episode_number,
                             poster = state.media?.poster ?: season.poster_path,

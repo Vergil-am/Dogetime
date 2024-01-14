@@ -182,7 +182,7 @@ fun DetailsHeader(
                             )
                         } else {
                             addToWatchList(
-                                watchList.copy(list = it.name)
+                                watchList.copy(list = it.value)
                             )
                         }
 
