@@ -44,7 +44,6 @@ class WatchListUseCase @Inject constructor(
     fun getMediaById(id: String) : Flow<WatchListMedia?> = flow {
         try {
            val res = watchList.getMediaById(id)
-            Log.e("RES", res.toString())
             emit(res)
         } catch (e: Exception) {
             emit(null)

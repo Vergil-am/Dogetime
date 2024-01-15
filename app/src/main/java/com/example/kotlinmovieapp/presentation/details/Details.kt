@@ -35,17 +35,18 @@ import com.example.kotlinmovieapp.data.local.entities.WatchListMedia
 import com.example.kotlinmovieapp.presentation.components.DetailsHeader
 import com.example.kotlinmovieapp.presentation.components.Source
 import com.example.kotlinmovieapp.util.Constants
+import com.example.kotlinmovieapp.util.VidsrcTO
 import java.net.URLEncoder
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Details(
     navController: NavController, viewModel: DetailsViewModel, id: String, type: String
-
 ) {
     val state by viewModel.state.collectAsState()
     LaunchedEffect(key1 = id ) {
         viewModel.getMedia(type = type, id = id)
+        VidsrcTO().getStreams("${Constants.VIDSRC_MULTI}/embed/movie/$id")
     }
     val addToWatchList: (media: WatchListMedia) -> Unit = {
         viewModel.addToWatchList(it)
@@ -167,7 +168,7 @@ fun Details(
                     onClick = { opened = false })
                 Source(source = "Multi quality",
                     info = "No progress",
-                    link = URLEncoder.encode("${Constants.VIDSRC_MULTI}/movie/$id"),
+                    link = URLEncoder.encode("${Constants.VIDSRC_MULTI}/embed/movie/$id"),
                     navController = navController,
                     onClick = { opened = false })
 

@@ -58,8 +58,6 @@ fun NavGraph(
     windowCompat: WindowInsetsControllerCompat
 ) {
     val navController = rememberNavController()
-//    val activity = LocalView.current.context as Activity
-//    activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
     NavHost(
         navController = navController, startDestination = startDestination, modifier = Modifier
     ) {

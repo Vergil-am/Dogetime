@@ -51,7 +51,6 @@ class MainActivity : ComponentActivity() {
         setContent {
             val state = viewModel.state.collectAsState().value
 
-
             KotlinMovieAppTheme (
                 darkTheme = when (state.theme) {
                     "dark" -> true

@@ -171,7 +171,7 @@ fun Episodes(
                     "${Constants.VIDSRC_FHD}/tv/$id/${selected.season}/${selected.episode}?ds_langs=en,fr,ar"
                 ), navController = navController, onClick = { opened = false })
                 Source(source = "Multi quality", info = "No progress", link = URLEncoder.encode(
-                    "${Constants.VIDSRC_MULTI}/tv/$id/${selected.season}/${selected.episode}"
+                    "${Constants.VIDSRC_MULTI}/embed/tv/$id/${selected.season}/${selected.episode}"
                 ), navController = navController, onClick = { opened = false })
 
             }
