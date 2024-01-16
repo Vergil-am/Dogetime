@@ -2,16 +2,20 @@ package com.example.kotlinmovieapp.di
 
 import android.app.Application
 import androidx.room.Room
-import com.example.kotlinmovieapp.data.remote.MoviesAPI
-import com.example.kotlinmovieapp.data.repository.MovieRepoImplementation
-import com.example.kotlinmovieapp.domain.repository.MovieRepository
 import com.example.kotlinmovieapp.data.local.dao.WatchListDAO
 import com.example.kotlinmovieapp.data.local.database.ListDatabase
 import com.example.kotlinmovieapp.data.remote.Anime4upAPI
+import com.example.kotlinmovieapp.data.remote.MoviesAPI
+import com.example.kotlinmovieapp.data.remote.VidsrcToAPI
 import com.example.kotlinmovieapp.data.repository.Anime4upRepoImplementation
-import com.example.kotlinmovieapp.domain.repository.WatchListRepository
+import com.example.kotlinmovieapp.data.repository.MovieRepoImplementation
+import com.example.kotlinmovieapp.data.repository.VidsrcToRepoImplementation
 import com.example.kotlinmovieapp.data.repository.WatchListRepositoryImpl
 import com.example.kotlinmovieapp.domain.repository.Anime4upRepository
+import com.example.kotlinmovieapp.domain.repository.MovieRepository
+import com.example.kotlinmovieapp.domain.repository.VidsrcToRepository
+import com.example.kotlinmovieapp.domain.repository.WatchListRepository
+import com.example.kotlinmovieapp.util.Constants
 import com.example.kotlinmovieapp.util.Constants.ANIME4UP_URL
 import com.example.kotlinmovieapp.util.Constants.BASE_URL
 import dagger.Module
@@ -25,9 +29,10 @@ import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
-object AppModule { @Provides
+object AppModule {
+    @Provides
     @Singleton
-    fun provideMoviesAPI() : MoviesAPI {
+    fun provideMoviesAPI(): MoviesAPI {
         return Retrofit.Builder()
             .baseUrl(BASE_URL)
             .addConverterFactory(GsonConverterFactory.create())
@@ -37,7 +42,7 @@ object AppModule { @Provides
 
     @Provides
     @Singleton
-    fun provideMovieRepository(api: MoviesAPI) : MovieRepository {
+    fun provideMovieRepository(api: MoviesAPI): MovieRepository {
         return MovieRepoImplementation(api)
     }
 
@@ -49,7 +54,8 @@ object AppModule { @Provides
         return Room.databaseBuilder(
             application,
             ListDatabase::class.java,
-            "watchlist_database")
+            "watchlist_database"
+        )
             .fallbackToDestructiveMigration()
             .build()
     }
@@ -57,29 +63,48 @@ object AppModule { @Provides
     @Provides
     @Singleton
     fun provideWatchListDao(db: ListDatabase): WatchListDAO {
-       return db.watchListDao()
+        return db.watchListDao()
     }
 
     @Provides
     @Singleton
-    fun provideWatchListRepo(dao: WatchListDAO) : WatchListRepository {
+    fun provideWatchListRepo(dao: WatchListDAO): WatchListRepository {
         return WatchListRepositoryImpl(dao)
     }
 
     // anime4up
-   @Provides
-   @Singleton
-   fun provideAnime4upAPI() : Anime4upAPI {
+    @Provides
+    @Singleton
+    fun provideAnime4upAPI(): Anime4upAPI {
         return Retrofit.Builder()
             .baseUrl(ANIME4UP_URL)
             .addConverterFactory(ScalarsConverterFactory.create())
             .build()
             .create(Anime4upAPI::class.java)
-   }
+    }
 
     @Provides
     @Singleton
     fun provideAnime4upRepo(api: Anime4upAPI): Anime4upRepository {
         return Anime4upRepoImplementation(api)
+    }
+
+    //VidSrc
+
+    @Provides
+    @Singleton
+    fun provideVidsrcToAPI(): VidsrcToAPI {
+        return Retrofit.Builder()
+            .baseUrl(Constants.VIDSRC_MULTI)
+            .addConverterFactory(ScalarsConverterFactory.create())
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+            .create(VidsrcToAPI::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideVidsrcToRepository(api: VidsrcToAPI): VidsrcToRepository {
+        return VidsrcToRepoImplementation(api)
     }
 }
