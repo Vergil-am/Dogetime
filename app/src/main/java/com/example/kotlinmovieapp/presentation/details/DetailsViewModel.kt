@@ -37,7 +37,6 @@ class DetailsViewModel @Inject constructor(
     }
 
     private fun getMovie(id: Int) {
-        Log.e("Function ", "Ran")
         getMovieUseCase.getMovieDetails(id).onEach {
             when (it) {
                 is Resource.Loading -> {
@@ -46,6 +45,7 @@ class DetailsViewModel @Inject constructor(
 
                 is Resource.Success -> {
                     _state.value = _state.value.copy(isLoading = false, media = it.data)
+                    Log.e("TV", it.data?.seasons.toString())
                 }
 
                 is Resource.Error -> _state.value =
@@ -66,6 +66,7 @@ class DetailsViewModel @Inject constructor(
 
                 is Resource.Success -> {
                     _state.value = _state.value.copy(isLoading = false, media = it.data)
+                    Log.e("DETAILS", "hello ${it.data?.seasons.toString()}")
                 }
 
                 is Resource.Error -> _state.value =
@@ -75,11 +76,11 @@ class DetailsViewModel @Inject constructor(
         }.launchIn(viewModelScope)
     }
 
-    fun getSeason(id: Int, season: Int) {
-        getMovieUseCase.getSeason(id, season).onEach {
-//            _state.value = _state.value.copy(season = it)
-        }.launchIn(viewModelScope)
-    }
+//    fun getSeason(id: Int, season: Int) {
+//        getMovieUseCase.getSeason(id, season).onEach {
+////            _state.value = _state.value.copy(season = it)
+//        }.launchIn(viewModelScope)
+//    }
 
 
     // WatchList

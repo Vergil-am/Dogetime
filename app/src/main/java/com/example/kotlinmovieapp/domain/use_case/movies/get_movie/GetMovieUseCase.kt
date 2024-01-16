@@ -66,7 +66,7 @@ class GetMovieUseCase @Inject constructor(
             } else {
                 null
             }
-            val show = Details(
+            var show = Details(
                 id = res.id.toString(),
                 title = res.name,
                 backdrop = "${Constants.IMAGE_BASE_URL}/w500/${res.backdrop_path}",
@@ -83,9 +83,20 @@ class GetMovieUseCase @Inject constructor(
                 imdbId = null,
                 rating = res.vote_average,
                 runtime = episodeRunTime,
-                seasons = res.seasons,
+//                seasons = res.seasons,
+                seasons = emptyList()
             )
             emit(Resource.Success(show))
+            val seasons = res.seasons.map {
+                val season = getSeason(id, it.season_number)
+                season
+            }
+
+            if (seasons.size == res.seasons.size) {
+                Log.e("SEASONS", seasons.toString())
+                show = show.copy(seasons = seasons)
+                emit(Resource.Success(show))
+            }
         } catch (e: HttpException) {
             Log.e("MOVIE REPO", e.toString())
             emit(Resource.Error("http exception"))
@@ -95,17 +106,17 @@ class GetMovieUseCase @Inject constructor(
         }
     }
 
-    fun getSeason(id: Int, season: Int): Flow<Resource<SeasonDTO>> = flow {
-        emit(Resource.Loading())
+    suspend fun getSeason(id: Int, season: Int): SeasonDTO {
         try {
-            val res = repo.getSeason(id, season)
-            emit(Resource.Success(res))
+            return repo.getSeason(id, season)
         } catch (e: HttpException) {
             Log.e("MOVIE REPO", e.toString())
-            emit(Resource.Error("http exception"))
+            e.printStackTrace()
+            throw e
         } catch (e: IOException) {
             Log.e("MOVIE REPO", e.toString())
-            emit(Resource.Error("IO exception"))
+            e.printStackTrace()
+            throw e
         }
 
     }

@@ -1,5 +1,7 @@
 package com.example.kotlinmovieapp.domain.model
 
+import com.example.kotlinmovieapp.data.remote.dto.SeasonDTO
+
 data class Details(
     val id: String,
     val imdbId: String?,
@@ -15,7 +17,8 @@ data class Details(
     val tagline: String?,
     val rating: Double?,
     val type: String,
-    val seasons: List<Season>?,
+//    val seasons: List<Season>?,
+    val seasons: List<SeasonDTO>?,
     val lastAirDate: String?,
     val episodes: String?,
 

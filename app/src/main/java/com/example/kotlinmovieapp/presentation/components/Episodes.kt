@@ -34,7 +34,6 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
 import com.example.kotlinmovieapp.data.local.entities.WatchListMedia
-import com.example.kotlinmovieapp.domain.model.Season
 import com.example.kotlinmovieapp.presentation.details.DetailsViewModel
 import com.example.kotlinmovieapp.util.Constants
 import java.net.URLEncoder
@@ -46,9 +45,10 @@ data class SelectedEpisode(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Episodes(
-    season: Season, viewModel: DetailsViewModel, id: Int, navController: NavController
+    season: Int , viewModel: DetailsViewModel, id: Int, navController: NavController
 ) {
-    val state = viewModel.state.collectAsState().value
+//    Log.e("Episodes", season.episodes.toString())
+    val state by viewModel.state.collectAsState()
 
     var opened by remember {
         mutableStateOf(false)
@@ -57,7 +57,7 @@ fun Episodes(
         mutableStateOf(SelectedEpisode(season = 1, episode = 1))
     }
     LaunchedEffect(key1 = season, key2 = id) {
-        viewModel.getSeason(id, season.season_number)
+//        viewModel.getSeason(id, season.season_number)
     }
 
 
@@ -65,25 +65,26 @@ fun Episodes(
         modifier = Modifier.verticalScroll(rememberScrollState())
     ) {
 
-        state.season?.episodes?.forEach { episode ->
+//        state.season?.episodes?.forEach { episode ->
 //            val url =
 //
+        state.media?.seasons?.get(season)?.episodes?.forEach{episode ->
             Card(
                 onClick = {
                     viewModel.addToWatchList(
                         WatchListMedia(
                             id = id.toString(),
                             list = "watching",
-                            season = season.season_number,
+                            season = season ,
                             episode = episode.episode_number,
-                            poster = state.media?.poster ?: season.poster_path,
-                            title = state.media?.title ?: season.name,
+                            poster = state.media?.poster ?: "",
+                            title = state.media?.title ?: "",
                             type = "show"
                         )
                     )
                     opened = true
                     selected = SelectedEpisode(
-                        season = season.season_number, episode = episode.episode_number
+                        season = season , episode = episode.episode_number
                     )
                 },
                 modifier = Modifier
@@ -140,9 +141,9 @@ fun Episodes(
                     val progressSeason = state.watchList?.season
                     val progressEpisode = state.watchList?.episode
                     if (progressEpisode != null && progressSeason != null) {
-                        if (progressSeason > season.season_number) {
+                        if (progressSeason > season ) {
                             WatchedIndicator()
-                        } else if (progressSeason == season.season_number && progressEpisode >= episode.episode_number) {
+                        } else if (progressSeason == season && progressEpisode >= episode.episode_number) {
                             WatchedIndicator()
                         }
                     }

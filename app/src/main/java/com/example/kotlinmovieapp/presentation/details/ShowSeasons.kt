@@ -74,7 +74,8 @@ fun ShowSeasons(
                     modifier = Modifier.fillMaxSize()
                 ) {
                     Episodes(
-                        seasons[page],
+//                        seasons[page],
+                        season = page,
                         viewModel,
                         id,
                         navController
