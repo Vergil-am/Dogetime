@@ -8,12 +8,13 @@ import kotlinx.coroutines.flow.flow
 import okio.ByteString.Companion.decodeBase64
 import org.jsoup.Jsoup
 import javax.inject.Inject
+import kotlin.experimental.xor
 
 
 class VidsrcUseCase @Inject constructor(
     private val repo: VidsrcToRepository
 ) {
-
+    private val key = "8z5Ag5wgagfsOuhz"
     fun getSources(id: Int): Flow<List<VidsrcSourcesResult>> = flow {
         try {
             val res = repo.getMovie(id).body() ?: throw Exception("no response body")
@@ -42,7 +43,26 @@ class VidsrcUseCase @Inject constructor(
 
     private fun decodeLink(link: String) {
         Log.e("Link", link)
-        val newLink = link.replace("_","/").replace("-", "+").decodeBase64()?.toByteArray()
-        Log.e("NEWLINK", newLink.toString())
+        val newLink = link.replace("_", "/").replace("-", "+").decodeBase64()?.toByteArray()
+            ?: throw Exception("can't decode link")
+        val keyBytes = key.toByteArray()
+        val s = ByteArray(256) { it.toByte() }
+        var j = 0
+        for (i in 0 until 256) {
+            j = (j + s[i] + keyBytes[i % keyBytes.size]) and 0xFF
+            s[i] = s[j].also { s[j] = s[i] }
+        }
+        val decoded = ByteArray(newLink.size)
+        var i = 0
+        var k = 0
+        for (index in newLink.indices) {
+            i = (i + 1) and 0xFF
+            k = (k + s[i]) and 0xFF
+            s[i] = s[k].also { s[k] = s[i] }
+            val t = (s[i] + s[k]) and 0xFF
+            decoded[index] = newLink[index] xor s[t]
+        }
+
+        Log.e("Decoded", decoded.toString())
     }
 }
