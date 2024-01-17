@@ -5,6 +5,7 @@ import com.example.kotlinmovieapp.domain.model.VidsrcSourcesResult
 import com.example.kotlinmovieapp.domain.repository.VidsrcToRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import okio.ByteString.Companion.decodeBase64
 import org.jsoup.Jsoup
 import javax.inject.Inject
 
@@ -27,7 +28,7 @@ class VidsrcUseCase @Inject constructor(
             Log.e("Sources", sources.toString())
             val links = sources.map {
                 val link = repo.getSource(it.id).result
-                Log.e("Link", link.url)
+                decodeLink(link.url)
                 link.url
             }
             Log.e("Links", links.toString())
@@ -37,5 +38,11 @@ class VidsrcUseCase @Inject constructor(
             e.printStackTrace()
         }
 
+    }
+
+    private fun decodeLink(link: String) {
+        Log.e("Link", link)
+        val newLink = link.replace("_","/").replace("-", "+").decodeBase64()?.toByteArray()
+        Log.e("NEWLINK", newLink.toString())
     }
 }

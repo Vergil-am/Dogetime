@@ -106,7 +106,7 @@ class GetMovieUseCase @Inject constructor(
         }
     }
 
-    suspend fun getSeason(id: Int, season: Int): SeasonDTO {
+    private suspend fun getSeason(id: Int, season: Int): SeasonDTO {
         try {
             return repo.getSeason(id, season)
         } catch (e: HttpException) {
