@@ -7,6 +7,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import okio.ByteString.Companion.decodeBase64
 import org.jsoup.Jsoup
+import java.net.URLDecoder
 import javax.inject.Inject
 import kotlin.experimental.xor
 
@@ -62,7 +63,8 @@ class VidsrcUseCase @Inject constructor(
             val t = (s[i] + s[k]) and 0xFF
             decoded[index] = newLink[index] xor s[t]
         }
-
-        Log.e("Decoded", decoded.toString())
+        val url = URLDecoder.decode(String(decoded, Charsets.UTF_8))
+        Log.e("Decoded", url)
+        TODO("the links are good i only need to extract vidoes from them now")
     }
 }
