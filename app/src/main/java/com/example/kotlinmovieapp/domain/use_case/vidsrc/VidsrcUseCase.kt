@@ -1,6 +1,7 @@
 package com.example.kotlinmovieapp.domain.use_case.vidsrc
 
 import android.util.Log
+import com.example.kotlinmovieapp.domain.model.Source
 import com.example.kotlinmovieapp.domain.model.VidsrcSourcesResult
 import com.example.kotlinmovieapp.domain.repository.VidsrcToRepository
 import kotlinx.coroutines.flow.Flow
@@ -29,9 +30,21 @@ class VidsrcUseCase @Inject constructor(
             val sources = repo.getSources(dataId).result
             Log.e("Sources", sources.toString())
             val links = sources.map {
-                val link = repo.getSource(it.id).result
-                decodeLink(link.url)
-                link.url
+                val title = it.title
+                val link = repo.getSource(it.id).result.url
+                Log.e("link", link)
+                val decodedLink = decodeLink(link)
+                Source(
+                    source = title,
+                    url = decodedLink,
+                    quality = if (title == "Vidplay") {
+                        "Multi"
+                    } else {
+                        "1080p"
+                    },
+                    label = "FHD"
+                )
+
             }
             Log.e("Links", links.toString())
             emit(emptyList())
@@ -42,7 +55,7 @@ class VidsrcUseCase @Inject constructor(
 
     }
 
-    private fun decodeLink(link: String) {
+    private fun decodeLink(link: String) : String{
         Log.e("Link", link)
         val newLink = link.replace("_", "/").replace("-", "+").decodeBase64()?.toByteArray()
             ?: throw Exception("can't decode link")
@@ -65,6 +78,7 @@ class VidsrcUseCase @Inject constructor(
         }
         val url = URLDecoder.decode(String(decoded, Charsets.UTF_8))
         Log.e("Decoded", url)
-        TODO("the links are good i only need to extract vidoes from them now")
+//        TODO("the links are good i only need to extract videos from them now")
+        return url
     }
 }
