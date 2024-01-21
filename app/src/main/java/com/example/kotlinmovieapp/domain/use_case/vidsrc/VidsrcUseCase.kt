@@ -4,6 +4,7 @@ import android.util.Log
 import com.example.kotlinmovieapp.domain.model.Source
 import com.example.kotlinmovieapp.domain.model.VidsrcSourcesResult
 import com.example.kotlinmovieapp.domain.repository.VidsrcToRepository
+import com.example.kotlinmovieapp.util.extractors.Vidplay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import okio.ByteString.Companion.decodeBase64
@@ -22,17 +23,15 @@ class VidsrcUseCase @Inject constructor(
             val res = repo.getMovie(id).body() ?: throw Exception("no response body")
             val doc = Jsoup.parse(res)
             val dataId = doc.selectFirst("a[data-id]")?.attr("data-id")
-            Log.e("DATA ID", dataId.toString())
+                ?: throw Exception("Data id not found")
+//            Log.e("DATA ID", dataId.toString())
 
-            if (dataId == null) {
-                throw Exception("Data id not found")
-            }
             val sources = repo.getSources(dataId).result
-            Log.e("Sources", sources.toString())
+//            Log.e("Sources", sources.toString())
             val links = sources.map {
                 val title = it.title
                 val link = repo.getSource(it.id).result.url
-                Log.e("link", link)
+//                Log.e("link", link)
                 val decodedLink = decodeLink(link)
                 Source(
                     source = title,
@@ -46,7 +45,7 @@ class VidsrcUseCase @Inject constructor(
                 )
 
             }
-            Log.e("Links", links.toString())
+//            Log.e("Links", links.toString())
             emit(emptyList())
 
         } catch (e: Exception) {
@@ -56,7 +55,7 @@ class VidsrcUseCase @Inject constructor(
     }
 
     private fun decodeLink(link: String) : String{
-        Log.e("Link", link)
+//        Log.e("Link", link)
         val newLink = link.replace("_", "/").replace("-", "+").decodeBase64()?.toByteArray()
             ?: throw Exception("can't decode link")
         val keyBytes = key.toByteArray()
@@ -77,7 +76,14 @@ class VidsrcUseCase @Inject constructor(
             decoded[index] = newLink[index] xor s[t]
         }
         val url = URLDecoder.decode(String(decoded, Charsets.UTF_8))
-        Log.e("Decoded", url)
+
+        if (url.contains("vidplay")) {
+            Vidplay().resolveSource(url)
+        } else if (url.contains("filemoon")) {
+            Log.e("Filemoon", url )
+        }
+
+//        Log.e("Decoded", url)
 //        TODO("the links are good i only need to extract videos from them now")
         return url
     }
