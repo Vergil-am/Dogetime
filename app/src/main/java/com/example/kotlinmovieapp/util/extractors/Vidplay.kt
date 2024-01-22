@@ -3,12 +3,17 @@ package com.example.kotlinmovieapp.util.extractors
 import android.util.Base64
 import android.util.Log
 import com.example.kotlinmovieapp.util.Utils
+import com.google.gson.Gson
+import com.google.gson.GsonBuilder
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.converter.scalars.ScalarsConverterFactory
 import retrofit2.http.GET
 import retrofit2.http.Header
+import retrofit2.http.Path
+import retrofit2.http.Query
+import retrofit2.http.Url
 
 class Vidplay {
     private val keyUrl = "https://raw.githubusercontent.com/Ciarands/vidsrc-keys/main/"
@@ -23,21 +28,42 @@ class Vidplay {
         Retrofit.Builder().baseUrl(keyUrl).addConverterFactory(GsonConverterFactory.create())
             .build().create(KeysAPI::class.java)
 
-    interface TokenAPI {
+    interface VidplayAPI {
         @GET("/futoken")
         suspend fun getFutoken(
             @Header("Referer") referer: String
         ): Response<String>
+
+        @GET
+        suspend fun getVideo(
+            @Url url: String
+//            @Path("token") token: String,
+//            @Header("Referer") referer: String,
+//            @Query("query") query: String
+        ): Response<String>
     }
 
-    private val tokenAPI: TokenAPI = Retrofit.Builder().baseUrl(providerUrl)
-        .addConverterFactory(ScalarsConverterFactory.create()).build().create(TokenAPI::class.java)
+    private val vidplayAPI: VidplayAPI =
+        Retrofit.Builder().baseUrl(providerUrl)
+//            .addConverterFactory(GsonConverterFactory.create(GsonBuilder().setLenient().create()))
+            .addConverterFactory(ScalarsConverterFactory.create()).build()
+            .create(VidplayAPI::class.java)
 
     suspend fun resolveSource(url: String) {
         val urlData = url.split("?")
         val key = encodeId(urlData[0].split("/e/").last())
-        Log.e("key", key)
-        getFuToken(key = key, url = url)
+        val token = getFuToken(key = key, url = url)
+        Log.e("Token", token)
+        val newUrl = "${providerUrl}/mediainfo/${token}?${urlData[1]}&autostart=true"
+        // It is working
+        Log.e("New url", newUrl)
+//        TODO("I need to make a request to get the video file")
+        getFile(newUrl)
+        // I need to parse subtitles too
+//        TODO("I need to get subtitles")
+        getSubtitles()
+
+
     }
 
     private suspend fun encodeId(id: String): String {
@@ -59,14 +85,31 @@ class Vidplay {
         return encodedBase64.replace("/", "_")
     }
 
-    private suspend fun getFuToken(key: String, url: String) {
-       val res = tokenAPI.getFutoken(url)
+    private suspend fun getFuToken(key: String, url: String): String {
+        val res = vidplayAPI.getFutoken(url)
         val regex = Regex("var\\s+k\\s*=\\s*'([^']+)'")
         val matchResult = res.body()?.let { regex.find(it) }
-        val fukey = matchResult?.groupValues?.get(1)
-        if (fukey != null) {
-            Log.e("fukey", fukey)
+        val fukey = matchResult?.groupValues?.get(1) ?: throw Exception("can't get token")
+        val result = StringBuilder()
+        result.append(fukey)
+        val encodedValues = key.indices.map { i ->
+            (fukey[i % fukey.length].code + key[i].code).toString()
         }
+        result.append(",").append(encodedValues.joinToString(",")).toString()
+        // This might wrong there is an extra number at the end
+        return result.toString()
     }
+
+    private fun getSubtitles() {}
+
+    private suspend fun getFile(url: String) {
+        val res = vidplayAPI.getVideo(url)
+
+        val test = Gson().fromJson(res.body(), VidplayFile::class.java)
+        Log.e("Response", res.body().toString())
+        Log.e("Test", test.toString())
+
+    }
+
 
 }
