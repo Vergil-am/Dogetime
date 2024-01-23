@@ -1,18 +1,14 @@
 package com.example.kotlinmovieapp.util.extractors
 
 import android.util.Base64
-import android.util.Log
 import com.example.kotlinmovieapp.util.Utils
 import com.google.gson.Gson
-import com.google.gson.GsonBuilder
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.converter.scalars.ScalarsConverterFactory
 import retrofit2.http.GET
 import retrofit2.http.Header
-import retrofit2.http.Path
-import retrofit2.http.Query
 import retrofit2.http.Url
 
 class Vidplay {
@@ -53,14 +49,12 @@ class Vidplay {
         val urlData = url.split("?")
         val key = encodeId(urlData[0].split("/e/").last())
         val token = getFuToken(key = key, url = url)
-        Log.e("Token", token)
+//        Log.e("Token", token)
         val newUrl = "${providerUrl}/mediainfo/${token}?${urlData[1]}&autostart=true"
         // It is working
-        Log.e("New url", newUrl)
-//        TODO("I need to make a request to get the video file")
+//        Log.e("New url", newUrl)
         getFile(newUrl)
         // I need to parse subtitles too
-//        TODO("I need to get subtitles")
         getSubtitles()
 
 
@@ -100,14 +94,16 @@ class Vidplay {
         return result.toString()
     }
 
-    private fun getSubtitles() {}
+    private fun getSubtitles() {
+//        TODO("I need to get subtitles ")
+    }
 
     private suspend fun getFile(url: String) {
         val res = vidplayAPI.getVideo(url)
 
         val test = Gson().fromJson(res.body(), VidplayFile::class.java)
-        Log.e("Response", res.body().toString())
-        Log.e("Test", test.toString())
+//        Log.e("Response", res.body().toString())
+//        Log.e("Test", test.toString())
 
     }
 
