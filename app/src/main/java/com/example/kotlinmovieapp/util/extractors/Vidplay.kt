@@ -101,7 +101,9 @@ class Vidplay {
     private suspend fun getFile(url: String) {
         val res = vidplayAPI.getVideo(url)
 
-        val test = Gson().fromJson(res.body(), VidplayFile::class.java)
+//        val test = Gson().fromJson(res.body(), VidplayFile::class.java)
+
+
 //        Log.e("Response", res.body().toString())
 //        Log.e("Test", test.toString())
 

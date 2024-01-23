@@ -32,9 +32,10 @@ class Filemoon {
         Log.e("Match1", match1)
 
 //        TODO("I have no idea how to fix this regex")
-//        val regexPattern2 = Regex("^(.*?}\\);),'(.*?)',(.*?),'(.*?)$")
-//            "^(.*?}\\);),'(.*?)',(.*?),'(.*?)$".toRegex()
-//            Pattern.compile("""^(.*?}\);)\',(.*?),(.*?),'(.*?)$""")
+        val regexPattern2 = "^\\(.*?}\\);\\)',\\(.*?\\),\\(.*?\\),'\\(.*?\\)\$".toRegex()
+
+        Log.e("REgex 2 ", regexPattern2.toString())
+
 //        val match2 = regexPattern2.find(match1)
 //            regexPattern2.matcher(match1)
 
