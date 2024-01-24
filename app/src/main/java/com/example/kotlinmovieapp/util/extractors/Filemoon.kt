@@ -1,6 +1,8 @@
 package com.example.kotlinmovieapp.util.extractors
 
 import android.util.Log
+import dev.datlag.jsunpacker.JsUnpacker
+import org.jsoup.Jsoup
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.scalars.ScalarsConverterFactory
@@ -24,24 +26,16 @@ class Filemoon {
     suspend fun resolveSource(url: String) {
         val res = filemoonAPI.getFilemoon(url)
         if (res.code() != 200) {
-            throw Exception("Failed to get filemoon file")
+            throw Exception("Failed to get filemoon file status code ${res.code()}")
         }
-        val regexPattern1 = """eval\(function\(p,a,c,k,e,d\).*?\}\('(.*?)'\.split""".toRegex()
-        val match1 = res.body()?.let { regexPattern1.find(it) }?.groupValues?.get(1)
-            ?: throw Exception("Failed to retrieve media, could not find eval function..")
-        Log.e("Match1", match1)
+        val doc = res.body()?.let { Jsoup.parse(it) }
+        val jsEval = doc?.selectFirst("script:containsData(eval):containsData(m3u8)")?.data()
+            ?: throw Exception("Failed to get filemoon file script not found")
 
-//        TODO("I have no idea how to fix this regex")
-        val regexPattern2 = "^\\(.*?}\\);\\)',\\(.*?\\),\\(.*?\\),'\\(.*?\\)\$".toRegex()
+        val unpacked = JsUnpacker.unpackAndCombine(jsEval).orEmpty()
+        val masterUrl = unpacked.takeIf(String::isNotBlank)?.substringAfter("{file:\"", "")
+            ?.substringBefore("\"}", "")?.takeIf(String::isNotBlank) // ?: return emptyList()
 
-        Log.e("REgex 2 ", regexPattern2.toString())
-
-//        val match2 = regexPattern2.find(match1)
-//            regexPattern2.matcher(match1)
-
-//        if (match2 != null) {
-//            Log.e("Match2", match2.groupValues.toString())
-//        }
-
+        Log.e("MasterUrl", masterUrl ?: "")
     }
 }

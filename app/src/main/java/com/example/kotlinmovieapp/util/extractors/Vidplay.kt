@@ -12,7 +12,7 @@ import retrofit2.http.Header
 import retrofit2.http.Url
 
 class Vidplay {
-    private val keyUrl = "https://raw.githubusercontent.com/Ciarands/vidsrc-keys/main/"
+    private val keyUrl = "https://raw.githubusercontent.com/KillerDogeEmpire/vidplay-keys/keys/"
     private val providerUrl = "https://vidplay.online"
 
     interface KeysAPI {
@@ -33,15 +33,11 @@ class Vidplay {
         @GET
         suspend fun getVideo(
             @Url url: String
-//            @Path("token") token: String,
-//            @Header("Referer") referer: String,
-//            @Query("query") query: String
         ): Response<String>
     }
 
     private val vidplayAPI: VidplayAPI =
         Retrofit.Builder().baseUrl(providerUrl)
-//            .addConverterFactory(GsonConverterFactory.create(GsonBuilder().setLenient().create()))
             .addConverterFactory(ScalarsConverterFactory.create()).build()
             .create(VidplayAPI::class.java)
 
@@ -49,12 +45,10 @@ class Vidplay {
         val urlData = url.split("?")
         val key = encodeId(urlData[0].split("/e/").last())
         val token = getFuToken(key = key, url = url)
-//        Log.e("Token", token)
         val newUrl = "${providerUrl}/mediainfo/${token}?${urlData[1]}&autostart=true"
-        // It is working
-//        Log.e("New url", newUrl)
-        getFile(newUrl)
-        // I need to parse subtitles too
+        val file = getFile(newUrl)
+
+//        TODO("I need to parse subtitles")
         getSubtitles()
 
 
@@ -71,10 +65,8 @@ class Vidplay {
         if (key1 == null || key2 == null) {
             throw Exception("Could not fetch decryption keys")
         }
-        // These are correct
         val decodedId = Utils().decodeData(key = key1, data = id.toByteArray())
         val encodedResult = Utils().decodeData(key = key2, data = decodedId)
-        // I think this works?
         val encodedBase64 = Base64.encodeToString(encodedResult, Base64.DEFAULT)
         return encodedBase64.replace("/", "_")
     }
@@ -90,7 +82,6 @@ class Vidplay {
             (fukey[i % fukey.length].code + key[i].code).toString()
         }
         result.append(",").append(encodedValues.joinToString(",")).toString()
-        // This might wrong there is an extra number at the end
         return result.toString()
     }
 
@@ -98,14 +89,11 @@ class Vidplay {
 //        TODO("I need to get subtitles ")
     }
 
-    private suspend fun getFile(url: String) {
+    private suspend fun getFile(url: String): VidplayFile {
         val res = vidplayAPI.getVideo(url)
 
-//        val test = Gson().fromJson(res.body(), VidplayFile::class.java)
+        return Gson().fromJson(res.body(), VidplayFile::class.java)
 
-
-//        Log.e("Response", res.body().toString())
-//        Log.e("Test", test.toString())
 
     }
 
