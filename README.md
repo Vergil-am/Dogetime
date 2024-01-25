@@ -10,8 +10,10 @@ The app utilieses TMDB API and webscraping from various websites to ensure acces
 - Browse your favorite media.
 - watchlist.
 - Episode tracking.
+- Dark and light theme support
 
 # What's missing
 - online account.
 - app video player (It opens webview links or external player).
 - anime in external player (currently anime is only available in webview i am working on extracting links).
+- Multi language support.
