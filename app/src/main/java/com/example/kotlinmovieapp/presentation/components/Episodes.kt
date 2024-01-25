@@ -1,5 +1,6 @@
 package com.example.kotlinmovieapp.presentation.components
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -36,7 +37,6 @@ import coil.compose.rememberAsyncImagePainter
 import com.example.kotlinmovieapp.data.local.entities.WatchListMedia
 import com.example.kotlinmovieapp.presentation.details.DetailsViewModel
 import com.example.kotlinmovieapp.util.Constants
-import java.net.URLEncoder
 
 data class SelectedEpisode(
     val season: Int, val episode: Int
@@ -45,7 +45,7 @@ data class SelectedEpisode(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Episodes(
-    season: Int , viewModel: DetailsViewModel, id: Int, navController: NavController
+    season: Int, viewModel: DetailsViewModel, id: Int, navController: NavController
 ) {
 //    Log.e("Episodes", season.episodes.toString())
     val state by viewModel.state.collectAsState()
@@ -64,18 +64,25 @@ fun Episodes(
     Column(
         modifier = Modifier.verticalScroll(rememberScrollState())
     ) {
-
-//        state.season?.episodes?.forEach { episode ->
-//            val url =
-//
-        state.media?.seasons?.get(season)?.episodes?.forEach{episode ->
+        state.media?.seasons?.get(season)?.episodes?.forEach { episode ->
             Card(
                 onClick = {
+                    Log.e(
+                        "URL",
+                        "${Constants.VIDSRC_MULTI}/embed/tv/$id/$season/${episode.episode_number}"
+                    )
+                    viewModel.getVidsrc(
+                        "${Constants.VIDSRC_MULTI}/embed/tv/$id/$season/${episode.episode_number}",
+                        id = id,
+                        type = "show",
+                        episode = episode.episode_number,
+                        season = season
+                    )
                     viewModel.addToWatchList(
                         WatchListMedia(
                             id = id.toString(),
                             list = "watching",
-                            season = season ,
+                            season = season,
                             episode = episode.episode_number,
                             poster = state.media?.poster ?: "",
                             title = state.media?.title ?: "",
@@ -84,7 +91,7 @@ fun Episodes(
                     )
                     opened = true
                     selected = SelectedEpisode(
-                        season = season , episode = episode.episode_number
+                        season = season, episode = episode.episode_number
                     )
                 },
                 modifier = Modifier
@@ -141,7 +148,7 @@ fun Episodes(
                     val progressSeason = state.watchList?.season
                     val progressEpisode = state.watchList?.episode
                     if (progressEpisode != null && progressSeason != null) {
-                        if (progressSeason > season ) {
+                        if (progressSeason > season) {
                             WatchedIndicator()
                         } else if (progressSeason == season && progressEpisode >= episode.episode_number) {
                             WatchedIndicator()
@@ -168,12 +175,15 @@ fun Episodes(
                     textAlign = TextAlign.Center,
                     style = MaterialTheme.typography.titleLarge
                 )
-                Source(source = "FHD 1080p", info = "Progress", link = URLEncoder.encode(
-                    "${Constants.VIDSRC_FHD}/tv/$id/${selected.season}/${selected.episode}?ds_langs=en,fr,ar"
-                ), navController = navController, onClick = { opened = false })
-                Source(source = "Multi quality", info = "No progress", link = URLEncoder.encode(
-                    "${Constants.VIDSRC_MULTI}/embed/tv/$id/${selected.season}/${selected.episode}"
-                ), navController = navController, onClick = { opened = false })
+                state.movieSources.forEach {
+                    Source(source = it.source,
+                        link = it.url,
+                        info = it.label,
+                        navController = navController,
+                        onClick = {
+                            opened = false
+                        })
+                }
 
             }
         }

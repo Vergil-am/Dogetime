@@ -10,12 +10,8 @@ import javax.inject.Inject
 class VidsrcToRepoImplementation @Inject constructor(
     private val vidsrc: VidsrcToAPI
 ) : VidsrcToRepository {
-    override suspend fun getMovie(id: Int): Response<String> {
-        return vidsrc.getMovie(id)
-    }
-
-    override suspend fun getTV(id: Int, season: Int, episode: Int): Response<String> {
-        return vidsrc.getTV(id, season, episode)
+    override suspend fun getMovie(url: String): Response<String> {
+        return vidsrc.getMovie(url)
     }
 
     override suspend fun getSources(dataId: String): VidSrcSources {

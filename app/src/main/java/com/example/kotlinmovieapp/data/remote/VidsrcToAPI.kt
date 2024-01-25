@@ -5,16 +5,12 @@ import com.example.kotlinmovieapp.domain.model.VidsrcSource
 import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.Path
+import retrofit2.http.Url
 
 interface VidsrcToAPI {
-    @GET("embed/movie/{id}")
+    @GET
     suspend fun getMovie(
-        @Path("id") id: Int
-    ): Response<String>
-
-    @GET("embed/movie/{id}/{season}/{episode}")
-    suspend fun getTV(
-        @Path("id") id: Int, @Path("season") season: Int, @Path("episode") episode: Int
+        @Url url: String
     ): Response<String>
 
     @GET("ajax/embed/episode/{dataId}/sources")

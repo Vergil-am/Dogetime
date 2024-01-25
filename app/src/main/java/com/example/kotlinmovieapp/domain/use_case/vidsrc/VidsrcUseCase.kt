@@ -18,9 +18,9 @@ class VidsrcUseCase @Inject constructor(
     private val repo: VidsrcToRepository
 ) {
     private val key = "8z5Ag5wgagfsOuhz"
-    fun getSources(id: Int): Flow<List<Source>> = flow {
+    fun getSources(url: String): Flow<List<Source>> = flow {
         try {
-            val res = repo.getMovie(id).body() ?: throw Exception("no response body")
+            val res = repo.getMovie(url).body() ?: throw Exception("no response body")
             val doc = Jsoup.parse(res)
             val dataId = doc.selectFirst("a[data-id]")?.attr("data-id")
                 ?: throw Exception("Data id not found")

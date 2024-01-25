@@ -55,8 +55,7 @@ fun Search(
                 }),
                 trailingIcon = {
                     Icon(
-                        imageVector = Icons.Outlined.Search,
-                        contentDescription = "Search Icon"
+                        imageVector = Icons.Outlined.Search, contentDescription = "Search Icon"
                     )
                 },
                 modifier = Modifier

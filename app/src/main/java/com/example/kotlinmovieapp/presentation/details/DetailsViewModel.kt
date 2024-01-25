@@ -53,7 +53,6 @@ class DetailsViewModel @Inject constructor(
                 is Resource.Error -> _state.value =
                     _state.value.copy(isLoading = false, media = null)
             }
-//            _state.value = _state.value.copy(media = it)
         }.launchIn(viewModelScope)
 
 
@@ -74,15 +73,8 @@ class DetailsViewModel @Inject constructor(
                 is Resource.Error -> _state.value =
                     _state.value.copy(isLoading = false, media = null)
             }
-//            _state.value = _state.value.copy(media = it)
         }.launchIn(viewModelScope)
     }
-
-//    fun getSeason(id: Int, season: Int) {
-//        getMovieUseCase.getSeason(id, season).onEach {
-////            _state.value = _state.value.copy(season = it)
-//        }.launchIn(viewModelScope)
-//    }
 
 
     // WatchList
@@ -114,10 +106,6 @@ class DetailsViewModel @Inject constructor(
                     TODO()
                 }
             }
-//            _state.value = _state.value.copy(
-//                media = it.data.details,
-//                animeEpisodes = it.episodes,
-//            )
         }.launchIn(viewModelScope)
 
 
@@ -138,25 +126,41 @@ class DetailsViewModel @Inject constructor(
         _state.value = _state.value.copy(watchList = null)
     }
 
-    fun getVidsrc(id: Int?) {
+    fun getVidsrc(url: String, id: Int?, type: String, episode: Int?, season: Int?) {
         if (id != null) {
-            vidsrc.getSources(id).onEach {
-                _state.value = _state.value.copy(movieSources = it.plus(
-                    Source(
-                        source =  "vidsrc",
-                        url = "${Constants.VIDSRC_FHD}/movie/$id?ds_langs=en,ar,fr",
-                        quality = "1080p",
-                        label = "webview"
+            vidsrc.getSources(url).onEach {
+
+
+                _state.value = _state.value.copy(
+                    movieSources = it.plus(
+                        Source(
+                            source = "vidsrc", url = when (type) {
+                                "movie" -> {
+                                    "${Constants.VIDSRC_FHD}/movie/$id?ds_langs=en,ar,fr"
+                                }
+
+                                "show" -> {
+                                    "${Constants.VIDSRC_FHD}/tv/$id/$season/$episode?ds_langs=en,ar,fr"
+                                }
+                                else -> ""
+                            }, quality = "1080p", label = "webview"
+                        )
+                    ).plus(
+                        Source(
+                            source = "vidsrc", url = when (type) {
+                                "movie" -> {
+                                    "${Constants.VIDSRC_MULTI}/embed/movie/$id"
+                                }
+
+                                "show" -> {
+                                    "${Constants.VIDSRC_MULTI}/embed/tv/$id/$season/$episode"
+                                }
+
+                                else -> ""
+                            }, quality = "mutli", label = "webview"
+                        )
                     )
-                ).plus(
-                    Source(
-                        source =  "vidsrc",
-                        url = "${Constants.VIDSRC_MULTI}/embed/movie/$id?ds_langs=en,ar,fr",
-                        quality = "mutli",
-                        label = "webview"
-                    )
-                ))
-//                Log.e("Vidsrc", it.toString())
+                )
             }.launchIn(viewModelScope)
         }
     }

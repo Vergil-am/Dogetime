@@ -7,11 +7,7 @@ import retrofit2.Response
 interface VidsrcToRepository {
 
     suspend fun getMovie(
-        id: Int
-    ): Response<String>
-
-    suspend fun getTV(
-        id: Int, season: Int, episode: Int
+        url: String
     ): Response<String>
 
     suspend fun getSources(

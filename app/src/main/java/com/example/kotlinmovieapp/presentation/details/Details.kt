@@ -34,6 +34,7 @@ import androidx.navigation.NavController
 import com.example.kotlinmovieapp.data.local.entities.WatchListMedia
 import com.example.kotlinmovieapp.presentation.components.DetailsHeader
 import com.example.kotlinmovieapp.presentation.components.Source
+import com.example.kotlinmovieapp.util.Constants
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -43,8 +44,15 @@ fun Details(
     val state by viewModel.state.collectAsState()
     LaunchedEffect(key1 = id) {
         viewModel.getMedia(type = type, id = id)
-//        VidsrcTO().getStreams("${Constants.VIDSRC_MULTI}/embed/movie/$id")
-        viewModel.getVidsrc(id.toIntOrNull())
+        if (type == "movie") {
+            viewModel.getVidsrc(
+                "${Constants.VIDSRC_MULTI}/embed/movie/$id",
+                id = id.toIntOrNull(),
+                type = type,
+                episode = null,
+                season = null
+            )
+        }
     }
     val addToWatchList: (media: WatchListMedia) -> Unit = {
         viewModel.addToWatchList(it)
@@ -61,87 +69,85 @@ fun Details(
 
     when (state.isLoading) {
         true -> Text(text = "Loading ...")
-        false ->
-            Scaffold(floatingActionButton = {
-                ExtendedFloatingActionButton(
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    onClick = {
-                        when (type) {
-                            "movie" -> {
-                                opened = true
-                            }
-
-                            "show" -> navController.navigate("show/seasons/$id")
-                            "anime" -> navController.navigate("anime/episodes/$id")
+        false -> Scaffold(floatingActionButton = {
+            ExtendedFloatingActionButton(containerColor = MaterialTheme.colorScheme.primary,
+                onClick = {
+                    when (type) {
+                        "movie" -> {
+                            opened = true
                         }
-                    }) {
-                    Icon(imageVector = Icons.Filled.PlayArrow, contentDescription = "play")
-                    Text(text = "Watch")
-                }
-            }) { paddingValues ->
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .verticalScroll(rememberScrollState())
-                        .padding(paddingValues), verticalArrangement = Arrangement.Top
+
+                        "show" -> navController.navigate("show/seasons/$id")
+                        "anime" -> navController.navigate("anime/episodes/$id")
+                    }
+                }) {
+                Icon(imageVector = Icons.Filled.PlayArrow, contentDescription = "play")
+                Text(text = "Watch")
+            }
+        }) { paddingValues ->
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState())
+                    .padding(paddingValues), verticalArrangement = Arrangement.Top
 
 
-                ) {
-                    media?.let {
-                        DetailsHeader(
-                            backDrop = media.backdrop,
-                            title = media.title,
-                            poster = media.poster,
-                            status = media.status,
-                            id = media.id,
-                            type = media.type,
-                            watchList = if (state.watchList?.id == id) {
-                                state.watchList
-                            } else {
-                                null
-                            },
-                            addToWatchList = addToWatchList,
-                            deleteFromList = deleteFromList
-                        )
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(20.dp),
-                            horizontalArrangement = Arrangement.SpaceBetween
-                        ) {
-                            Text(text = "Movie")
-                            Text(text = it.releaseDate.split("-")[0])
-                            Text(text = "${it.runtime} min")
-                            Text(text = it.rating.toString().format("%.f"))
-                        }
-                        if (it.tagline != null) {
-                            Text(
-                                text = it.tagline,
-                                style = MaterialTheme.typography.headlineSmall,
-                                textAlign = TextAlign.Center,
-                                modifier = Modifier.fillMaxWidth()
-
-                            )
-                        }
+            ) {
+                media?.let {
+                    DetailsHeader(
+                        backDrop = media.backdrop,
+                        title = media.title,
+                        poster = media.poster,
+                        status = media.status,
+                        id = media.id,
+                        type = media.type,
+                        watchList = if (state.watchList?.id == id) {
+                            state.watchList
+                        } else {
+                            null
+                        },
+                        addToWatchList = addToWatchList,
+                        deleteFromList = deleteFromList
+                    )
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(20.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text(text = "Movie")
+                        Text(text = it.releaseDate.split("-")[0])
+                        Text(text = "${it.runtime} min")
+                        Text(text = it.rating.toString().format("%.f"))
+                    }
+                    if (it.tagline != null) {
                         Text(
-                            text = it.overview, modifier = Modifier.padding(10.dp)
-                        )
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .wrapContentWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            text = it.tagline,
+                            style = MaterialTheme.typography.headlineSmall,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.fillMaxWidth()
 
-                        ) {
-                            it.genres.forEach { genre ->
-                                ElevatedSuggestionChip(onClick = {}, label = { Text(text = genre) })
-                            }
+                        )
+                    }
+                    Text(
+                        text = it.overview, modifier = Modifier.padding(10.dp)
+                    )
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .wrapContentWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+
+                    ) {
+                        it.genres.forEach { genre ->
+                            ElevatedSuggestionChip(onClick = {}, label = { Text(text = genre) })
                         }
                     }
                 }
-
-
             }
+
+
+        }
     }
 
     if (opened) {
