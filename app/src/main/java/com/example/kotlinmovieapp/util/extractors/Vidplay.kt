@@ -41,15 +41,16 @@ class Vidplay {
             .addConverterFactory(ScalarsConverterFactory.create()).build()
             .create(VidplayAPI::class.java)
 
-    suspend fun resolveSource(url: String) {
+    suspend fun resolveSource(url: String) : VidplayFile {
         val urlData = url.split("?")
         val key = encodeId(urlData[0].split("/e/").last())
         val token = getFuToken(key = key, url = url)
         val newUrl = "${providerUrl}/mediainfo/${token}?${urlData[1]}&autostart=true"
-        val file = getFile(newUrl)
+        return getFile(newUrl)
+
 
 //        TODO("I need to parse subtitles")
-        getSubtitles()
+//        getSubtitles()
 
 
     }

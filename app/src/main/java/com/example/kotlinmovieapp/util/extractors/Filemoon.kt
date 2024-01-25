@@ -23,7 +23,7 @@ class Filemoon {
         .addConverterFactory(ScalarsConverterFactory.create()).build()
         .create(FilemoonAPI::class.java)
 
-    suspend fun resolveSource(url: String) {
+    suspend fun resolveSource(url: String): String {
         val res = filemoonAPI.getFilemoon(url)
         if (res.code() != 200) {
             throw Exception("Failed to get filemoon file status code ${res.code()}")
@@ -33,9 +33,11 @@ class Filemoon {
             ?: throw Exception("Failed to get filemoon file script not found")
 
         val unpacked = JsUnpacker.unpackAndCombine(jsEval).orEmpty()
-        val masterUrl = unpacked.takeIf(String::isNotBlank)?.substringAfter("{file:\"", "")
-            ?.substringBefore("\"}", "")?.takeIf(String::isNotBlank) // ?: return emptyList()
 
-        Log.e("MasterUrl", masterUrl ?: "")
+        val masterUrl = unpacked.takeIf(String::isNotBlank)?.substringAfter("{file:\"", "")
+            ?.substringBefore("\"}", "")?.takeIf(String::isNotBlank)
+            ?: throw Exception("could not get filemoon file")
+        Log.e("MasterUrl", masterUrl)
+        return masterUrl
     }
 }

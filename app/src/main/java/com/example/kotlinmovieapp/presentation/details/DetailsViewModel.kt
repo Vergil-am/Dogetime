@@ -4,10 +4,12 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.kotlinmovieapp.data.local.entities.WatchListMedia
+import com.example.kotlinmovieapp.domain.model.Source
 import com.example.kotlinmovieapp.domain.use_case.anime4up.Anime4upUseCase
 import com.example.kotlinmovieapp.domain.use_case.movies.get_movie.GetMovieUseCase
 import com.example.kotlinmovieapp.domain.use_case.vidsrc.VidsrcUseCase
 import com.example.kotlinmovieapp.domain.use_case.watchlist.WatchListUseCase
+import com.example.kotlinmovieapp.util.Constants
 import com.example.kotlinmovieapp.util.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -138,7 +140,24 @@ class DetailsViewModel @Inject constructor(
 
     fun getVidsrc(id: Int?) {
         if (id != null) {
-            vidsrc.getSources(id).launchIn(viewModelScope)
+            vidsrc.getSources(id).onEach {
+                _state.value = _state.value.copy(movieSources = it.plus(
+                    Source(
+                        source =  "vidsrc",
+                        url = "${Constants.VIDSRC_FHD}/movie/$id?ds_langs=en,ar,fr",
+                        quality = "1080p",
+                        label = "webview"
+                    )
+                ).plus(
+                    Source(
+                        source =  "vidsrc",
+                        url = "${Constants.VIDSRC_MULTI}/embed/movie/$id?ds_langs=en,ar,fr",
+                        quality = "mutli",
+                        label = "webview"
+                    )
+                ))
+//                Log.e("Vidsrc", it.toString())
+            }.launchIn(viewModelScope)
         }
     }
 }

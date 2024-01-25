@@ -2,7 +2,6 @@ package com.example.kotlinmovieapp.domain.use_case.vidsrc
 
 import android.util.Log
 import com.example.kotlinmovieapp.domain.model.Source
-import com.example.kotlinmovieapp.domain.model.VidsrcSourcesResult
 import com.example.kotlinmovieapp.domain.repository.VidsrcToRepository
 import com.example.kotlinmovieapp.util.Utils
 import com.example.kotlinmovieapp.util.extractors.Filemoon
@@ -19,7 +18,7 @@ class VidsrcUseCase @Inject constructor(
     private val repo: VidsrcToRepository
 ) {
     private val key = "8z5Ag5wgagfsOuhz"
-    fun getSources(id: Int): Flow<List<VidsrcSourcesResult>> = flow {
+    fun getSources(id: Int): Flow<List<Source>> = flow {
         try {
             val res = repo.getMovie(id).body() ?: throw Exception("no response body")
             val doc = Jsoup.parse(res)
@@ -27,33 +26,58 @@ class VidsrcUseCase @Inject constructor(
                 ?: throw Exception("Data id not found")
 
             val sources = repo.getSources(dataId).result
-            val links = sources.map {
+            val result = mutableListOf<Source>()
+
+            sources.map {
                 val title = it.title
                 val link = repo.getSource(it.id).result.url
                 val newLink = link.replace("_", "/").replace("-", "+").decodeBase64()?.toByteArray()
                     ?: throw Exception("can't decode link")
                 val decodedLink = URLDecoder.decode(
                     String(
-                        Utils().decodeData(data = newLink, key = key),
-                        Charsets.UTF_8
+                        Utils().decodeData(data = newLink, key = key), Charsets.UTF_8
                     )
                 )
                 if (decodedLink.contains("vidplay")) {
-                    Vidplay().resolveSource(decodedLink)
+                    try {
+                        val vidplay = Vidplay().resolveSource(decodedLink)
+                        result.add(
+                            Source(
+                                source = title,
+                                url = vidplay.result.sources[0].file,
+                                quality = "multi",
+                                label = "external"
+                            )
+                        )
+                    } catch (_: Exception){
+
+                    }
+
+
+
                 } else if (decodedLink.contains("filemoon")) {
-                    Filemoon().resolveSource(decodedLink)
+                    try {
+
+                        val filemoon = Filemoon().resolveSource(decodedLink)
+                        result.add(
+                            Source(
+                                source = title,
+                                url = filemoon,
+                                quality = "1080p",
+                                label = "external"
+                            )
+                        )
+                    } catch (_: Exception) {
+
+                    }
+                } else {
+//                    TODO()
                 }
-                Source(
-                    source = title, url = decodedLink, quality = if (title == "Vidplay") {
-                        "Multi"
-                    } else {
-                        "1080p"
-                    }, label = "FHD"
-                )
+
 
             }
-            Log.e("Sources", links.toString())
-            emit(emptyList())
+            Log.e("Sources", result.toString())
+            emit(result)
 
         } catch (e: Exception) {
             e.printStackTrace()

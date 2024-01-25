@@ -34,8 +34,6 @@ import androidx.navigation.NavController
 import com.example.kotlinmovieapp.data.local.entities.WatchListMedia
 import com.example.kotlinmovieapp.presentation.components.DetailsHeader
 import com.example.kotlinmovieapp.presentation.components.Source
-import com.example.kotlinmovieapp.util.Constants
-import java.net.URLEncoder
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -161,16 +159,28 @@ fun Details(
                     textAlign = TextAlign.Center,
                     style = MaterialTheme.typography.titleLarge
                 )
-                Source(source = "FHD 1080p",
-                    link = URLEncoder.encode("${Constants.VIDSRC_FHD}/movie/$id?ds_langs=en,ar,fr"),
-                    info = "Progress",
-                    navController = navController,
-                    onClick = { opened = false })
-                Source(source = "Multi quality",
-                    info = "No progress",
-                    link = URLEncoder.encode("${Constants.VIDSRC_MULTI}/embed/movie/$id"),
-                    navController = navController,
-                    onClick = { opened = false })
+                state.movieSources.onEach {
+                    Source(source = it.source,
+                        link = it.url,
+                        info = it.label,
+                        navController = navController,
+                        onClick = {
+                            opened = false
+
+                        })
+                }
+
+
+//                Source(source = "FHD 1080p",
+//                    link = URLEncoder.encode("${Constants.VIDSRC_FHD}/movie/$id?ds_langs=en,ar,fr"),
+//                    info = "Progress",
+//                    navController = navController,
+//                    onClick = { opened = false })
+//                Source(source = "Multi quality",
+//                    info = "No progress",
+//                    link = URLEncoder.encode("${Constants.VIDSRC_MULTI}/embed/movie/$id"),
+//                    navController = navController,
+//                    onClick = { opened = false })
 
             }
         }
