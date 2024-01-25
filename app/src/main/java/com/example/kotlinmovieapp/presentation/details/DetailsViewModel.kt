@@ -127,10 +127,9 @@ class DetailsViewModel @Inject constructor(
     }
 
     fun getVidsrc(url: String, id: Int?, type: String, episode: Int?, season: Int?) {
+       _state.value = _state.value.copy(movieSources = emptyList())
         if (id != null) {
             vidsrc.getSources(url).onEach {
-
-
                 _state.value = _state.value.copy(
                     movieSources = it.plus(
                         Source(

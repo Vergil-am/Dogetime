@@ -32,7 +32,7 @@ fun ShowSeasons(
 ) {
     val seasons = viewModel.state.collectAsState().value.media?.seasons
     var selectedTab by remember { mutableIntStateOf(0) }
-    if (seasons != null) {
+    if (!seasons.isNullOrEmpty()) {
         val pagerState = rememberPagerState(
             pageCount = { seasons.count() }
         )
@@ -42,15 +42,14 @@ fun ShowSeasons(
         LaunchedEffect(pagerState.currentPage) {
             selectedTab = pagerState.currentPage
         }
-        Column (
+        Column(
             modifier = Modifier.fillMaxSize()
         ) {
 
             ScrollableTabRow(
                 selectedTabIndex = selectedTab,
                 modifier = Modifier
-                    .fillMaxWidth()
-                ,
+                    .fillMaxWidth(),
 
                 ) {
                 seasons.forEachIndexed { index, season ->
@@ -74,7 +73,7 @@ fun ShowSeasons(
                     modifier = Modifier.fillMaxSize()
                 ) {
                     Episodes(
-                        season = seasons[page].season_number,
+                        season = page,
                         viewModel,
                         id,
                         navController
@@ -84,8 +83,7 @@ fun ShowSeasons(
             }
         }
     }
-
-
-
-
 }
+
+
+//}

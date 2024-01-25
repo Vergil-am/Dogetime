@@ -1,6 +1,5 @@
 package com.example.kotlinmovieapp.presentation.components
 
-import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -21,7 +20,6 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -56,137 +54,142 @@ fun Episodes(
     var selected by remember {
         mutableStateOf(SelectedEpisode(season = 1, episode = 1))
     }
-    LaunchedEffect(key1 = season, key2 = id) {
-//        viewModel.getSeason(id, season.season_number)
-    }
+//    LaunchedEffect(key1 = season, key2 = id) {
+////        viewModel.getSeason(id, season.season_number)
+//    }
 
 
     Column(
         modifier = Modifier.verticalScroll(rememberScrollState())
     ) {
-        state.media?.seasons?.get(season)?.episodes?.forEach { episode ->
-            Card(
-                onClick = {
-                    Log.e(
-                        "URL",
-                        "${Constants.VIDSRC_MULTI}/embed/tv/$id/$season/${episode.episode_number}"
-                    )
-                    viewModel.getVidsrc(
-                        "${Constants.VIDSRC_MULTI}/embed/tv/$id/$season/${episode.episode_number}",
-                        id = id,
-                        type = "show",
-                        episode = episode.episode_number,
-                        season = season
-                    )
-                    viewModel.addToWatchList(
-                        WatchListMedia(
-                            id = id.toString(),
-                            list = "watching",
-                            season = season,
+        if (!state.media?.seasons.isNullOrEmpty()) {
+            state.media?.seasons?.get(season)?.episodes?.forEach { episode ->
+                Card(
+                    onClick = {
+                        viewModel.getVidsrc(
+                            "${Constants.VIDSRC_MULTI}/embed/tv/$id/$season/${episode.episode_number}",
+                            id = id,
+                            type = "show",
                             episode = episode.episode_number,
-                            poster = state.media?.poster ?: "",
-                            title = state.media?.title ?: "",
-                            type = "show"
+                            season = season
                         )
-                    )
-                    opened = true
-                    selected = SelectedEpisode(
-                        season = season, episode = episode.episode_number
-                    )
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(120.dp)
-                    .padding(10.dp),
-            ) {
-                Box(modifier = Modifier.fillMaxSize()) {
-                    Row {
-                        Box(
-                            modifier = Modifier.width(180.dp)
-                        ) {
-                            Image(
-                                alignment = Alignment.TopStart,
-                                modifier = Modifier.fillMaxSize(),
-                                painter = rememberAsyncImagePainter(
-                                    model = "${Constants.IMAGE_BASE_URL}/w200${episode.still_path}"
-                                ),
-                                contentDescription = "Episode ${episode.episode_number}"
+                        viewModel.addToWatchList(
+                            WatchListMedia(
+                                id = id.toString(),
+                                list = "watching",
+                                season = season,
+                                episode = episode.episode_number,
+                                poster = state.media?.poster ?: "",
+                                title = state.media?.title ?: "",
+                                type = "show"
                             )
+                        )
+                        opened = true
+                        selected = SelectedEpisode(
+                            season = season, episode = episode.episode_number
+                        )
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(120.dp)
+                        .padding(10.dp),
+                ) {
+                    Box(modifier = Modifier.fillMaxSize()) {
+                        Row {
                             Box(
-                                modifier = Modifier
-                                    .align(Alignment.BottomEnd)
-                                    .background(Color.Black)
-
+                                modifier = Modifier.width(180.dp)
                             ) {
-                                Text(text = "EP ${episode.episode_number}")
-                            }
-                        }
+                                Image(
+                                    alignment = Alignment.TopStart,
+                                    modifier = Modifier.fillMaxSize(),
+                                    painter = rememberAsyncImagePainter(
+                                        model = "${Constants.IMAGE_BASE_URL}/w200${episode.still_path}"
+                                    ),
+                                    contentDescription = "Episode ${episode.episode_number}"
+                                )
+                                Box(
+                                    modifier = Modifier
+                                        .align(Alignment.BottomEnd)
+                                        .background(Color.Black)
 
-                        Column(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .padding(10.dp),
-                            verticalArrangement = Arrangement.SpaceBetween,
-                        ) {
-                            episode.name?.let { Text(text = it) }
-                            episode.air_date?.let {
+                                ) {
+                                    Text(text = "EP ${episode.episode_number}")
+                                }
+                            }
+
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .padding(10.dp),
+                                verticalArrangement = Arrangement.SpaceBetween,
+                            ) {
+                                episode.name?.let { Text(text = it) }
+                                episode.air_date?.let {
+                                    Text(
+                                        text = it,
+                                        modifier = Modifier.fillMaxWidth(),
+                                        textAlign = TextAlign.End
+
+                                    )
+                                }
                                 Text(
-                                    text = it,
+                                    text = "${episode.runtime} min",
                                     modifier = Modifier.fillMaxWidth(),
                                     textAlign = TextAlign.End
-
                                 )
+
                             }
-                            Text(
-                                text = "${episode.runtime} min",
-                                modifier = Modifier.fillMaxWidth(),
-                                textAlign = TextAlign.End
-                            )
-
                         }
-                    }
-                    val progressSeason = state.watchList?.season
-                    val progressEpisode = state.watchList?.episode
-                    if (progressEpisode != null && progressSeason != null) {
-                        if (progressSeason > season) {
-                            WatchedIndicator()
-                        } else if (progressSeason == season && progressEpisode >= episode.episode_number) {
-                            WatchedIndicator()
+                        val progressSeason = state.watchList?.season
+                        val progressEpisode = state.watchList?.episode
+                        if (progressEpisode != null && progressSeason != null) {
+                            if (progressSeason > season) {
+                                WatchedIndicator()
+                            } else if (progressSeason == season && progressEpisode >= episode.episode_number) {
+                                WatchedIndicator()
+                            }
                         }
-                    }
 
+                    }
                 }
+
             }
-
         }
-    }
-    if (opened) {
-        ModalBottomSheet(
-            onDismissRequest = { opened = false }, sheetState = rememberModalBottomSheetState()
-        ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .verticalScroll(rememberScrollState())
+        if (opened) {
+            ModalBottomSheet(
+                onDismissRequest = { opened = false }, sheetState = rememberModalBottomSheetState()
             ) {
-                Text(
-                    text = "SELECT SOURCE",
-                    modifier = Modifier.fillMaxWidth(),
-                    textAlign = TextAlign.Center,
-                    style = MaterialTheme.typography.titleLarge
-                )
-                state.movieSources.forEach {
-                    Source(source = it.source,
-                        link = it.url,
-                        info = it.label,
-                        navController = navController,
-                        onClick = {
-                            opened = false
-                        })
-                }
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .verticalScroll(rememberScrollState())
+                ) {
+                    Text(
+                        text = "SELECT SOURCE",
+                        modifier = Modifier.fillMaxWidth(),
+                        textAlign = TextAlign.Center,
+                        style = MaterialTheme.typography.titleLarge
+                    )
+                    if (state.movieSources.isEmpty()) {
+                        Text(text = "Sorry no sources available",
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.fillMaxWidth()
+                            )
+                    } else {
+                        state.movieSources.forEach {
+                            Source(source = it.source,
+                                link = it.url,
+                                info = it.label,
+                                navController = navController,
+                                onClick = {
+                                    opened = false
+                                })
+                        }
+                    }
 
+
+                }
             }
         }
     }
 }
-
