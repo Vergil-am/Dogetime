@@ -7,6 +7,7 @@ import com.example.kotlinmovieapp.domain.model.OkanimeEpisode
 import com.example.kotlinmovieapp.domain.model.VideoLinks
 import com.example.kotlinmovieapp.domain.repository.Anime4upRepository
 import com.example.kotlinmovieapp.util.Resource
+import com.example.kotlinmovieapp.util.extractors.Mp4upload
 import com.example.kotlinmovieapp.util.parseAnime
 import com.google.gson.Gson
 import kotlinx.coroutines.flow.Flow
@@ -105,6 +106,18 @@ class Anime4upUseCase @Inject constructor(
             val base64 = Jsoup.parse(doc).selectFirst("input[name=wl]")?.attr("value")
             val sources = String(Base64.decode(base64, Base64.DEFAULT))
             val videoLinks: VideoLinks = Gson().fromJson(sources, VideoLinks::class.java)
+
+//        TODO()
+            videoLinks.fhd?.entries?.map {
+                if (it.key == "Mp4upload") {
+                    Mp4upload().videoFromUrl(it.value)
+                }
+            }
+            videoLinks.hd?.entries?.map {
+                if (it.key == "Mp4upload") {
+                    Mp4upload().videoFromUrl(it.value)
+                }
+            }
             emit(videoLinks)
         }
 
