@@ -1,6 +1,7 @@
 package com.example.kotlinmovieapp.domain.use_case.anime4up
 
 import android.util.Base64
+import android.util.Log
 import com.example.kotlinmovieapp.domain.model.Details
 import com.example.kotlinmovieapp.domain.model.MovieHome
 import com.example.kotlinmovieapp.domain.model.OkanimeEpisode
@@ -8,6 +9,7 @@ import com.example.kotlinmovieapp.domain.model.VideoLinks
 import com.example.kotlinmovieapp.domain.repository.Anime4upRepository
 import com.example.kotlinmovieapp.util.Resource
 import com.example.kotlinmovieapp.util.extractors.Mp4upload
+import com.example.kotlinmovieapp.util.extractors.Uqload
 import com.example.kotlinmovieapp.util.parseAnime
 import com.google.gson.Gson
 import kotlinx.coroutines.flow.Flow
@@ -107,15 +109,20 @@ class Anime4upUseCase @Inject constructor(
             val sources = String(Base64.decode(base64, Base64.DEFAULT))
             val videoLinks: VideoLinks = Gson().fromJson(sources, VideoLinks::class.java)
 
+            Log.e("video links",videoLinks.toString())
 //        TODO()
             videoLinks.fhd?.entries?.map {
-                if (it.key == "Mp4upload") {
-                    Mp4upload().videoFromUrl(it.value)
+                when (it.key) {
+                    "Mp4upload" -> Mp4upload().videoFromUrl(it.value)
+                    "uqload" -> Uqload().getVideoFromUrl(it.value)
+                    else -> {}
                 }
             }
             videoLinks.hd?.entries?.map {
-                if (it.key == "Mp4upload") {
-                    Mp4upload().videoFromUrl(it.value)
+                when (it.key) {
+                    "Mp4upload" -> Mp4upload().videoFromUrl(it.value)
+                    "uqload" -> Uqload().getVideoFromUrl(it.value)
+                    else -> {}
                 }
             }
             emit(videoLinks)
