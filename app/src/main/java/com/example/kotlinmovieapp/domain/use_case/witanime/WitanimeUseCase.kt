@@ -7,7 +7,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import okio.ByteString.Companion.decodeBase64
 import org.jsoup.Jsoup
-import java.nio.charset.Charset
 import javax.inject.Inject
 
 class WitanimeUseCase @Inject constructor(
