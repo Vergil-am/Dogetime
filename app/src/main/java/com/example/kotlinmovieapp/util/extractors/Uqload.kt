@@ -1,6 +1,5 @@
 package com.example.kotlinmovieapp.util.extractors
 
-import android.util.Log
 import org.jsoup.Jsoup
 import retrofit2.Response
 import retrofit2.Retrofit
@@ -37,7 +36,7 @@ class Uqload {
         val videoUrl = script.substringAfter("sources: [\"").substringBefore('"')
             .takeIf(String::isNotBlank)
             ?.takeIf { it.startsWith("http") }
-        Log.e("Video url", videoUrl.toString())
+//        Log.e("Video url", videoUrl.toString())
 //            ?: return emptyList()
 //        Log.e("doc", doc.toString())
 

@@ -57,7 +57,6 @@ class VidsrcUseCase @Inject constructor(
 
                 } else if (decodedLink.contains("filemoon")) {
                     try {
-
                         val filemoon = Filemoon().resolveSource(decodedLink)
                         result.add(
                             Source(

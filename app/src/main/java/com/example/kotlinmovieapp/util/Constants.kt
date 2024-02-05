@@ -10,4 +10,6 @@ object Constants {
     //    val OKANIME_BASE_URL = "https://www.okanime.xyz/"
 
     const val ANIME4UP_URL = "https://anime4up.cam/"
+
+    const val WITANIME_URL = "https://witanime.pics/"
 }

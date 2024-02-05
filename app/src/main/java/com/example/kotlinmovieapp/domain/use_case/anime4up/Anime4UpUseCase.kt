@@ -7,7 +7,9 @@ import com.example.kotlinmovieapp.domain.model.MovieHome
 import com.example.kotlinmovieapp.domain.model.OkanimeEpisode
 import com.example.kotlinmovieapp.domain.model.VideoLinks
 import com.example.kotlinmovieapp.domain.repository.Anime4upRepository
+import com.example.kotlinmovieapp.domain.use_case.witanime.WitanimeUseCase
 import com.example.kotlinmovieapp.util.Resource
+import com.example.kotlinmovieapp.util.extractors.Leech
 import com.example.kotlinmovieapp.util.extractors.Mp4upload
 import com.example.kotlinmovieapp.util.extractors.Uqload
 import com.example.kotlinmovieapp.util.parseAnime
@@ -20,7 +22,7 @@ import retrofit2.HttpException
 import javax.inject.Inject
 
 class Anime4upUseCase @Inject constructor(
-    private val repo: Anime4upRepository
+    private val repo: Anime4upRepository,
 ) {
     fun getLatestEpisodes(): Flow<Resource<List<MovieHome>>> = flow {
         emit(Resource.Loading())
@@ -104,17 +106,19 @@ class Anime4upUseCase @Inject constructor(
 
     fun getEpisode(slug: String): Flow<VideoLinks> = flow {
         val doc = repo.getEpisode(slug).body()
+
         if (doc != null) {
             val base64 = Jsoup.parse(doc).selectFirst("input[name=wl]")?.attr("value")
             val sources = String(Base64.decode(base64, Base64.DEFAULT))
             val videoLinks: VideoLinks = Gson().fromJson(sources, VideoLinks::class.java)
 
-            Log.e("video links",videoLinks.toString())
+//            Log.e("video links",videoLinks.toString())
 //        TODO()
             videoLinks.fhd?.entries?.map {
                 when (it.key) {
                     "Mp4upload" -> Mp4upload().videoFromUrl(it.value)
                     "uqload" -> Uqload().getVideoFromUrl(it.value)
+                    "leech" -> Leech().getVideoFromUrl(it.value)
                     else -> {}
                 }
             }
@@ -122,6 +126,7 @@ class Anime4upUseCase @Inject constructor(
                 when (it.key) {
                     "Mp4upload" -> Mp4upload().videoFromUrl(it.value)
                     "uqload" -> Uqload().getVideoFromUrl(it.value)
+                    "leech" -> Leech().getVideoFromUrl(it.value)
                     else -> {}
                 }
             }

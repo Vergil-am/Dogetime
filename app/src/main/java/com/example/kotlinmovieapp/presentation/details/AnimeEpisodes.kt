@@ -75,6 +75,7 @@ fun AnimeEpisodes(
                                 )
                             )
                         }
+                        Log.e("slug", episode.slug)
                         viewModel.getLinks(episode.slug)
                         opened = true
                     },

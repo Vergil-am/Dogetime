@@ -7,17 +7,21 @@ import com.example.kotlinmovieapp.data.local.database.ListDatabase
 import com.example.kotlinmovieapp.data.remote.Anime4upAPI
 import com.example.kotlinmovieapp.data.remote.MoviesAPI
 import com.example.kotlinmovieapp.data.remote.VidsrcToAPI
+import com.example.kotlinmovieapp.data.remote.WitanimeAPI
 import com.example.kotlinmovieapp.data.repository.Anime4upRepoImplementation
 import com.example.kotlinmovieapp.data.repository.MovieRepoImplementation
 import com.example.kotlinmovieapp.data.repository.VidsrcToRepoImplementation
 import com.example.kotlinmovieapp.data.repository.WatchListRepositoryImpl
+import com.example.kotlinmovieapp.data.repository.WitanimeRepoImplementation
 import com.example.kotlinmovieapp.domain.repository.Anime4upRepository
 import com.example.kotlinmovieapp.domain.repository.MovieRepository
 import com.example.kotlinmovieapp.domain.repository.VidsrcToRepository
 import com.example.kotlinmovieapp.domain.repository.WatchListRepository
+import com.example.kotlinmovieapp.domain.repository.WitanimeRepository
 import com.example.kotlinmovieapp.util.Constants
 import com.example.kotlinmovieapp.util.Constants.ANIME4UP_URL
 import com.example.kotlinmovieapp.util.Constants.BASE_URL
+import com.example.kotlinmovieapp.util.Constants.WITANIME_URL
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -106,5 +110,21 @@ object AppModule {
     @Singleton
     fun provideVidsrcToRepository(api: VidsrcToAPI): VidsrcToRepository {
         return VidsrcToRepoImplementation(api)
+    }
+
+    @Provides
+    @Singleton
+    fun provideWitanimeAPI(): WitanimeAPI{
+        return Retrofit.Builder()
+            .baseUrl(WITANIME_URL)
+            .addConverterFactory(ScalarsConverterFactory.create())
+            .build()
+            .create(WitanimeAPI::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideWitanimeRepo(api: WitanimeAPI): WitanimeRepository{
+        return WitanimeRepoImplementation(api)
     }
 }

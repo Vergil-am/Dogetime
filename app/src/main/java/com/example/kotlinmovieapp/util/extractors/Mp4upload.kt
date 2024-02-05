@@ -25,7 +25,7 @@ class Mp4upload {
 
     suspend fun videoFromUrl(url: String) : List<String> {
         val res = api.getVideo(url, baseUrl)
-        Log.e("Res", res.body().toString())
+//        Log.e("Res", res.body().toString())
         if (res.code() != 200) {
             throw Exception("Page not found")
         }
@@ -40,7 +40,7 @@ class Mp4upload {
 //        TODO("The Link extracts successfully but it gives error 403")
 
 //        Log.e("script", script)
-        Log.e("VideoLink", videoLink)
+//        Log.e("VideoLink", videoLink)
         return emptyList()
 
     }

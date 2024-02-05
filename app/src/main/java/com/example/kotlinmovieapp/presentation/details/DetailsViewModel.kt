@@ -9,6 +9,7 @@ import com.example.kotlinmovieapp.domain.use_case.anime4up.Anime4upUseCase
 import com.example.kotlinmovieapp.domain.use_case.movies.get_movie.GetMovieUseCase
 import com.example.kotlinmovieapp.domain.use_case.vidsrc.VidsrcUseCase
 import com.example.kotlinmovieapp.domain.use_case.watchlist.WatchListUseCase
+import com.example.kotlinmovieapp.domain.use_case.witanime.WitanimeUseCase
 import com.example.kotlinmovieapp.util.Constants
 import com.example.kotlinmovieapp.util.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -24,7 +25,8 @@ class DetailsViewModel @Inject constructor(
     private val getMovieUseCase: GetMovieUseCase,
     private val watchList: WatchListUseCase,
     private val anime4up: Anime4upUseCase,
-    private val vidsrc: VidsrcUseCase
+    private val vidsrc: VidsrcUseCase,
+    private val witanime: WitanimeUseCase
 ) : ViewModel() {
     private val _state = MutableStateFlow(MovieState())
     var state = _state.asStateFlow()
@@ -117,6 +119,7 @@ class DetailsViewModel @Inject constructor(
                 animeEpisodeSources = it
             )
         }.launchIn(viewModelScope)
+        witanime.getSources(slug).launchIn(viewModelScope)
     }
 
     fun deleteFromList(media: WatchListMedia) {
