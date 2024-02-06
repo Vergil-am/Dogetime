@@ -1,7 +1,6 @@
 package com.example.kotlinmovieapp.presentation.details
 
 import android.os.Build
-import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -75,7 +74,6 @@ fun AnimeEpisodes(
                                 )
                             )
                         }
-                        Log.e("slug", episode.slug)
                         viewModel.getLinks(episode.slug)
                         opened = true
                     },
@@ -121,7 +119,6 @@ fun AnimeEpisodes(
                         }
                         val episodeNum = episode.episodeNumber.toIntOrNull()
                         val progress = state.watchList?.episode
-                        Log.e("Progress $progress", "episode number: $episodeNum")
                         if (progress != null && episodeNum != null) {
                             if (progress >= episodeNum) {
                                 WatchedIndicator()
