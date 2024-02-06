@@ -54,26 +54,16 @@ class Dailymotion {
         data.map { Data ->
             Log.e("DATA", Data.toString())
             if (Data != null) {
-                videoRegex.findAll(Data).map {
-                    Log.e("REGEX", it.toString())
+                videoRegex.findAll(Data).forEach {
+                    val (videoName, videoUrl) = it.destructured
+                    Log.e("Name", videoName)
+                    Log.e("URL", videoUrl)
                 }
             }
+            // Everything works for now
+//            TODO("all that is left is to return the sources")
 
 
         }
-//        data.map {
-//            if (it != null) {
-//                val lines = it.lines().map {line ->
-//                    Log.e("Line", line)
-//                }
-//            }
-//        }
-
     }
 }
-
-data class Test(
-    val name: String,
-    val url: String
-)
-
