@@ -3,6 +3,7 @@ package com.example.kotlinmovieapp.domain.use_case.witanime
 import android.util.Log
 import com.example.kotlinmovieapp.domain.model.VideoLinks
 import com.example.kotlinmovieapp.domain.repository.WitanimeRepository
+import com.example.kotlinmovieapp.util.extractors.Dailymotion
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import okio.ByteString.Companion.decodeBase64
@@ -23,6 +24,14 @@ class WitanimeUseCase @Inject constructor(
                         ?.decodeBase64()?.toByteArray()?.let { String(it, Charsets.UTF_8) }
 
                 }
+            links?.map {
+                if (it != null) {
+                    if (it.contains("dailymotion")) {
+                        Dailymotion().getVideoFromUrl(it)
+                    }
+
+                }
+            }
             Log.e("Links", links.toString())
         } catch (e: Exception) {
             throw Exception(e.message)
