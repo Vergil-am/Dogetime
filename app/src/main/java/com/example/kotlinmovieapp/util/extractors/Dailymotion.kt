@@ -1,6 +1,7 @@
 package com.example.kotlinmovieapp.util.extractors
 
 import android.util.Log
+import okhttp3.HttpUrl.Companion.toHttpUrl
 import org.jsoup.Jsoup
 import retrofit2.Response
 import retrofit2.Retrofit
@@ -27,10 +28,19 @@ class Dailymotion {
     suspend fun getVideoFromUrl(url: String) {
         val res = api.getDocument(url)
         if (res.code() != 200) {
-            throw Exception("sddsds")
+            throw Exception("Dailymotion error ${res.code()}")
         }
-        val doc = res.body()?.let { Jsoup.parse(it) }
-        Log.e("Doc", doc.toString())
+        val internalData =
+            res.body()?.substringAfter("\"dmInternalData\":")?.substringBefore("</script>")
+                ?: throw Exception("Failed to parse internal data")
+        val ts = internalData.substringAfter("\"ts\":").substringBefore(",")
+        val v1st = internalData.substringAfter("\"v1st\":\"").substringBefore("\",")
 
+        val videoQuery = url.toHttpUrl().run {
+            queryParameter("video") ?: pathSegments.last()
+        }
+
+        val jsonUrl = "$baseUrl/player/metadata/video/$videoQuery?locale=en-US&dmV1st=$v1st&dmTs=$ts&is_native_app=0"
+        Log.e("JsonUrl", jsonUrl)
     }
 }
