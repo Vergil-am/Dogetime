@@ -41,14 +41,9 @@ class VidsrcUseCase @Inject constructor(
                 if (decodedLink.contains("vidplay")) {
                     try {
                         val vidplay = Vidplay().resolveSource(decodedLink)
-                        result.add(
-                            Source(
-                                source = title,
-                                url = vidplay.result.sources[0].file,
-                                quality = "multi",
-                                label = "external"
-                            )
-                        )
+                        vidplay.forEach { source ->
+                            result.add(source)
+                        }
                     } catch (_: Exception){
 
                     }
