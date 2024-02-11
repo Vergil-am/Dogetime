@@ -3,6 +3,7 @@ package com.example.kotlinmovieapp.domain.use_case.witanime
 import android.util.Log
 import com.example.kotlinmovieapp.domain.model.VideoLinks
 import com.example.kotlinmovieapp.domain.repository.WitanimeRepository
+import com.example.kotlinmovieapp.util.extractors.SoraPlay
 import com.example.kotlinmovieapp.util.extractors.dailymotion.Dailymotion
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -28,6 +29,8 @@ class WitanimeUseCase @Inject constructor(
                 if (it != null) {
                     if (it.contains("dailymotion")) {
                         Dailymotion().getVideoFromUrl(it)
+                    } else if (it.contains("yonaplay")) {
+                        SoraPlay().extractSources(it)
                     }
 
                 }

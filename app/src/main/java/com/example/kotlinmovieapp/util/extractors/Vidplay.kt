@@ -1,5 +1,6 @@
 package com.example.kotlinmovieapp.util.extractors
 
+import android.annotation.SuppressLint
 import android.util.Base64
 import android.util.Log
 import com.example.kotlinmovieapp.domain.model.Source
@@ -43,7 +44,7 @@ class Vidplay {
             .addConverterFactory(ScalarsConverterFactory.create()).build()
             .create(VidplayAPI::class.java)
 
-    suspend fun resolveSource(url: String) : List<Source> {
+    suspend fun resolveSource(url: String): List<Source> {
         val urlData = url.split("?")
         val key = encodeId(urlData[0].split("/e/").last())
         val token = getFuToken(key = key, url = url)
@@ -92,19 +93,19 @@ class Vidplay {
 //        TODO("I need to get subtitles ")
     }
 
-    private suspend fun getFile(url: String) : List<Source> {
+    private suspend fun getFile(url: String): List<Source> {
         val res = vidplayAPI.getVideo(url)
 
         val json = Gson().fromJson(res.body(), VidplayFile::class.java)
         val fileUrl = json.result.sources[0].file
         val file = vidplayAPI.getVideo(fileUrl).body() ?: throw Exception("file not found")
 
-            return parseM3u8(file, fileUrl)
+        return parseM3u8(file, fileUrl)
 
 
     }
 
-    private fun parseM3u8(file: String, url: String) : List<Source> {
+    private fun parseM3u8(file: String, url: String): List<Source> {
         val regex = Regex("""#EXT-X-STREAM-INF:BANDWIDTH=\d+?,RESOLUTION=\d+x(\d+)\n(\S+)""")
         val matches = regex.findAll(file)
         val sources = mutableListOf<Source>()
