@@ -31,6 +31,7 @@ class WitanimeUseCase @Inject constructor(
                         Dailymotion().getVideoFromUrl(it)
                     } else if (it.contains("yonaplay")) {
                         SoraPlay().extractSources(it)
+                        Log.e("Yonaplay url", it)
                     }
 
                 }
