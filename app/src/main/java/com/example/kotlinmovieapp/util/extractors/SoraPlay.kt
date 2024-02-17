@@ -34,12 +34,17 @@ class SoraPlay {
         }
         val doc = res.body()?.let { Jsoup.parse(it) } ?: throw Exception("Not found")
         val data = doc.select("div.OptionsLangDisp").select("li").map {
-            it.attr("onclick").substringAfter(" go_to_player(").substringBefore(")")
+            it.attr("onclick").substringAfter(" go_to_player('").substringBefore("')")
         }
-//        val script = doc.selectFirst("script:containsData(sources)")
-//        val data = script?.data()?.substringAfter("sources: [")?.substringBefore("],")
+        Log.e("Yona play links", data.toString())
+        val sources = data.map {
+            if (it.contains("4shared")) {
+                Shared().getVideoFromUrl(it)
+            } else if (it.contains("drive.google")) {
+                Log.e("Drive", it)
+            }
+        }
 
-        Log.e("Yona play Data", data.toString())
 
     }
 }
