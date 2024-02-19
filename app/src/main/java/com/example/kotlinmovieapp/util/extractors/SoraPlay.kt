@@ -41,7 +41,7 @@ class SoraPlay {
             if (it.contains("4shared")) {
                 Shared().getVideoFromUrl(it)
             } else if (it.contains("drive.google")) {
-                Log.e("Drive", it)
+                Drive().getVideoFromUrl(it)
             }
         }
 
