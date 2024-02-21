@@ -11,7 +11,10 @@ import com.example.kotlinmovieapp.domain.use_case.witanime.WitanimeUseCase
 import com.example.kotlinmovieapp.util.Resource
 import com.example.kotlinmovieapp.util.extractors.Leech
 import com.example.kotlinmovieapp.util.extractors.Mp4upload
+import com.example.kotlinmovieapp.util.extractors.Sendvid
 import com.example.kotlinmovieapp.util.extractors.Uqload
+import com.example.kotlinmovieapp.util.extractors.Vidblue
+import com.example.kotlinmovieapp.util.extractors.Vidmoly
 import com.example.kotlinmovieapp.util.parseAnime
 import com.google.gson.Gson
 import kotlinx.coroutines.flow.Flow
@@ -112,7 +115,7 @@ class Anime4upUseCase @Inject constructor(
             val sources = String(Base64.decode(base64, Base64.DEFAULT))
             val videoLinks: VideoLinks = Gson().fromJson(sources, VideoLinks::class.java)
 
-//            Log.e("video links",videoLinks.toString())
+            Log.e("video links",videoLinks.toString())
 //        TODO()
             videoLinks.fhd?.entries?.map {
                 when (it.key) {
@@ -127,6 +130,9 @@ class Anime4upUseCase @Inject constructor(
                     "Mp4upload" -> Mp4upload().videoFromUrl(it.value)
                     "uqload" -> Uqload().getVideoFromUrl(it.value)
                     "leech" -> Leech().getVideoFromUrl(it.value)
+                    "segavid" -> Vidblue().getVideoFromUrl(it.value)
+                    "Sendvid" -> Sendvid().getVideoFromUrl(it.value)
+                    "vidmoly" -> Vidmoly().getVideoFromUrl("https:${it.value}")
                     else -> {}
                 }
             }

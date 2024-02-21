@@ -36,7 +36,7 @@ class BrowseViewModel @Inject constructor(
                             _state.value.copy(movies = it.data ?: emptyList(), isLoading = false)
 
                         is Resource.Error -> {
-                            TODO()
+//                            TODO()
                         }
                     }
                 } else if (page > 1) {
@@ -61,7 +61,7 @@ class BrowseViewModel @Inject constructor(
                             _state.value.copy(movies = it.data ?: emptyList(), isLoading = false)
 
                         is Resource.Error -> {
-                            TODO()
+//                            TODO()
                         }
                     }
                 } else if (page > 1) {
@@ -86,7 +86,7 @@ class BrowseViewModel @Inject constructor(
                             _state.value.copy(movies = it.data ?: emptyList(), isLoading = false)
 
                         is Resource.Error -> {
-                            TODO()
+//                            TODO()
                         }
                     }
                 } else if (page > 1 && genre == null) {

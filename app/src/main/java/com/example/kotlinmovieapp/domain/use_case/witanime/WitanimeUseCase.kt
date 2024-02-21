@@ -31,14 +31,15 @@ class WitanimeUseCase @Inject constructor(
                         Dailymotion().getVideoFromUrl(it)
                     } else if (it.contains("yonaplay")) {
                         SoraPlay().extractSources(it)
-                        Log.e("Yonaplay url", it)
-                    }
+                    Log.e("Yonaplay url", it)
+                }
 
                 }
             }
             Log.e("Links", links.toString())
         } catch (e: Exception) {
-            throw Exception(e.message)
+            e.printStackTrace()
+//            throw Exception(e.message)
         }
     }
 }
