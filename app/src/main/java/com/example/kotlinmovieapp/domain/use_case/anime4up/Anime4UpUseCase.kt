@@ -7,6 +7,7 @@ import com.example.kotlinmovieapp.domain.model.MovieHome
 import com.example.kotlinmovieapp.domain.model.OkanimeEpisode
 import com.example.kotlinmovieapp.domain.model.VideoLinks
 import com.example.kotlinmovieapp.domain.repository.Anime4upRepository
+import com.example.kotlinmovieapp.util.Extractor
 import com.example.kotlinmovieapp.util.Resource
 import com.example.kotlinmovieapp.util.extractors.Leech
 import com.example.kotlinmovieapp.util.extractors.Mp4upload
@@ -112,46 +113,57 @@ class Anime4upUseCase @Inject constructor(
         if (doc != null) {
             val base64 = Jsoup.parse(doc).selectFirst("input[name=wl]")?.attr("value")
             val sources = String(Base64.decode(base64, Base64.DEFAULT))
-            val videoLinks: VideoLinks = Gson().fromJson(sources, VideoLinks::class.java)
+            val data : VideoLinks = Gson().fromJson(sources, VideoLinks::class.java)
 
-            Log.e("video links",videoLinks.toString())
+            val links = mutableListOf<String>()
+
+            data.hd?.values?.let { links.addAll(it) }
+            data.sd?.values?.let { links.addAll(it) }
+            data.fhd?.values?.let { links.addAll(it) }
+
+
+            Log.e("anime4up Links", links.toString())
+
+//            Log.e("video links",videoLinks.toString())
 //        TODO()
-            videoLinks.fhd?.entries?.map {
-                when (it.key) {
-                    "Mp4upload" -> Mp4upload().videoFromUrl(it.value)
-                    "uqload" -> Uqload().getVideoFromUrl(it.value)
-                    "leech" -> Leech().getVideoFromUrl(it.value)
-                    "segavid" -> Vidblue().getVideoFromUrl(it.value)
-                    "Sendvid" -> Sendvid().getVideoFromUrl(it.value)
-                    "vidmoly" -> Vidmoly().getVideoFromUrl("https:${it.value}")
-                    else -> {}
-                }
-            }
-            videoLinks.hd?.entries?.map {
-                when (it.key) {
-                    "Mp4upload" -> Mp4upload().videoFromUrl(it.value)
-                    "uqload" -> Uqload().getVideoFromUrl(it.value)
-                    "leech" -> Leech().getVideoFromUrl(it.value)
-                    "segavid" -> Vidblue().getVideoFromUrl(it.value)
-                    "Sendvid" -> Sendvid().getVideoFromUrl(it.value)
-                    "vidmoly" -> Vidmoly().getVideoFromUrl("https:${it.value}")
-                    else -> {}
-                }
 
-            }
-            videoLinks.sd?.entries?.map {
-                when (it.key) {
-                    "Mp4upload" -> Mp4upload().videoFromUrl(it.value)
-                    "uqload" -> Uqload().getVideoFromUrl(it.value)
-                    "leech" -> Leech().getVideoFromUrl(it.value)
-                    "segavid" -> Vidblue().getVideoFromUrl(it.value)
-                    "Sendvid" -> Sendvid().getVideoFromUrl(it.value)
-                    "vidmoly" -> Vidmoly().getVideoFromUrl("https:${it.value}")
-                    else -> {}
-                }
-
-            }
-            emit(videoLinks)
+//            videoLinks.fhd?.entries?.map {
+//                when (it.key) {
+//                    "Mp4upload" -> Mp4upload().videoFromUrl(it.value)
+//                    "uqload" -> Uqload().getVideoFromUrl(it.value)
+//                    "leech" -> Leech().getVideoFromUrl(it.value)
+//                    "segavid" -> Vidblue().getVideoFromUrl(it.value)
+//                    "Sendvid" -> Sendvid().getVideoFromUrl(it.value)
+//                    "vidmoly" -> Vidmoly().getVideoFromUrl("https:${it.value}")
+//                    else -> {}
+//                }
+//            }
+//            videoLinks.hd?.entries?.map {
+//                when (it.key) {
+//                    "Mp4upload" -> Mp4upload().videoFromUrl(it.value)
+//                    "uqload" -> Uqload().getVideoFromUrl(it.value)
+//                    "leech" -> Leech().getVideoFromUrl(it.value)
+//                    "segavid" -> Vidblue().getVideoFromUrl(it.value)
+//                    "Sendvid" -> Sendvid().getVideoFromUrl(it.value)
+//                    "vidmoly" -> Vidmoly().getVideoFromUrl("https:${it.value}")
+//                    else -> {}
+//                }
+//
+//            }
+//            videoLinks.sd?.entries?.map {
+//                when (it.key) {
+//                    "Mp4upload" -> Mp4upload().videoFromUrl(it.value)
+//                    "uqload" -> Uqload().getVideoFromUrl(it.value)
+//                    "leech" -> Leech().getVideoFromUrl(it.value)
+//                    "segavid" -> Vidblue().getVideoFromUrl(it.value)
+//                    "Sendvid" -> Sendvid().getVideoFromUrl(it.value)
+//                    "vidmoly" -> Vidmoly().getVideoFromUrl("https:${it.value}")
+//                    else -> {}
+//                }
+//
+//            }
+//            emit(videoLinks)
+            emit(data)
         }
 
     }

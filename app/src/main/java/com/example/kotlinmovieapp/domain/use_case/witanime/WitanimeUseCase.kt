@@ -4,6 +4,7 @@ import android.util.Log
 import com.example.kotlinmovieapp.domain.model.Source
 import com.example.kotlinmovieapp.domain.model.VideoLinks
 import com.example.kotlinmovieapp.domain.repository.WitanimeRepository
+import com.example.kotlinmovieapp.util.Extractor
 import com.example.kotlinmovieapp.util.extractors.SoraPlay
 import com.example.kotlinmovieapp.util.extractors.Streamwish
 import com.example.kotlinmovieapp.util.extractors.dailymotion.Dailymotion
@@ -26,28 +27,29 @@ class WitanimeUseCase @Inject constructor(
                     element.attr("data-url").takeUnless(String::isBlank)
                         ?.decodeBase64()?.toByteArray()?.let { String(it, Charsets.UTF_8) }
 
-                }
-            links?.map {
-                if (it != null) {
-                    if (it.contains("dailymotion")) {
-                        Dailymotion().getVideoFromUrl(it)
-                    } else if (it.contains("yonaplay")) {
-                        SoraPlay().extractSources(it)
-                    Log.e("Yonaplay url", it)
-                } else if (it.contains("cdnwish")) {
-                    Streamwish().getVideoFromUrl(it)
-                    }
-                    else if (it.contains("yourupload")) {
-//                        TODO(add referer header https://www.yourupload.com/)
-                        Source(
-                            url = it,
-                            quality = "idk",
-                            label = "idk",
-                            source = "yourupload"
-                        )
-                    }
-                }
-            }
+                } ?: emptyList()
+            val sources = Extractor(links)
+//            links?.map {
+//                if (it != null) {
+//                    if (it.contains("dailymotion")) {
+//                        Dailymotion().getVideoFromUrl(it)
+//                    } else if (it.contains("yonaplay")) {
+//                        SoraPlay().extractSources(it)
+//                    Log.e("Yonaplay url", it)
+//                } else if (it.contains("cdnwish")) {
+//                    Streamwish().getVideoFromUrl(it)
+//                    }
+//                    else if (it.contains("yourupload")) {
+////                        TODO(add referer header https://www.yourupload.com/)
+//                        Source(
+//                            url = it,
+//                            quality = "idk",
+//                            label = "idk",
+//                            source = "yourupload"
+//                        )
+//                    }
+//                }
+//            }
             Log.e("Links", links.toString())
         } catch (e: Exception) {
             e.printStackTrace()
