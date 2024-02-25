@@ -40,7 +40,7 @@ class Mp4upload {
 //        TODO("The Link extracts successfully but it gives error 403")
 
 //        Log.e("script", script)
-//        Log.e("VideoLink", videoLink)
+        Log.e("mp4upload", videoLink)
         return emptyList()
 
     }

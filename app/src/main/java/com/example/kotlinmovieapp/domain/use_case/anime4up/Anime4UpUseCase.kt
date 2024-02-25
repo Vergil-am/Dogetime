@@ -7,7 +7,6 @@ import com.example.kotlinmovieapp.domain.model.MovieHome
 import com.example.kotlinmovieapp.domain.model.OkanimeEpisode
 import com.example.kotlinmovieapp.domain.model.VideoLinks
 import com.example.kotlinmovieapp.domain.repository.Anime4upRepository
-import com.example.kotlinmovieapp.domain.use_case.witanime.WitanimeUseCase
 import com.example.kotlinmovieapp.util.Resource
 import com.example.kotlinmovieapp.util.extractors.Leech
 import com.example.kotlinmovieapp.util.extractors.Mp4upload
@@ -122,6 +121,9 @@ class Anime4upUseCase @Inject constructor(
                     "Mp4upload" -> Mp4upload().videoFromUrl(it.value)
                     "uqload" -> Uqload().getVideoFromUrl(it.value)
                     "leech" -> Leech().getVideoFromUrl(it.value)
+                    "segavid" -> Vidblue().getVideoFromUrl(it.value)
+                    "Sendvid" -> Sendvid().getVideoFromUrl(it.value)
+                    "vidmoly" -> Vidmoly().getVideoFromUrl("https:${it.value}")
                     else -> {}
                 }
             }
@@ -135,6 +137,19 @@ class Anime4upUseCase @Inject constructor(
                     "vidmoly" -> Vidmoly().getVideoFromUrl("https:${it.value}")
                     else -> {}
                 }
+
+            }
+            videoLinks.sd?.entries?.map {
+                when (it.key) {
+                    "Mp4upload" -> Mp4upload().videoFromUrl(it.value)
+                    "uqload" -> Uqload().getVideoFromUrl(it.value)
+                    "leech" -> Leech().getVideoFromUrl(it.value)
+                    "segavid" -> Vidblue().getVideoFromUrl(it.value)
+                    "Sendvid" -> Sendvid().getVideoFromUrl(it.value)
+                    "vidmoly" -> Vidmoly().getVideoFromUrl("https:${it.value}")
+                    else -> {}
+                }
+
             }
             emit(videoLinks)
         }
