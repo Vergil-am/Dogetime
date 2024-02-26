@@ -1,5 +1,7 @@
 package com.example.kotlinmovieapp.presentation.details
 
+import android.content.Intent
+import android.net.Uri
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
@@ -32,6 +34,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
@@ -52,6 +55,7 @@ fun AnimeEpisodes(
     var opened by remember {
         mutableStateOf(false)
     }
+    val context = LocalContext.current
 
     LazyColumn(
         state = columnState
@@ -149,43 +153,58 @@ fun AnimeEpisodes(
                     textAlign = TextAlign.Center,
                     style = MaterialTheme.typography.titleLarge
                 )
-                if (sources != null) {
-                    if (sources.fhd != null) {
-                        Text(text = "Full HD")
-                        sources.fhd.forEach { (source, link) ->
-                            Source(source = source,
-                                info = "1080p",
-                                link = link,
+                sources.map {
+                    Source(source = it.source,
+                                info = it.quality,
+                                link = it.url,
                                 navController,
-                                onClick = { opened = false })
+                                onClick = {
+                                    val intent = Intent(Intent.ACTION_VIEW)
+                                    intent.setDataAndType(Uri.parse(it.url), "video/*")
+                                    intent.putExtra("Referer", it.header)
+                                    context.startActivity(intent)
+
+                                    opened = false
+                                })
                         }
-                    }
-                    if (sources.hd != null) {
-                        Text(text = "HD")
-                        sources.hd.forEach { (source, link) ->
-                            Source(source = source,
-                                info = "720p",
-                                link = link,
-                                navController,
-                                onClick = { opened = false })
-                        }
-                    }
-                    if (sources.sd != null) {
-                        Text(text = "Low quality")
-                        sources.sd.forEach { (source, link) ->
-                            Source(source = source,
-                                info = "480p",
-                                link = link,
-                                navController,
-                                onClick = { opened = false })
-                        }
-                    }
+                }
+//                if (sources != null) {
+//                    if (sources.fhd != null) {
+//                        Text(text = "Full HD")
+//                        sources.fhd.forEach { (source, link) ->
+//                            Source(source = source,
+//                                info = "1080p",
+//                                link = link,
+//                                navController,
+//                                onClick = { opened = false })
+//                        }
+//                    }
+//                    if (sources.hd != null) {
+//                        Text(text = "HD")
+//                        sources.hd.forEach { (source, link) ->
+//                            Source(source = source,
+//                                info = "720p",
+//                                link = link,
+//                                navController,
+//                                onClick = { opened = false })
+//                        }
+//                    }
+//                    if (sources.sd != null) {
+//                        Text(text = "Low quality")
+//                        sources.sd.forEach { (source, link) ->
+//                            Source(source = source,
+//                                info = "480p",
+//                                link = link,
+//                                navController,
+//                                onClick = { opened = false })
+//                        }
+//                    }
 
                 }
             }
         }
 
-    }
-}
+//    }
+//}
 
 

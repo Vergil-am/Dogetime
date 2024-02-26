@@ -1,6 +1,5 @@
 package com.example.kotlinmovieapp.util.extractors
 
-import android.annotation.SuppressLint
 import android.util.Base64
 import android.util.Log
 import com.example.kotlinmovieapp.domain.model.Source
@@ -117,7 +116,8 @@ class Vidplay {
                     url = "$baseUrl${it.groupValues[2]}",
                     quality = "${it.groupValues[1]}P",
                     label = "external",
-                    source = "Vidplay"
+                    source = "Vidplay",
+                    header = null
                 )
             )
 

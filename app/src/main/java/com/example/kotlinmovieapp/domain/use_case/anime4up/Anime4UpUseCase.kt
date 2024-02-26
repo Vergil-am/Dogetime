@@ -5,16 +5,12 @@ import android.util.Log
 import com.example.kotlinmovieapp.domain.model.Details
 import com.example.kotlinmovieapp.domain.model.MovieHome
 import com.example.kotlinmovieapp.domain.model.OkanimeEpisode
+import com.example.kotlinmovieapp.domain.model.Source
 import com.example.kotlinmovieapp.domain.model.VideoLinks
 import com.example.kotlinmovieapp.domain.repository.Anime4upRepository
-import com.example.kotlinmovieapp.util.Extractor
+import com.example.kotlinmovieapp.util.ExtractorProp
 import com.example.kotlinmovieapp.util.Resource
-import com.example.kotlinmovieapp.util.extractors.Leech
-import com.example.kotlinmovieapp.util.extractors.Mp4upload
-import com.example.kotlinmovieapp.util.extractors.Sendvid
-import com.example.kotlinmovieapp.util.extractors.Uqload
-import com.example.kotlinmovieapp.util.extractors.Vidblue
-import com.example.kotlinmovieapp.util.extractors.Vidmoly
+import com.example.kotlinmovieapp.util.extractor
 import com.example.kotlinmovieapp.util.parseAnime
 import com.google.gson.Gson
 import kotlinx.coroutines.flow.Flow
@@ -107,7 +103,7 @@ class Anime4upUseCase @Inject constructor(
         }
     }
 
-    fun getEpisode(slug: String): Flow<VideoLinks> = flow {
+    fun getEpisode(slug: String): Flow<List<Source>> = flow {
         val doc = repo.getEpisode(slug).body()
 
         if (doc != null) {
@@ -115,55 +111,18 @@ class Anime4upUseCase @Inject constructor(
             val sources = String(Base64.decode(base64, Base64.DEFAULT))
             val data : VideoLinks = Gson().fromJson(sources, VideoLinks::class.java)
 
-            val links = mutableListOf<String>()
+            val links = mutableListOf<ExtractorProp>()
 
-            data.hd?.values?.let { links.addAll(it) }
-            data.sd?.values?.let { links.addAll(it) }
-            data.fhd?.values?.let { links.addAll(it) }
+            data.hd?.values?.forEach {
+                links.add(ExtractorProp(link = it, "HD"))
+            }
+            data.sd?.values?.forEach { links.add(ExtractorProp(link = it, "SD")) }
+            data.fhd?.values?.forEach {  links.add(ExtractorProp(link = it, "SD"))  }
+            val extractedLinks = extractor(links)
 
+            Log.e("Extracted anime4up", extractedLinks.toString())
 
-            Log.e("anime4up Links", links.toString())
-
-//            Log.e("video links",videoLinks.toString())
-//        TODO()
-
-//            videoLinks.fhd?.entries?.map {
-//                when (it.key) {
-//                    "Mp4upload" -> Mp4upload().videoFromUrl(it.value)
-//                    "uqload" -> Uqload().getVideoFromUrl(it.value)
-//                    "leech" -> Leech().getVideoFromUrl(it.value)
-//                    "segavid" -> Vidblue().getVideoFromUrl(it.value)
-//                    "Sendvid" -> Sendvid().getVideoFromUrl(it.value)
-//                    "vidmoly" -> Vidmoly().getVideoFromUrl("https:${it.value}")
-//                    else -> {}
-//                }
-//            }
-//            videoLinks.hd?.entries?.map {
-//                when (it.key) {
-//                    "Mp4upload" -> Mp4upload().videoFromUrl(it.value)
-//                    "uqload" -> Uqload().getVideoFromUrl(it.value)
-//                    "leech" -> Leech().getVideoFromUrl(it.value)
-//                    "segavid" -> Vidblue().getVideoFromUrl(it.value)
-//                    "Sendvid" -> Sendvid().getVideoFromUrl(it.value)
-//                    "vidmoly" -> Vidmoly().getVideoFromUrl("https:${it.value}")
-//                    else -> {}
-//                }
-//
-//            }
-//            videoLinks.sd?.entries?.map {
-//                when (it.key) {
-//                    "Mp4upload" -> Mp4upload().videoFromUrl(it.value)
-//                    "uqload" -> Uqload().getVideoFromUrl(it.value)
-//                    "leech" -> Leech().getVideoFromUrl(it.value)
-//                    "segavid" -> Vidblue().getVideoFromUrl(it.value)
-//                    "Sendvid" -> Sendvid().getVideoFromUrl(it.value)
-//                    "vidmoly" -> Vidmoly().getVideoFromUrl("https:${it.value}")
-//                    else -> {}
-//                }
-//
-//            }
-//            emit(videoLinks)
-            emit(data)
+            emit(extractedLinks)
         }
 
     }

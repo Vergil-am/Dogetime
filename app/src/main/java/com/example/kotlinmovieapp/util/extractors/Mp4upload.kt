@@ -1,6 +1,6 @@
 package com.example.kotlinmovieapp.util.extractors
 
-import android.util.Log
+import com.example.kotlinmovieapp.domain.model.Source
 import org.jsoup.Jsoup
 import retrofit2.Response
 import retrofit2.Retrofit
@@ -23,25 +23,25 @@ class Mp4upload {
         .addConverterFactory(ScalarsConverterFactory.create()).build()
         .create(Mp4UploadAPI::class.java)
 
-    suspend fun videoFromUrl(url: String) : List<String> {
+    suspend fun videoFromUrl(url: String, quality: String?) : Source {
         val res = api.getVideo(url, baseUrl)
-//        Log.e("Res", res.body().toString())
         if (res.code() != 200) {
             throw Exception("Page not found")
         }
         val doc = res.body()?.let { Jsoup.parse(it) }
         val script = doc?.selectFirst("script:containsData(player.src)")?.data()
-        ?: return emptyList()
-
+        ?: throw Exception("No script found")
         val videoLink = script.substringAfter(".src(").substringBefore(")")
             .substringAfter("src:").substringAfter('"').substringBefore('"')
 
+        return Source(
+            url = videoLink,
+            header = baseUrl,
+            source = "Mp4upload",
+            quality = quality ?: "unknown",
+            label = quality ?: "unknown"
+        )
 
-//        TODO("The Link extracts successfully but it gives error 403")
-
-//        Log.e("script", script)
-        Log.e("mp4upload", videoLink)
-        return emptyList()
 
     }
 }

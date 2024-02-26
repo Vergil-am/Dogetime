@@ -58,7 +58,8 @@ class VidsrcUseCase @Inject constructor(
                                 source = title,
                                 url = filemoon,
                                 quality = "1080p",
-                                label = "external"
+                                label = "external",
+                                header = null
                             )
                         )
                     } catch (_: Exception) {

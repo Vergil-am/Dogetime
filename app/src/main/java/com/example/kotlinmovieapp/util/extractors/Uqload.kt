@@ -1,6 +1,6 @@
 package com.example.kotlinmovieapp.util.extractors
 
-import android.util.Log
+import com.example.kotlinmovieapp.domain.model.Source
 import org.jsoup.Jsoup
 import retrofit2.Response
 import retrofit2.Retrofit
@@ -24,7 +24,7 @@ class Uqload {
         Retrofit.Builder().baseUrl(baseUrl).addConverterFactory(ScalarsConverterFactory.create())
             .build().create(UqloadAPI::class.java)
 
-    suspend fun getVideoFromUrl(url: String) {
+    suspend fun getVideoFromUrl(url: String, quality: String?) : Source {
         val res = api.getVideo(url = url, referer = baseUrl)
         if (res.code() != 200) {
             throw Exception("Could not get page")
@@ -36,10 +36,14 @@ class Uqload {
 
         val videoUrl = script.substringAfter("sources: [\"").substringBefore('"')
             .takeIf(String::isNotBlank)
-            ?.takeIf { it.startsWith("http") }
+            ?.takeIf { it.startsWith("http") } ?: throw Exception("No video link found")
 
-        Log.e("Uqload", videoUrl.toString())
-
-
+        return Source(
+            url = videoUrl,
+            quality = quality ?: "unknown",
+            header = baseUrl,
+            label = quality ?: "unknown",
+            source = "Uqload"
+        )
     }
 }

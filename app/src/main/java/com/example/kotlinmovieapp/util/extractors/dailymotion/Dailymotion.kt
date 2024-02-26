@@ -1,6 +1,7 @@
 package com.example.kotlinmovieapp.util.extractors.dailymotion
 
 import android.util.Log
+import com.example.kotlinmovieapp.domain.model.Source
 import com.example.kotlinmovieapp.util.extractors.dailymotion.models.DailymotionDTO
 import com.google.gson.Gson
 import okhttp3.HttpUrl.Companion.toHttpUrl
@@ -25,7 +26,7 @@ class Dailymotion {
         Retrofit.Builder().baseUrl(baseUrl).addConverterFactory(ScalarsConverterFactory.create())
             .build().create(DailyMotionAPI::class.java)
 
-    suspend fun getVideoFromUrl(url: String) {
+    suspend fun getVideoFromUrl(url: String) : List<Source> {
         val res = api.getDocument(url)
         if (res.code() != 200) {
             throw Exception("Dailymotion error ${res.code()}")
@@ -51,19 +52,26 @@ class Dailymotion {
         }
 
         val videoRegex = Regex("""NAME="([^"]+)".+?"(https://[^"]+)""")
+        val sources = mutableListOf<Source>()
         data.map { Data ->
-            Log.e("DATA", Data.toString())
+//            Log.e("DATA", Data.toString())
             if (Data != null) {
                 videoRegex.findAll(Data).forEach {
                     val (videoName, videoUrl) = it.destructured
                     Log.e("Name", videoName)
                     Log.e("URL", videoUrl)
+                    sources.add(
+                        Source(
+                        url = videoUrl,
+                        label = videoName,
+                        quality = videoName,
+                        header = null,
+                        source = "DailyMotion"
+                    )
+                    )
                 }
             }
-            // Everything works for now
-//            TODO("all that is left is to return the sources")
-
-
         }
+        return sources
     }
 }

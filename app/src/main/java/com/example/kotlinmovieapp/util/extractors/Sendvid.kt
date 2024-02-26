@@ -1,6 +1,6 @@
 package com.example.kotlinmovieapp.util.extractors
 
-import android.util.Log
+import com.example.kotlinmovieapp.domain.model.Source
 import org.jsoup.Jsoup
 import retrofit2.Response
 import retrofit2.Retrofit
@@ -20,12 +20,19 @@ class Sendvid {
     private val api = Retrofit.Builder().baseUrl(baseUrl)
         .addConverterFactory(ScalarsConverterFactory.create()).build()
         .create(API::class.java)
-    suspend fun getVideoFromUrl(url: String) {
+    suspend fun getVideoFromUrl(url: String, quality: String?) : Source {
         val res = api.getDocument(url)
         val doc = res.body()?.let { Jsoup.parse(it) }
 
-        val videoUrl = doc?.select("meta[property=og:video]")?.attr("content")
+        val videoUrl = doc?.select("meta[property=og:video]")?.attr("content") ?: throw Exception("file not found")
 
-        Log.e("sendvid url", videoUrl.toString())
+
+        return Source(
+            url = videoUrl,
+            quality = quality ?: "unknown",
+            header = baseUrl,
+            label = quality ?: "unknown",
+            source = "Sendvid"
+        )
     }
 }

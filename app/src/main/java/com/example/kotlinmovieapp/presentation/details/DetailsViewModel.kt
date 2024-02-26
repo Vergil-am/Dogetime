@@ -145,7 +145,7 @@ class DetailsViewModel @Inject constructor(
                                     "${Constants.VIDSRC_FHD}/tv/$id/$season/$episode?ds_langs=en,ar,fr"
                                 }
                                 else -> ""
-                            }, quality = "1080p", label = "webview"
+                            }, quality = "1080p", label = "webview", header = null
                         )
                     ).plus(
                         Source(
@@ -159,7 +159,7 @@ class DetailsViewModel @Inject constructor(
                                 }
 
                                 else -> ""
-                            }, quality = "mutli", label = "webview"
+                            }, quality = "mutli", label = "webview", header = null
                         )
                     )
                 )
