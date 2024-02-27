@@ -114,12 +114,19 @@ class DetailsViewModel @Inject constructor(
     }
 
     fun getLinks(slug: String) {
+        _state.value = _state.value.copy(
+            animeEpisodeSources = emptyList()
+        )
         anime4up.getEpisode(slug).onEach {
             _state.value = _state.value.copy(
-                animeEpisodeSources = it
+                animeEpisodeSources = _state.value.animeEpisodeSources.plus(it)
             )
         }.launchIn(viewModelScope)
-        witanime.getSources(slug).launchIn(viewModelScope)
+        witanime.getSources(slug).onEach {
+            _state.value = _state.value.copy(
+                animeEpisodeSources = _state.value.animeEpisodeSources.plus(it)
+            )
+        }.launchIn(viewModelScope)
     }
 
     fun deleteFromList(media: WatchListMedia) {

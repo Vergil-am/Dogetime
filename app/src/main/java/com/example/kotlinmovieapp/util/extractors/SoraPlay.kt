@@ -1,6 +1,6 @@
 package com.example.kotlinmovieapp.util.extractors
 
-import android.util.Log
+import com.example.kotlinmovieapp.domain.model.Source
 import org.jsoup.Jsoup
 import retrofit2.Response
 import retrofit2.Retrofit
@@ -27,7 +27,7 @@ class SoraPlay {
         Retrofit.Builder().baseUrl(baseUrl).addConverterFactory(ScalarsConverterFactory.create())
             .build().create(API::class.java)
 
-    suspend fun extractSources(url: String) {
+    suspend fun extractSources(url: String) : List<Source> {
         val res = api.getDocument(url = url, referer = referer)
         if (res.code() != 200) {
             throw Exception("Soraplay error code ${res.code()}")
@@ -36,14 +36,15 @@ class SoraPlay {
         val data = doc.select("div.OptionsLangDisp").select("li").map {
             it.attr("onclick").substringAfter(" go_to_player('").substringBefore("')")
         }
-        Log.e("Yona play links", data.toString())
-        val sources = data.map {
+
+        val sources = mutableListOf<Source>()
+       data.map {
             if (it.contains("4shared")) {
-                Shared().getVideoFromUrl(it)
-            } else if (it.contains("drive.google")) {
-                Drive().getVideoFromUrl(it)
+                sources.add(Shared().getVideoFromUrl(it))
             }
         }
+
+        return sources
 
 
     }

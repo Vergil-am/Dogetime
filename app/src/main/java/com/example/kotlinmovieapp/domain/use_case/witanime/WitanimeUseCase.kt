@@ -27,27 +27,6 @@ class WitanimeUseCase @Inject constructor(
                     )
                 } ?: emptyList()
             val sources = extractor(links)
-//            links?.map {
-//                if (it != null) {
-//                    if (it.contains("dailymotion")) {
-//                        Dailymotion().getVideoFromUrl(it)
-//                    } else if (it.contains("yonaplay")) {
-//                        SoraPlay().extractSources(it)
-//                    Log.e("Yonaplay url", it)
-//                } else if (it.contains("cdnwish")) {
-//                    Streamwish().getVideoFromUrl(it)
-//                    }
-//                    else if (it.contains("yourupload")) {
-////                        TODO(add referer header https://www.yourupload.com/)
-//                        Source(
-//                            url = it,
-//                            quality = "idk",
-//                            label = "idk",
-//                            source = "yourupload"
-//                        )
-//                    }
-//                }
-//            }
             emit(sources)
         } catch (e: Exception) {
             e.printStackTrace()

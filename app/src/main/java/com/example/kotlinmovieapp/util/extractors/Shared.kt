@@ -7,6 +7,7 @@ import retrofit2.Retrofit
 import retrofit2.converter.scalars.ScalarsConverterFactory
 import retrofit2.http.GET
 import retrofit2.http.Url
+import com.example.kotlinmovieapp.domain.model.Source
 
 class Shared {
     private val baseUrl = "https://www.4shared.com/"
@@ -22,11 +23,18 @@ class Shared {
         Retrofit.Builder().baseUrl(baseUrl).addConverterFactory(ScalarsConverterFactory.create())
             .build().create(API::class.java)
 
-    suspend fun getVideoFromUrl(url: String) {
-        Log.e("Shared url", url)
+    suspend fun getVideoFromUrl(url: String) : Source {
         val res = api.getDocument(url)
         val doc = res.body()?.let { Jsoup.parse(it) } ?: throw Exception("link invalid")
-        val source = doc.selectFirst("source")?.attr("src")
-        Log.e("4shared Source", source.toString())
+        val videoLink = doc.selectFirst("source")?.attr("src") ?: throw Exception("No file found")
+        Log.e("Shared videoLink", videoLink)
+
+         return Source(
+             url = videoLink,
+             header = baseUrl,
+             source = "4Shared",
+             quality = "unknown",
+             label = "unknown"
+         )
     }
 }

@@ -1,6 +1,5 @@
 package com.example.kotlinmovieapp.util.extractors.dailymotion
 
-import android.util.Log
 import com.example.kotlinmovieapp.domain.model.Source
 import com.example.kotlinmovieapp.util.extractors.dailymotion.models.DailymotionDTO
 import com.google.gson.Gson
@@ -46,20 +45,18 @@ class Dailymotion {
         val json = api.getDocument(jsonUrl).body()
         val parsed = Gson().fromJson(json, DailymotionDTO::class.java)
 
-        val data = parsed.qualities.auto.map {
+        val qualities = parsed.qualities ?: return emptyList()
+
+        val data = qualities.auto.map {
             api.getDocument(it.url).body()
-//                ?.trimIndent()
         }
 
         val videoRegex = Regex("""NAME="([^"]+)".+?"(https://[^"]+)""")
         val sources = mutableListOf<Source>()
         data.map { Data ->
-//            Log.e("DATA", Data.toString())
             if (Data != null) {
                 videoRegex.findAll(Data).forEach {
                     val (videoName, videoUrl) = it.destructured
-                    Log.e("Name", videoName)
-                    Log.e("URL", videoUrl)
                     sources.add(
                         Source(
                         url = videoUrl,

@@ -1,7 +1,6 @@
 package com.example.kotlinmovieapp.presentation.components
 
 import android.content.Intent
-import android.net.Uri
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -31,12 +30,12 @@ fun Source(
         .fillMaxWidth()
         .padding(10.dp), onClick = {
         val url = URLEncoder.encode(link)
-        if (info == "external"){
-            intent.setDataAndType(Uri.parse(link), "video/*")
-            context.startActivity(intent)
-        } else {
-            navController.navigate("web-view/${url}")
-        }
+//        if (info == "external"){
+//            intent.setDataAndType(Uri.parse(link), "video/*")
+//            context.startActivity(intent)
+//        } else {
+//            navController.navigate("web-view/${url}")
+//        }
         onClick()
     }) {
         Row(

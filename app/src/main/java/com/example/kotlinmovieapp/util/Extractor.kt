@@ -7,7 +7,6 @@ import com.example.kotlinmovieapp.util.extractors.Sendvid
 import com.example.kotlinmovieapp.util.extractors.SoraPlay
 import com.example.kotlinmovieapp.util.extractors.Streamwish
 import com.example.kotlinmovieapp.util.extractors.Uqload
-import com.example.kotlinmovieapp.util.extractors.Vidblue
 import com.example.kotlinmovieapp.util.extractors.Vidmoly
 import com.example.kotlinmovieapp.util.extractors.Vidplay
 import com.example.kotlinmovieapp.util.extractors.dailymotion.Dailymotion
@@ -23,9 +22,10 @@ suspend fun extractor (links : List<ExtractorProp>) : List<Source> {
 //            it.link.contains("leech") -> Leech().getVideoFromUrl(it.link)
             it.link.contains("sendvid") -> sources.add(Sendvid().getVideoFromUrl(it.link, quality = it.quality))
             it.link.contains("dailymotion") -> sources.addAll(Dailymotion().getVideoFromUrl(it.link))
-//            it.link.contains("cdnwish") -> sources.add(Streamwish().getVideoFromUrl(it.link))
-//            it.link.contains("vidplay") -> sources.addAll(Vidplay().resolveSource(it.link))
-//            it.link.contains("yonaplay") -> sources.add(SoraPlay().extractSources(it.link))
+            it.link.contains("cdnwish") -> sources.add(Streamwish().getVideoFromUrl(it.link))
+            it.link.contains("vidplay") -> sources.addAll(Vidplay().resolveSource(it.link))
+            it.link.contains("yonaplay") -> sources.addAll(SoraPlay().extractSources(it.link))
+            it.link.contains("yourupload") -> sources.add(Source(url = it.link, quality = it.quality ?: "unknown", label = it.quality ?: "unknown", header = "https://www.yourupload.com/", source = "yourupload"))
         }
     }
 
