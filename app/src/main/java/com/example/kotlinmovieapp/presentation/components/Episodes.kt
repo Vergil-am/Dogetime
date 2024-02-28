@@ -45,7 +45,6 @@ data class SelectedEpisode(
 fun Episodes(
     season: Int, viewModel: DetailsViewModel, id: Int, navController: NavController
 ) {
-//    Log.e("Episodes", season.episodes.toString())
     val state by viewModel.state.collectAsState()
 
     var opened by remember {
@@ -54,10 +53,6 @@ fun Episodes(
     var selected by remember {
         mutableStateOf(SelectedEpisode(season = 1, episode = 1))
     }
-//    LaunchedEffect(key1 = season, key2 = id) {
-////        viewModel.getSeason(id, season.season_number)
-//    }
-
 
     Column(
         modifier = Modifier.verticalScroll(rememberScrollState())
@@ -67,7 +62,6 @@ fun Episodes(
                 Card(
                     onClick = {
                         viewModel.getVidsrc(
-                            "${Constants.VIDSRC_MULTI}/embed/tv/$id/$season/${episode.episode_number}",
                             id = id,
                             type = "show",
                             episode = episode.episode_number,

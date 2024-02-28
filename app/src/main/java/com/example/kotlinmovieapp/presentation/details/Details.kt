@@ -34,7 +34,6 @@ import androidx.navigation.NavController
 import com.example.kotlinmovieapp.data.local.entities.WatchListMedia
 import com.example.kotlinmovieapp.presentation.components.DetailsHeader
 import com.example.kotlinmovieapp.presentation.components.Source
-import com.example.kotlinmovieapp.util.Constants
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -46,7 +45,6 @@ fun Details(
         viewModel.getMedia(type = type, id = id)
         if (type == "movie") {
             viewModel.getVidsrc(
-                "${Constants.VIDSRC_MULTI}/embed/movie/$id",
                 id = id.toIntOrNull(),
                 type = type,
                 episode = null,

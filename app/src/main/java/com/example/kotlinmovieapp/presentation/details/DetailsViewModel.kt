@@ -4,13 +4,10 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.kotlinmovieapp.data.local.entities.WatchListMedia
-import com.example.kotlinmovieapp.domain.model.Source
 import com.example.kotlinmovieapp.domain.use_case.anime4up.Anime4upUseCase
 import com.example.kotlinmovieapp.domain.use_case.movies.get_movie.GetMovieUseCase
-import com.example.kotlinmovieapp.domain.use_case.vidsrc.VidsrcUseCase
 import com.example.kotlinmovieapp.domain.use_case.watchlist.WatchListUseCase
 import com.example.kotlinmovieapp.domain.use_case.witanime.WitanimeUseCase
-import com.example.kotlinmovieapp.util.Constants
 import com.example.kotlinmovieapp.util.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -25,7 +22,6 @@ class DetailsViewModel @Inject constructor(
     private val getMovieUseCase: GetMovieUseCase,
     private val watchList: WatchListUseCase,
     private val anime4up: Anime4upUseCase,
-    private val vidsrc: VidsrcUseCase,
     private val witanime: WitanimeUseCase
 ) : ViewModel() {
     private val _state = MutableStateFlow(MovieState())
@@ -136,41 +132,44 @@ class DetailsViewModel @Inject constructor(
         _state.value = _state.value.copy(watchList = null)
     }
 
-    fun getVidsrc(url: String, id: Int?, type: String, episode: Int?, season: Int?) {
+    fun getVidsrc(id: Int?, type: String, episode: Int?, season: Int?) {
        _state.value = _state.value.copy(movieSources = emptyList())
         if (id != null) {
-            vidsrc.getSources(url).onEach {
-                _state.value = _state.value.copy(
-                    movieSources = it.plus(
-                        Source(
-                            source = "vidsrc", url = when (type) {
-                                "movie" -> {
-                                    "${Constants.VIDSRC_FHD}/movie/$id?ds_langs=en,ar,fr"
-                                }
-
-                                "show" -> {
-                                    "${Constants.VIDSRC_FHD}/tv/$id/$season/$episode?ds_langs=en,ar,fr"
-                                }
-                                else -> ""
-                            }, quality = "1080p", label = "webview", header = null
-                        )
-                    ).plus(
-                        Source(
-                            source = "vidsrc", url = when (type) {
-                                "movie" -> {
-                                    "${Constants.VIDSRC_MULTI}/embed/movie/$id"
-                                }
-
-                                "show" -> {
-                                    "${Constants.VIDSRC_MULTI}/embed/tv/$id/$season/$episode"
-                                }
-
-                                else -> ""
-                            }, quality = "mutli", label = "webview", header = null
-                        )
-                    )
-                )
+            getMovieUseCase.getSources(id, type, episode, season).onEach {
+                _state.value = _state.value.copy(movieSources = it)
             }.launchIn(viewModelScope)
+//            vidsrc.getSources(url).onEach {
+//                _state.value = _state.value.copy(
+//                    movieSources = it.plus(
+//                        Source(
+//                            source = "vidsrc", url = when (type) {
+//                                "movie" -> {
+//                                    "${Constants.VIDSRC_FHD}/movie/$id?ds_langs=en,ar,fr"
+//                                }
+//
+//                                "show" -> {
+//                                    "${Constants.VIDSRC_FHD}/tv/$id/$season/$episode?ds_langs=en,ar,fr"
+//                                }
+//                                else -> ""
+//                            }, quality = "1080p", label = "webview", header = null
+//                        )
+//                    ).plus(
+//                        Source(
+//                            source = "vidsrc", url = when (type) {
+//                                "movie" -> {
+//                                    "${Constants.VIDSRC_MULTI}/embed/movie/$id"
+//                                }
+//
+//                                "show" -> {
+//                                    "${Constants.VIDSRC_MULTI}/embed/tv/$id/$season/$episode"
+//                                }
+//
+//                                else -> ""
+//                            }, quality = "mutli", label = "webview", header = null
+//                        )
+//                    )
+//                )
+//            }.launchIn(viewModelScope)
         }
     }
 }
