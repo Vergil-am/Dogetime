@@ -3,7 +3,6 @@ package com.example.kotlinmovieapp.util.extractors.vidsrcto
 import com.example.kotlinmovieapp.domain.model.Source
 import com.example.kotlinmovieapp.domain.model.VidSrcSources
 import com.example.kotlinmovieapp.domain.model.VidsrcSource
-import com.example.kotlinmovieapp.util.Utils
 import com.example.kotlinmovieapp.util.extractors.Filemoon
 import com.example.kotlinmovieapp.util.extractors.Vidplay
 import okio.ByteString.Companion.decodeBase64

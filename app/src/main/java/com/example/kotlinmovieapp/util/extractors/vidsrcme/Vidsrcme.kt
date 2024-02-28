@@ -18,7 +18,8 @@ class Vidsrcme {
         @GET
         suspend fun getDocument(
             @Url url: String,
-            @Header("Referer") referer: String
+            @Header("Referer") referer: String,
+            @Header("Allow-Redirects") redirect: Boolean = false
         ): Response<String>
     }
 
@@ -53,11 +54,21 @@ class Vidsrcme {
             throw Exception("$provider error code ${res.code()}")
         }
 
-        val doc = res.body()?.let { Jsoup.parse(it) }
-        val encoded = doc?.select("div#hidden")?.attr("data-h") ?: throw Exception("$provider data hash not found")
+        val doc = res.body()?.let { Jsoup.parse(it) } ?: throw Exception("$provider no body found")
 
-        Log.e("Encoded", encoded)
+        val encoded = doc.select("div#hidden").attr("data-h") ?: throw Exception("$provider data hash not found")
+        val seed = doc.select("body").attr("data-i")
+        var decoded = Utils().decodeSrc(encoded, seed)
 
+        if (decoded.startsWith("//")) {
+            decoded = "https:$decoded"
+        }
+        getSourceUrl(decoded)
     }
+
+    private suspend fun getSourceUrl(decoded: String) {
+        val res = api.getDocument(decoded, baseUrl, false)
+    }
+
 
 }

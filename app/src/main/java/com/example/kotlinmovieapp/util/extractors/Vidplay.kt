@@ -3,7 +3,7 @@ package com.example.kotlinmovieapp.util.extractors
 import android.util.Base64
 import android.util.Log
 import com.example.kotlinmovieapp.domain.model.Source
-import com.example.kotlinmovieapp.util.Utils
+import com.example.kotlinmovieapp.util.extractors.vidsrcto.Utils
 import com.google.gson.Gson
 import retrofit2.Response
 import retrofit2.Retrofit

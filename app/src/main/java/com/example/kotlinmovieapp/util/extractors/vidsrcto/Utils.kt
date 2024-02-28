@@ -1,4 +1,4 @@
-package com.example.kotlinmovieapp.util
+package com.example.kotlinmovieapp.util.extractors.vidsrcto
 
 import kotlin.experimental.xor
 
