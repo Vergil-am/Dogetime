@@ -7,6 +7,7 @@ import com.example.kotlinmovieapp.domain.model.Source
 import com.example.kotlinmovieapp.domain.repository.MovieRepository
 import com.example.kotlinmovieapp.util.Constants
 import com.example.kotlinmovieapp.util.Resource
+import com.example.kotlinmovieapp.util.extractors.vidsrcme.Vidsrcme
 import com.example.kotlinmovieapp.util.extractors.vidsrcto.Vidsrcto
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -123,15 +124,19 @@ class GetMovieUseCase @Inject constructor(
 
     }
 
-    fun getSources(id: Int?, type: String, episode: Int?, season: Int?) : Flow<List<Source>> = flow  {
+    fun getSources(id: Int?, type: String, episode: Int?, season: Int?): Flow<List<Source>> = flow {
         val sources = mutableListOf<Source>()
 
         when (type) {
-            "movie" ->
+            "movie" -> {
                 sources.addAll(Vidsrcto().getSources("${Constants.VIDSRC_MULTI}/embed/movie/$id"))
+                Vidsrcme().getSources("${Constants.VIDSRC_FHD}/embed/movie/$id")
+            }
 
-            "show" ->
+            "show" -> {
                 sources.addAll(Vidsrcto().getSources("${Constants.VIDSRC_MULTI}/embed/tv/$id/$season/$episode"))
+                Vidsrcme().getSources("${Constants.VIDSRC_FHD}/embed/tv/$id/$season/$episode")
+            }
         }
 
         emit(sources)

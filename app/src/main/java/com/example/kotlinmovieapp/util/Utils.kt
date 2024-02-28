@@ -1,10 +1,10 @@
 package com.example.kotlinmovieapp.util
 
-import java.net.URLDecoder
 import kotlin.experimental.xor
 
 class Utils {
 
+    // For vidsrc.to
     fun decodeData(data: ByteArray, key: String): ByteArray {
         val keyBytes = key.toByteArray()
         val s = ByteArray(256) { it.toByte() }
