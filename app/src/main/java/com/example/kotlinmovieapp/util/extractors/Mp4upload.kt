@@ -23,7 +23,9 @@ class Mp4upload {
         .addConverterFactory(ScalarsConverterFactory.create()).build()
         .create(Mp4UploadAPI::class.java)
 
-    suspend fun videoFromUrl(url: String, quality: String?) : Source {
+    suspend fun videoFromUrl(url: String, quality: String?) : Source? {
+        try {
+
         val res = api.getVideo(url, baseUrl)
         if (res.code() != 200) {
             throw Exception("Page not found")
@@ -41,6 +43,11 @@ class Mp4upload {
             quality = quality ?: "unknown",
             label = quality ?: "unknown"
         )
+
+        } catch (e: Exception) {
+            e.printStackTrace()
+            return null
+        }
 
 
     }

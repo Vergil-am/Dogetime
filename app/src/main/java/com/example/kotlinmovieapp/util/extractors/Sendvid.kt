@@ -20,7 +20,9 @@ class Sendvid {
     private val api = Retrofit.Builder().baseUrl(baseUrl)
         .addConverterFactory(ScalarsConverterFactory.create()).build()
         .create(API::class.java)
-    suspend fun getVideoFromUrl(url: String, quality: String?) : Source {
+    suspend fun getVideoFromUrl(url: String, quality: String?) : Source? {
+        try {
+
         val res = api.getDocument(url)
         val doc = res.body()?.let { Jsoup.parse(it) }
 
@@ -34,5 +36,10 @@ class Sendvid {
             label = quality ?: "unknown",
             source = "Sendvid"
         )
+
+        } catch (e: Exception) {
+            e.printStackTrace()
+            return null
+        }
     }
 }

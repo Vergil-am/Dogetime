@@ -14,7 +14,8 @@ import retrofit2.http.Header
 import retrofit2.http.Url
 
 class Vidplay {
-    private val keyUrl = "https://raw.githubusercontent.com/KillerDogeEmpire/vidplay-keys/keys/"
+//    private val keyUrl = "https://raw.githubusercontent.com/KillerDogeEmpire/vidplay-keys/keys/"
+    private val keyUrl = "https://raw.githubusercontent.com/Ciarands/vidsrc-keys/main/"
     private val providerUrl = "https://vidplay.online"
 
     interface KeysAPI {
@@ -44,11 +45,18 @@ class Vidplay {
             .create(VidplayAPI::class.java)
 
     suspend fun resolveSource(url: String): List<Source> {
-        val urlData = url.split("?")
-        val key = encodeId(urlData[0].split("/e/").last())
-        val token = getFuToken(key = key, url = url)
-        val newUrl = "${providerUrl}/mediainfo/${token}?${urlData[1]}&autostart=true"
-        return getFile(newUrl)
+        Log.e("Vidplay", url)
+        try {
+            val urlData = url.split("?")
+            val key = encodeId(urlData[0].split("/e/").last())
+            val token = getFuToken(key = key, url = url)
+            val newUrl = "${providerUrl}/mediainfo/${token}?${urlData[1]}&autostart=true"
+            Log.e("New url", newUrl)
+            return getFile(newUrl)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            return emptyList()
+        }
 
 
 //        TODO("I need to parse subtitles")
@@ -94,6 +102,7 @@ class Vidplay {
 
     private suspend fun getFile(url: String): List<Source> {
         val res = vidplayAPI.getVideo(url)
+        Log.e("res", res.body().toString())
 
         val json = Gson().fromJson(res.body(), VidplayFile::class.java)
         val fileUrl = json.result.sources[0].file

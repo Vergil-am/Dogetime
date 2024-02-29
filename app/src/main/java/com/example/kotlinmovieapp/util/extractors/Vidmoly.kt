@@ -20,7 +20,9 @@ class Vidmoly {
     private val api = Retrofit.Builder().baseUrl(baseUrl)
         .addConverterFactory(ScalarsConverterFactory.create()).build()
         .create(API::class.java)
-    suspend fun getVideoFromUrl(url: String, quality: String?) : Source {
+    suspend fun getVideoFromUrl(url: String, quality: String?) : Source? {
+        try {
+
         val res = api.getDocument(url)
         val pattern = Regex("""sources:\s*\[.*?file:"(.*?)".*?\]""", RegexOption.DOT_MATCHES_ALL)
         val matchResult = pattern.find(res.body() ?: "")
@@ -33,5 +35,10 @@ class Vidmoly {
             label = quality ?: "unknown",
             source = "Vidmoly"
         )
+
+        } catch (e: Exception) {
+            e.printStackTrace()
+            return null
+        }
     }
 }

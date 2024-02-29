@@ -8,22 +8,27 @@ import java.util.regex.Pattern
 class VidsrcPro {
 
     @RequiresApi(Build.VERSION_CODES.O)
-    fun vidsrcPro(body: String) : Source {
-        // Extract the encoded HLS URL
-        val encodedHlsUrlPattern = Regex("""file:"([^"]*)"""")
-        val encodedHlsUrlMatch = encodedHlsUrlPattern.find(body)
-        val encodedHlsUrl = encodedHlsUrlMatch?.groupValues?.get(1) ?: ""
+    fun vidsrcPro(body: String) : Source? {
+        try {
+            // Extract the encoded HLS URL
+            val encodedHlsUrlPattern = Regex("""file:"([^"]*)"""")
+            val encodedHlsUrlMatch = encodedHlsUrlPattern.find(body)
+            val encodedHlsUrl = encodedHlsUrlMatch?.groupValues?.get(1) ?: ""
 
-        // Extract the HLS password URL
-        val hlsPasswordUrlPattern = Regex("""var pass_path = "([^"]*)";""")
-        val hlsPasswordUrlMatch = hlsPasswordUrlPattern.find(body)
-        var hlsPasswordUrl = hlsPasswordUrlMatch?.groupValues?.get(1)?.trim() ?: ""
+            // Extract the HLS password URL
+            val hlsPasswordUrlPattern = Regex("""var pass_path = "([^"]*)";""")
+            val hlsPasswordUrlMatch = hlsPasswordUrlPattern.find(body)
+            var hlsPasswordUrl = hlsPasswordUrlMatch?.groupValues?.get(1)?.trim() ?: ""
 
-        if (hlsPasswordUrl.startsWith("//")) {
-            hlsPasswordUrl = "https:$hlsPasswordUrl"
+            if (hlsPasswordUrl.startsWith("//")) {
+                hlsPasswordUrl = "https:$hlsPasswordUrl"
+            }
+
+            return decodeHlsUrl(encodedHlsUrl)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            return null
         }
-
-       return decodeHlsUrl(encodedHlsUrl)
     }
 
 

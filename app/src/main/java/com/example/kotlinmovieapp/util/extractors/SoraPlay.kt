@@ -28,23 +28,28 @@ class SoraPlay {
             .build().create(API::class.java)
 
     suspend fun extractSources(url: String) : List<Source> {
-        val res = api.getDocument(url = url, referer = referer)
-        if (res.code() != 200) {
-            throw Exception("Soraplay error code ${res.code()}")
-        }
-        val doc = res.body()?.let { Jsoup.parse(it) } ?: throw Exception("Not found")
-        val data = doc.select("div.OptionsLangDisp").select("li").map {
-            it.attr("onclick").substringAfter(" go_to_player('").substringBefore("')")
-        }
-
-        val sources = mutableListOf<Source>()
-       data.map {
-            if (it.contains("4shared")) {
-                sources.add(Shared().getVideoFromUrl(it))
+        try {
+            val res = api.getDocument(url = url, referer = referer)
+            if (res.code() != 200) {
+                throw Exception("Soraplay error code ${res.code()}")
             }
-        }
+            val doc = res.body()?.let { Jsoup.parse(it) } ?: throw Exception("Not found")
+            val data = doc.select("div.OptionsLangDisp").select("li").map {
+                it.attr("onclick").substringAfter(" go_to_player('").substringBefore("')")
+            }
 
-        return sources
+            val sources = mutableListOf<Source>()
+            data.map {
+                if (it.contains("4shared")) {
+                    Shared().getVideoFromUrl(it)?.let { it1 -> sources.add(it1) }
+                }
+            }
+
+            return sources
+        } catch (e: Exception) {
+            e.printStackTrace()
+            return emptyList()
+        }
 
 
     }

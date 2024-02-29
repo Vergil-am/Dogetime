@@ -1,6 +1,5 @@
 package com.example.kotlinmovieapp.util.extractors
 
-import android.util.Log
 import dev.datlag.jsunpacker.JsUnpacker
 import org.jsoup.Jsoup
 import retrofit2.Response
@@ -34,10 +33,8 @@ class Filemoon {
 
         val unpacked = JsUnpacker.unpackAndCombine(jsEval).orEmpty()
 
-        val masterUrl = unpacked.takeIf(String::isNotBlank)?.substringAfter("{file:\"", "")
+        return unpacked.takeIf(String::isNotBlank)?.substringAfter("{file:\"", "")
             ?.substringBefore("\"}", "")?.takeIf(String::isNotBlank)
             ?: throw Exception("could not get filemoon file")
-        Log.e("MasterUrl", masterUrl)
-        return masterUrl
     }
 }

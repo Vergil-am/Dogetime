@@ -23,7 +23,9 @@ class Shared {
         Retrofit.Builder().baseUrl(baseUrl).addConverterFactory(ScalarsConverterFactory.create())
             .build().create(API::class.java)
 
-    suspend fun getVideoFromUrl(url: String) : Source {
+    suspend fun getVideoFromUrl(url: String) : Source? {
+        try {
+
         val res = api.getDocument(url)
         val doc = res.body()?.let { Jsoup.parse(it) } ?: throw Exception("link invalid")
         val videoLink = doc.selectFirst("source")?.attr("src") ?: throw Exception("No file found")
@@ -36,5 +38,10 @@ class Shared {
              quality = "unknown",
              label = "unknown"
          )
+
+        } catch (e: Exception) {
+            e.printStackTrace()
+            return null
+        }
     }
 }

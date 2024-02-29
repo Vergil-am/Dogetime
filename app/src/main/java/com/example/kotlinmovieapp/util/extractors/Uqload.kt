@@ -24,26 +24,32 @@ class Uqload {
         Retrofit.Builder().baseUrl(baseUrl).addConverterFactory(ScalarsConverterFactory.create())
             .build().create(UqloadAPI::class.java)
 
-    suspend fun getVideoFromUrl(url: String, quality: String?) : Source {
-        val res = api.getVideo(url = url, referer = baseUrl)
-        if (res.code() != 200) {
-            throw Exception("Could not get page")
+    suspend fun getVideoFromUrl(url: String, quality: String?) : Source? {
+        try {
+
+            val res = api.getVideo(url = url, referer = baseUrl)
+            if (res.code() != 200) {
+                throw Exception("Could not get page")
+            }
+            val doc = res.body()?.let { Jsoup.parse(it) }
+
+            val script = doc?.selectFirst("script:containsData(sources:)")?.data()
+                ?: throw Exception("Video not available")
+
+            val videoUrl = script.substringAfter("sources: [\"").substringBefore('"')
+                .takeIf(String::isNotBlank)
+                ?.takeIf { it.startsWith("http") } ?: throw Exception("No video link found")
+
+            return Source(
+                url = videoUrl,
+                quality = quality ?: "unknown",
+                header = baseUrl,
+                label = quality ?: "unknown",
+                source = "Uqload"
+            )
+        } catch (e: Exception) {
+            e.printStackTrace()
+            return null
         }
-        val doc = res.body()?.let { Jsoup.parse(it) }
-
-        val script = doc?.selectFirst("script:containsData(sources:)")?.data()
-            ?: throw Exception("Video not available")
-
-        val videoUrl = script.substringAfter("sources: [\"").substringBefore('"')
-            .takeIf(String::isNotBlank)
-            ?.takeIf { it.startsWith("http") } ?: throw Exception("No video link found")
-
-        return Source(
-            url = videoUrl,
-            quality = quality ?: "unknown",
-            header = baseUrl,
-            label = quality ?: "unknown",
-            source = "Uqload"
-        )
     }
 }

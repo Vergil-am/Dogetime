@@ -1,13 +1,12 @@
 package com.example.kotlinmovieapp.util.extractors
 
-import android.util.Log
-import org.jsoup.Jsoup
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.scalars.ScalarsConverterFactory
 import retrofit2.http.GET
 import retrofit2.http.Headers
 import retrofit2.http.Url
+import com.example.kotlinmovieapp.domain.model.Source
 
 class Vidblue {
     private val baseUrl = "https://a3.vidblue.online"
@@ -22,12 +21,26 @@ class Vidblue {
     private val api = Retrofit.Builder().baseUrl(baseUrl)
         .addConverterFactory(ScalarsConverterFactory.create()).build()
         .create(API::class.java)
-    suspend fun getVideoFromUrl(url: String) {
-        val res = api.getDocument(url)
-        val pattern = Regex("""sources:\s*\[.*?file:"(.*?)".*?\]""", RegexOption.DOT_MATCHES_ALL)
-        val matchResult = pattern.find(res.body() ?: "")
-        val fileUrl = matchResult?.groupValues?.get(1)
+    suspend fun getVideoFromUrl(url: String) : Source? {
+        try {
+            val res = api.getDocument(url)
+            val pattern =
+                Regex("""sources:\s*\[.*?file:"(.*?)".*?\]""", RegexOption.DOT_MATCHES_ALL)
+            val matchResult = pattern.find(res.body() ?: "")
+            val fileUrl = matchResult?.groupValues?.get(1)
 
-        Log.e("vidblue", fileUrl.toString())
+            return fileUrl?.let {
+                Source(
+                    url = it,
+                    source = "Vidblue",
+                    quality = "Unknown",
+                    label = "Unknown",
+                    header = baseUrl
+                )
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            return null
+        }
     }
 }

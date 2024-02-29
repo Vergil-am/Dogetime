@@ -34,6 +34,8 @@ class Vidsrcme {
 
     @RequiresApi(Build.VERSION_CODES.O)
     suspend fun getSources(url: String) : List<Source> {
+        try {
+
         val res = api.getDocument(url, baseUrl)
         if (res.code() != 200) {
             throw Exception("vidsrc.me error code ${res.code()}")
@@ -50,6 +52,11 @@ class Vidsrcme {
         }
 
         return sources
+
+        } catch (e: Exception) {
+            e.printStackTrace()
+            return emptyList()
+        }
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -83,7 +90,8 @@ class Vidsrcme {
         }
 
         when {
-            source.contains("vidsrc.stream") -> sources.add(VidsrcPro().vidsrcPro(res.body()!!))
+            source.contains("vidsrc.stream") -> VidsrcPro().vidsrcPro(res.body()!!)
+                ?.let { sources.add(it) }
             source.contains("streambucket") -> StreamBucket().streamBucket(res.body()!!)
         }
         return sources

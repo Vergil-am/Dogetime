@@ -21,18 +21,24 @@ class Streamwish {
         .addConverterFactory(ScalarsConverterFactory.create()).build()
         .create(API::class.java)
 
-    suspend fun getVideoFromUrl(url: String): Source {
-        val res = api.getDocument(url)
-        val pattern = Regex("""sources:\s*\[.*?file:"(.*?)".*?\]""", RegexOption.DOT_MATCHES_ALL)
-        val matchResult = pattern.find(res.body() ?: "")
-        val fileUrl = matchResult?.groupValues?.get(1) ?: throw Exception("file not found")
+    suspend fun getVideoFromUrl(url: String): Source? {
+        try {
+            val res = api.getDocument(url)
+            val pattern =
+                Regex("""sources:\s*\[.*?file:"(.*?)".*?\]""", RegexOption.DOT_MATCHES_ALL)
+            val matchResult = pattern.find(res.body() ?: "")
+            val fileUrl = matchResult?.groupValues?.get(1) ?: throw Exception("file not found")
 
-        return Source(
-            url = fileUrl,
-            quality = "unknown",
-            header = baseUrl,
-            label = "unknown",
-            source = "StreamWish"
-        )
+            return Source(
+                url = fileUrl,
+                quality = "unknown",
+                header = baseUrl,
+                label = "unknown",
+                source = "StreamWish"
+            )
+        } catch (e: Exception) {
+            e.printStackTrace()
+            return null
+        }
     }
 }
