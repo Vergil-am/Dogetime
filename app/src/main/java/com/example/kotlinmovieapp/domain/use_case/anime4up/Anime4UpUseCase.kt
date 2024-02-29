@@ -104,25 +104,29 @@ class Anime4upUseCase @Inject constructor(
     }
 
     fun getEpisode(slug: String): Flow<List<Source>> = flow {
-        val doc = repo.getEpisode(slug).body()
+        try {
+            val doc = repo.getEpisode(slug).body()
 
-        if (doc != null) {
-            val base64 = Jsoup.parse(doc).selectFirst("input[name=wl]")?.attr("value")
-            val sources = String(Base64.decode(base64, Base64.DEFAULT))
-            val data : VideoLinks = Gson().fromJson(sources, VideoLinks::class.java)
+            if (doc != null) {
+                val base64 = Jsoup.parse(doc).selectFirst("input[name=wl]")?.attr("value")
+                val sources = String(Base64.decode(base64, Base64.DEFAULT))
+                val data: VideoLinks = Gson().fromJson(sources, VideoLinks::class.java)
 
-            val links = mutableListOf<ExtractorProp>()
+                val links = mutableListOf<ExtractorProp>()
 
-            data.hd?.values?.forEach {
-                links.add(ExtractorProp(link = it, "HD"))
+                data.hd?.values?.forEach {
+                    links.add(ExtractorProp(link = it, "HD"))
+                }
+                data.sd?.values?.forEach { links.add(ExtractorProp(link = it, "SD")) }
+                data.fhd?.values?.forEach { links.add(ExtractorProp(link = it, "SD")) }
+                val extractedLinks = extractor(links)
+
+                Log.e("Extracted anime4up", extractedLinks.toString())
+
+                emit(extractedLinks)
             }
-            data.sd?.values?.forEach { links.add(ExtractorProp(link = it, "SD")) }
-            data.fhd?.values?.forEach {  links.add(ExtractorProp(link = it, "SD"))  }
-            val extractedLinks = extractor(links)
-
-            Log.e("Extracted anime4up", extractedLinks.toString())
-
-            emit(extractedLinks)
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
 
     }

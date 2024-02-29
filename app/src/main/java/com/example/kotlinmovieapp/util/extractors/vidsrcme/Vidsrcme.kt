@@ -76,6 +76,7 @@ class Vidsrcme {
     private suspend fun getSourceUrl(decoded: String) : List<Source> {
         val res = api.getDocument(decoded, baseUrl)
         val source = res.toString().substringAfter("url=").substringBefore("}")
+        Log.e("Vidsrc.me", source)
         val sources = mutableListOf<Source>()
         if (res.body() == null) {
             throw Exception("vidsrc Pro error code ${res.code()}")
@@ -85,7 +86,6 @@ class Vidsrcme {
             source.contains("vidsrc.stream") -> sources.add(VidsrcPro().vidsrcPro(res.body()!!))
             source.contains("streambucket") -> StreamBucket().streamBucket(res.body()!!)
         }
-        Log.e("VidsrcMe", sources.toString())
         return sources
     }
 
