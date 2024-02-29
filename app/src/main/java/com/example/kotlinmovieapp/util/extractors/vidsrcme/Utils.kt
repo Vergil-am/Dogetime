@@ -1,5 +1,9 @@
 package com.example.kotlinmovieapp.util.extractors.vidsrcme
 
+import android.os.Build
+import androidx.annotation.RequiresApi
+import java.util.Base64
+
 class Utils {
 
     fun decodeSrc(encoded: String, seed: String) : String {
@@ -11,4 +15,11 @@ class Utils {
         }
         return decoded
     }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun decodeBase64UrlSafe(s: String): ByteArray {
+        val standardizedInput = s.replace('_', '/').replace('-', '+')
+        return Base64.getDecoder().decode(standardizedInput)
+    }
+
 }

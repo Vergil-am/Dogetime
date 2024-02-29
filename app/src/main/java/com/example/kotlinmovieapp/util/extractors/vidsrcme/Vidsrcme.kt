@@ -1,6 +1,8 @@
 package com.example.kotlinmovieapp.util.extractors.vidsrcme
 
+import android.os.Build
 import android.util.Log
+import androidx.annotation.RequiresApi
 import org.jsoup.Jsoup
 import retrofit2.Response
 import retrofit2.Retrofit
@@ -19,7 +21,6 @@ class Vidsrcme {
         suspend fun getDocument(
             @Url url: String,
             @Header("Referer") referer: String,
-            @Header("Allow-Redirects") redirect: Boolean = false
         ): Response<String>
     }
 
@@ -30,6 +31,7 @@ class Vidsrcme {
         .build()
         .create(API::class.java)
 
+    @RequiresApi(Build.VERSION_CODES.O)
     suspend fun getSources(url: String) {
         val res = api.getDocument(url, baseUrl)
         if (res.code() != 200) {
@@ -48,6 +50,7 @@ class Vidsrcme {
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     private suspend fun getSource(hash : String, provider: String) {
         val res = api.getDocument("$rcpUrl/$hash", baseUrl)
         if (res.code() != 200) {
@@ -64,11 +67,19 @@ class Vidsrcme {
             decoded = "https:$decoded"
         }
         getSourceUrl(decoded)
+
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     private suspend fun getSourceUrl(decoded: String) {
-        val res = api.getDocument(decoded, baseUrl, false)
-    }
+        val res = api.getDocument(decoded, baseUrl)
+        val source = res.toString().substringAfter("url=").substringBefore("}")
 
+        Log.e("Source", source)
+
+        when {
+            source.contains("vidsrc.stream") -> res.body()?.let {VidsrcPro().vidsrcPro(res.body()!!)}
+        }
+    }
 
 }
