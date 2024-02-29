@@ -1,6 +1,8 @@
 package com.example.kotlinmovieapp.domain.use_case.movies.get_movie
 
+import android.os.Build
 import android.util.Log
+import androidx.annotation.RequiresApi
 import com.example.kotlinmovieapp.data.remote.dto.SeasonDTO
 import com.example.kotlinmovieapp.domain.model.Details
 import com.example.kotlinmovieapp.domain.model.Source
@@ -124,19 +126,24 @@ class GetMovieUseCase @Inject constructor(
 
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     fun getSources(id: Int?, type: String, episode: Int?, season: Int?): Flow<List<Source>> = flow {
         val sources = mutableListOf<Source>()
+        try {
+            when (type) {
+                "movie" -> {
+                    sources.addAll(Vidsrcto().getSources("${Constants.VIDSRC_MULTI}/embed/movie/$id"))
+                    sources.addAll(Vidsrcme().getSources("${Constants.VIDSRC_FHD}/embed/movie/$id"))
+                }
 
-        when (type) {
-            "movie" -> {
-                sources.addAll(Vidsrcto().getSources("${Constants.VIDSRC_MULTI}/embed/movie/$id"))
-                Vidsrcme().getSources("${Constants.VIDSRC_FHD}/embed/movie/$id")
+                "show" -> {
+                    sources.addAll(Vidsrcto().getSources("${Constants.VIDSRC_MULTI}/embed/tv/$id/$season/$episode"))
+                    sources.addAll(Vidsrcme().getSources("${Constants.VIDSRC_FHD}/embed/tv/$id/$season/$episode"))
+                }
             }
 
-            "show" -> {
-                sources.addAll(Vidsrcto().getSources("${Constants.VIDSRC_MULTI}/embed/tv/$id/$season/$episode"))
-                Vidsrcme().getSources("${Constants.VIDSRC_FHD}/embed/tv/$id/$season/$episode")
-            }
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
 
         emit(sources)

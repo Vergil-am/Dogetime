@@ -167,25 +167,12 @@ fun Details(
                     Source(source = it.source,
                         link = it.url,
                         info = it.label,
-                        navController = navController,
+                        header = it.header,
                         onClick = {
                             opened = false
 
                         })
                 }
-
-
-//                Source(source = "FHD 1080p",
-//                    link = URLEncoder.encode("${Constants.VIDSRC_FHD}/movie/$id?ds_langs=en,ar,fr"),
-//                    info = "Progress",
-//                    navController = navController,
-//                    onClick = { opened = false })
-//                Source(source = "Multi quality",
-//                    info = "No progress",
-//                    link = URLEncoder.encode("${Constants.VIDSRC_MULTI}/embed/movie/$id"),
-//                    navController = navController,
-//                    onClick = { opened = false })
-
             }
         }
     }

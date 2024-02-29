@@ -1,7 +1,5 @@
 package com.example.kotlinmovieapp.presentation.details
 
-import android.content.Intent
-import android.net.Uri
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
@@ -56,7 +54,6 @@ fun AnimeEpisodes(
     var opened by remember {
         mutableStateOf(false)
     }
-    val context = LocalContext.current
 
     LazyColumn(
         state = columnState
@@ -157,20 +154,15 @@ fun AnimeEpisodes(
                 sources.map {
                     Log.e("Source", it.toString())
                     Source(source = it.source,
-                                info = it.quality,
-                                link = it.url,
-                                navController,
-                                onClick = {
-                                    val intent = Intent(Intent.ACTION_VIEW)
-                                    intent.setDataAndType(Uri.parse(it.url), "video/*")
-                                    intent.putExtra(Intent.EXTRA_REFERRER, it.header)
-                                    context.startActivity(intent)
-
-                                    opened = false
-                                })
-                        }
-                }
-
+                        info = it.quality,
+                        link = it.url,
+                        header = it.header,
+                        onClick = {
+                            opened = false
+                        })
                 }
             }
+
         }
+    }
+}

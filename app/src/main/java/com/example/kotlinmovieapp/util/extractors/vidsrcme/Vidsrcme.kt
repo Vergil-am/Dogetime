@@ -3,6 +3,7 @@ package com.example.kotlinmovieapp.util.extractors.vidsrcme
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
+import com.example.kotlinmovieapp.domain.model.Source
 import org.jsoup.Jsoup
 import retrofit2.Response
 import retrofit2.Retrofit
@@ -32,26 +33,27 @@ class Vidsrcme {
         .create(API::class.java)
 
     @RequiresApi(Build.VERSION_CODES.O)
-    suspend fun getSources(url: String) {
+    suspend fun getSources(url: String) : List<Source> {
         val res = api.getDocument(url, baseUrl)
         if (res.code() != 200) {
             throw Exception("vidsrc.me error code ${res.code()}")
         }
         val doc = res.body()?.let { Jsoup.parse(it) }
-
-        val sources = doc?.select("div.server")?.filter{
+        val links = doc?.select("div.server")?.filter{
             it.text().isNotEmpty() && it.hasAttr("data-hash")
         }?.associate {
             it.text() to it.attr("data-hash")
         }
-
-        sources?.map {
-            getSource(hash = it.value, provider = it.key)
+        val sources = mutableListOf<Source>()
+        links?.map {
+            sources.addAll(getSource(hash = it.value, provider = it.key))
         }
+
+        return sources
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
-    private suspend fun getSource(hash : String, provider: String) {
+    private suspend fun getSource(hash : String, provider: String) : List<Source> {
         val res = api.getDocument("$rcpUrl/$hash", baseUrl)
         if (res.code() != 200) {
             throw Exception("$provider error code ${res.code()}")
@@ -66,20 +68,25 @@ class Vidsrcme {
         if (decoded.startsWith("//")) {
             decoded = "https:$decoded"
         }
-        getSourceUrl(decoded)
+        return getSourceUrl(decoded)
 
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
-    private suspend fun getSourceUrl(decoded: String) {
+    private suspend fun getSourceUrl(decoded: String) : List<Source> {
         val res = api.getDocument(decoded, baseUrl)
         val source = res.toString().substringAfter("url=").substringBefore("}")
-
-        Log.e("Source", source)
+        val sources = mutableListOf<Source>()
+        if (res.body() == null) {
+            throw Exception("vidsrc Pro error code ${res.code()}")
+        }
 
         when {
-            source.contains("vidsrc.stream") -> res.body()?.let {VidsrcPro().vidsrcPro(res.body()!!)}
+            source.contains("vidsrc.stream") -> sources.add(VidsrcPro().vidsrcPro(res.body()!!))
+            source.contains("streambucket") -> StreamBucket().streamBucket(res.body()!!)
         }
+        Log.e("VidsrcMe", sources.toString())
+        return sources
     }
 
 }

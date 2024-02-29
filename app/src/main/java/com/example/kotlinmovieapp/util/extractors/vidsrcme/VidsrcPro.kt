@@ -1,14 +1,14 @@
 package com.example.kotlinmovieapp.util.extractors.vidsrcme
 
 import android.os.Build
-import android.util.Log
 import androidx.annotation.RequiresApi
+import com.example.kotlinmovieapp.domain.model.Source
 import java.util.regex.Pattern
 
 class VidsrcPro {
 
     @RequiresApi(Build.VERSION_CODES.O)
-    fun vidsrcPro(body: String) {
+    fun vidsrcPro(body: String) : Source {
         // Extract the encoded HLS URL
         val encodedHlsUrlPattern = Regex("""file:"([^"]*)"""")
         val encodedHlsUrlMatch = encodedHlsUrlPattern.find(body)
@@ -23,19 +23,25 @@ class VidsrcPro {
             hlsPasswordUrl = "https:$hlsPasswordUrl"
         }
 
-        val hlsUrl = decodeHlsUrl(encodedHlsUrl)
+       return decodeHlsUrl(encodedHlsUrl)
     }
 
 
     @RequiresApi(Build.VERSION_CODES.O)
-    private fun decodeHlsUrl(data: String) {
-        val formatedB64 = formatHlsB64(data.substring(2))
-        val b64Data = Utils().decodeBase64UrlSafe(formatedB64)
+    private fun decodeHlsUrl(data: String): Source {
+        val formattedB64 = formatHlsB64(data.substring(2))
+        val b64Data = Utils().decodeBase64UrlSafe(formattedB64)
         val url = String(b64Data, Charsets.UTF_8)
-        Log.e("final url", url)
+
+        return Source(
+            source = "Vidsrc pro",
+            url = url,
+            label = "FHD",
+            quality = "1080p",
+            header = null
+        )
+
     }
-
-
     private fun formatHlsB64(data: String): String {
         val encodedB64 = data.replace(Regex("/@#@/[^=/]+=="), "")
         if (Pattern.compile("/@#@/[^=/]+==").matcher(encodedB64).find()) {
@@ -44,3 +50,5 @@ class VidsrcPro {
         return encodedB64
     }
 }
+
+

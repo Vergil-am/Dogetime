@@ -88,9 +88,9 @@ class Vidplay {
         return result.toString()
     }
 
-    private fun getSubtitles() {
+//    private fun getSubtitles() {
 //        TODO("I need to get subtitles ")
-    }
+//    }
 
     private suspend fun getFile(url: String): List<Source> {
         val res = vidplayAPI.getVideo(url)
@@ -115,7 +115,7 @@ class Vidplay {
                 Source(
                     url = "$baseUrl${it.groupValues[2]}",
                     quality = "${it.groupValues[1]}P",
-                    label = "external",
+                    label = "${it.groupValues[1]}P",
                     source = "Vidplay",
                     header = null
                 )

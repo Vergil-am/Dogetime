@@ -1,6 +1,7 @@
 package com.example.kotlinmovieapp.presentation.components
 
 import android.content.Intent
+import android.net.Uri
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -22,7 +23,7 @@ import java.net.URLEncoder
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Source(
-    source: String, info: String, link: String, navController: NavController, onClick: () -> Unit
+    source: String, info: String, link: String, header: String? , onClick: () -> Unit
 ) {
     val intent = Intent(Intent.ACTION_VIEW)
     val context = LocalContext.current
@@ -30,12 +31,9 @@ fun Source(
         .fillMaxWidth()
         .padding(10.dp), onClick = {
         val url = URLEncoder.encode(link)
-//        if (info == "external"){
-//            intent.setDataAndType(Uri.parse(link), "video/*")
-//            context.startActivity(intent)
-//        } else {
-//            navController.navigate("web-view/${url}")
-//        }
+        intent.setDataAndType(Uri.parse(url), "video/*")
+        intent.putExtra(Intent.EXTRA_REFERRER, header)
+        context.startActivity(intent)
         onClick()
     }) {
         Row(

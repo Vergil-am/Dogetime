@@ -174,7 +174,7 @@ fun Episodes(
                             Source(source = it.source,
                                 link = it.url,
                                 info = it.label,
-                                navController = navController,
+                                header = it.header,
                                 onClick = {
                                     opened = false
                                 })
