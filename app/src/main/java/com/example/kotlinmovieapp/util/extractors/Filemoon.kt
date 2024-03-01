@@ -1,5 +1,6 @@
 package com.example.kotlinmovieapp.util.extractors
 
+import com.example.kotlinmovieapp.domain.model.Source
 import dev.datlag.jsunpacker.JsUnpacker
 import org.jsoup.Jsoup
 import retrofit2.Response
@@ -22,7 +23,8 @@ class Filemoon {
         .addConverterFactory(ScalarsConverterFactory.create()).build()
         .create(FilemoonAPI::class.java)
 
-    suspend fun resolveSource(url: String): String {
+    suspend fun resolveSource(url: String): Source? {
+        try {
         val res = filemoonAPI.getFilemoon(url)
         if (res.code() != 200) {
             throw Exception("Failed to get filemoon file status code ${res.code()}")
@@ -33,8 +35,20 @@ class Filemoon {
 
         val unpacked = JsUnpacker.unpackAndCombine(jsEval).orEmpty()
 
-        return unpacked.takeIf(String::isNotBlank)?.substringAfter("{file:\"", "")
+        val fileUrl = unpacked.takeIf(String::isNotBlank)?.substringAfter("{file:\"", "")
             ?.substringBefore("\"}", "")?.takeIf(String::isNotBlank)
             ?: throw Exception("could not get filemoon file")
+
+        return Source(
+            source = "Filemoon",
+            url = fileUrl,
+            quality = "1080p",
+            label = "external",
+            header = null
+        )
+        } catch (e: Exception) {
+            e.printStackTrace()
+            return null
+        }
     }
 }
