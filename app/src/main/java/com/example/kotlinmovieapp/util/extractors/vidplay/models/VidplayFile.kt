@@ -1,4 +1,4 @@
-package com.example.kotlinmovieapp.util.extractors
+package com.example.kotlinmovieapp.util.extractors.vidplay.models
 
 
 data class Source(

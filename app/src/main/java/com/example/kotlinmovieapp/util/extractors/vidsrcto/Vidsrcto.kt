@@ -4,7 +4,7 @@ import com.example.kotlinmovieapp.domain.model.Source
 import com.example.kotlinmovieapp.domain.model.VidSrcSources
 import com.example.kotlinmovieapp.domain.model.VidsrcSource
 import com.example.kotlinmovieapp.util.extractors.Filemoon
-import com.example.kotlinmovieapp.util.extractors.Vidplay
+import com.example.kotlinmovieapp.util.extractors.vidplay.Vidplay
 import okio.ByteString.Companion.decodeBase64
 import org.jsoup.Jsoup
 import retrofit2.Response

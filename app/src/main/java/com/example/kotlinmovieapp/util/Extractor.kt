@@ -10,7 +10,7 @@ import com.example.kotlinmovieapp.util.extractors.Streamwish
 import com.example.kotlinmovieapp.util.extractors.Uqload
 import com.example.kotlinmovieapp.util.extractors.Vidblue
 import com.example.kotlinmovieapp.util.extractors.Vidmoly
-import com.example.kotlinmovieapp.util.extractors.Vidplay
+import com.example.kotlinmovieapp.util.extractors.vidplay.Vidplay
 import com.example.kotlinmovieapp.util.extractors.dailymotion.Dailymotion
 
 suspend fun extractor (links : List<ExtractorProp>) : List<Source> {
