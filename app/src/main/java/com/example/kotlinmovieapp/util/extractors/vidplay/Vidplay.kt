@@ -4,10 +4,12 @@ import android.util.Base64
 import android.util.Log
 import com.example.kotlinmovieapp.domain.model.Source
 import com.example.kotlinmovieapp.util.extractors.vidplay.models.GithubKeysDTO
+import com.example.kotlinmovieapp.util.extractors.vidplay.models.Subtitle
 import com.example.kotlinmovieapp.util.extractors.vidplay.models.VidplayFile
 import com.example.kotlinmovieapp.util.extractors.vidsrcto.Utils
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
+import com.google.gson.reflect.TypeToken
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -15,9 +17,10 @@ import retrofit2.converter.scalars.ScalarsConverterFactory
 import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.Url
+import java.net.URLDecoder
 
 class Vidplay {
-//    private val keyUrl = "https://raw.githubusercontent.com/KillerDogeEmpire/vidplay-keys/keys/"
+    //    private val keyUrl = "https://raw.githubusercontent.com/KillerDogeEmpire/vidplay-keys/keys/"
 //    private val keyUrl = "https://raw.githubusercontent.com/Ciarands/vidsrc-keys/main/"
     private val keyUrl = "https://github.com/Ciarands/vidsrc-keys/blob/main/"
     private val providerUrl = "https://vidplay.online"
@@ -25,7 +28,7 @@ class Vidplay {
     interface KeysAPI {
         @GET("keys.json")
         suspend fun fetchKeys(
-            @Header("Accept") accept : String = "application/json"
+            @Header("Accept") accept: String = "application/json"
         ): Response<GithubKeysDTO>
     }
 
@@ -47,6 +50,11 @@ class Vidplay {
         suspend fun getVideo(
             @Url url: String
         ): Response<String>
+
+        @GET
+        suspend fun getSubtitles(
+            @Url url: String
+        ): Response<String>
     }
 
     private val vidplayAPI: VidplayAPI =
@@ -55,6 +63,7 @@ class Vidplay {
             .create(VidplayAPI::class.java)
 
     suspend fun resolveSource(url: String): List<Source> {
+        getSubtitles(url)
         return try {
             val urlData = url.split("?")
             val key = encodeId(urlData[0].split("/e/").last())
@@ -65,23 +74,18 @@ class Vidplay {
             e.printStackTrace()
             emptyList()
         }
-
-
-//        TODO("I need to parse subtitles")
-//        getSubtitles()
-
-
     }
 
     private suspend fun encodeId(id: String): String {
         val res = keysAPI.fetchKeys()
-        Log.e("Keys", res.body().toString())
-
         if (res.code() != 200) {
             throw Exception("failed to fetch decryption keys")
         }
-        val key1 = res.body()?.payload?.blob?.rawLines?.get(0)
-        val key2 = res.body()?.payload?.blob?.rawLines?.get(1)
+        val listType = object : TypeToken<List<String>>() {}.type
+        val keys = gson.fromJson<List<String?>>(res.body()?.payload?.blob?.rawLines?.get(0), listType )
+
+        val key1 = keys[0]
+        val key2 = keys[1]
 
         if (key1 == null || key2 == null) {
             throw Exception("Could not fetch decryption keys")
@@ -107,9 +111,30 @@ class Vidplay {
         return result.toString()
     }
 
-//    private fun getSubtitles() {
-//        TODO("I need to get subtitles ")
-//    }
+    private suspend fun getSubtitles(url: String) {
+        val urlData = url.split("?")[1]
+        try {
+            val pattern = Regex("info=([^&]+)")
+            val matchResult = pattern.find(urlData) ?: throw Exception("Subtitle data not found")
+
+            val subtitlesUrlFormatted = URLDecoder.decode(matchResult.groupValues[1], "UTF-8")
+            val subtitlesUrlFormatted2 = URLDecoder.decode(matchResult.groupValues[0], "UTF-8")
+            Log.e(subtitlesUrlFormatted2, subtitlesUrlFormatted)
+
+            val res = vidplayAPI.getSubtitles(subtitlesUrlFormatted)
+
+            if (res.code() != 200) {
+                throw Exception("Subtitles not found")
+            }
+
+//            TODO("I need to return the subtitles")
+            val subtitles = Gson().fromJson(res.body() , Array<Subtitle>::class.java).toList()
+
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+
+    }
 
     private suspend fun getFile(url: String): List<Source> {
         val res = vidplayAPI.getVideo(url)
