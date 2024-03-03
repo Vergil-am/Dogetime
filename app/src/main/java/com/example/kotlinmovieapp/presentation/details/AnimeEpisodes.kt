@@ -157,6 +157,7 @@ fun AnimeEpisodes(
                         info = it.quality,
                         link = it.url,
                         header = it.header,
+                        subtitles = null,
                         onClick = {
                             opened = false
                         })

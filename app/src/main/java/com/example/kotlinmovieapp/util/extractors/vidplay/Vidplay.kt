@@ -36,9 +36,6 @@ class Vidplay {
     private val keysAPI: KeysAPI =
         Retrofit.Builder().baseUrl(keyUrl).addConverterFactory(GsonConverterFactory.create(gson))
             .build().create(KeysAPI::class.java)
-//private val keysAPI: KeysAPI =
-//    Retrofit.Builder().baseUrl(keyUrl).addConverterFactory(ScalarsConverterFactory.create())
-//        .build().create(KeysAPI::class.java)
 
     interface VidplayAPI {
         @GET("/futoken")
@@ -50,11 +47,6 @@ class Vidplay {
         suspend fun getVideo(
             @Url url: String
         ): Response<String>
-
-        @GET
-        suspend fun getSubtitles(
-            @Url url: String
-        ): Response<String>
     }
 
     private val vidplayAPI: VidplayAPI =
@@ -63,7 +55,6 @@ class Vidplay {
             .create(VidplayAPI::class.java)
 
     suspend fun resolveSource(url: String): List<Source> {
-        getSubtitles(url)
         return try {
             val urlData = url.split("?")
             val key = encodeId(urlData[0].split("/e/").last())
@@ -82,7 +73,8 @@ class Vidplay {
             throw Exception("failed to fetch decryption keys")
         }
         val listType = object : TypeToken<List<String>>() {}.type
-        val keys = gson.fromJson<List<String?>>(res.body()?.payload?.blob?.rawLines?.get(0), listType )
+        val keys =
+            gson.fromJson<List<String?>>(res.body()?.payload?.blob?.rawLines?.get(0), listType)
 
         val key1 = keys[0]
         val key2 = keys[1]
@@ -109,31 +101,6 @@ class Vidplay {
         }
         result.append(",").append(encodedValues.joinToString(",")).toString()
         return result.toString()
-    }
-
-    private suspend fun getSubtitles(url: String) {
-        val urlData = url.split("?")[1]
-        try {
-            val pattern = Regex("info=([^&]+)")
-            val matchResult = pattern.find(urlData) ?: throw Exception("Subtitle data not found")
-
-            val subtitlesUrlFormatted = URLDecoder.decode(matchResult.groupValues[1], "UTF-8")
-            val subtitlesUrlFormatted2 = URLDecoder.decode(matchResult.groupValues[0], "UTF-8")
-            Log.e(subtitlesUrlFormatted2, subtitlesUrlFormatted)
-
-            val res = vidplayAPI.getSubtitles(subtitlesUrlFormatted)
-
-            if (res.code() != 200) {
-                throw Exception("Subtitles not found")
-            }
-
-//            TODO("I need to return the subtitles")
-            val subtitles = Gson().fromJson(res.body() , Array<Subtitle>::class.java).toList()
-
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
-
     }
 
     private suspend fun getFile(url: String): List<Source> {

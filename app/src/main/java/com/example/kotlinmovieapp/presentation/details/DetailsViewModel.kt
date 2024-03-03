@@ -1,6 +1,8 @@
 package com.example.kotlinmovieapp.presentation.details
 
+import android.os.Build
 import android.util.Log
+import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.kotlinmovieapp.data.local.entities.WatchListMedia
@@ -132,11 +134,18 @@ class DetailsViewModel @Inject constructor(
         _state.value = _state.value.copy(watchList = null)
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     fun getVidsrc(id: Int?, type: String, episode: Int?, season: Int?) {
-       _state.value = _state.value.copy(movieSources = emptyList())
+       _state.value = _state.value.copy(
+           movieSources = emptyList(),
+           subtitles = emptyList()
+       )
         if (id != null) {
             getMovieUseCase.getSources(id, type, episode, season).onEach {
-                _state.value = _state.value.copy(movieSources = it)
+                _state.value = _state.value.copy(
+                    movieSources = it.sources,
+                    subtitles = it.subtitles
+                    )
             }.launchIn(viewModelScope)
 //            vidsrc.getSources(url).onEach {
 //                _state.value = _state.value.copy(

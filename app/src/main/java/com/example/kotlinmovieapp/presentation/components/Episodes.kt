@@ -175,6 +175,7 @@ fun Episodes(
                                 link = it.url,
                                 info = it.label,
                                 header = it.header,
+                                subtitles = state.subtitles,
                                 onClick = {
                                     opened = false
                                 })

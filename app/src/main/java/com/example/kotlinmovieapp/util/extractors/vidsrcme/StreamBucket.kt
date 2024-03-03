@@ -12,12 +12,14 @@ class StreamBucket {
 
             scripts.forEach { script ->
                 val scriptContent = script.html()
+                Log.e("Stream bucket script", scriptContent)
                 if (scriptContent.contains("eval(function(h,u,n,t,e,r)")) {
                     val startIndex = scriptContent.indexOf("eval(function(h,u,n,t,e,r)")
                     val endIndex = scriptContent.indexOf("})", startIndex)
                     val extractedContent = scriptContent.substring(startIndex, endIndex + 2)
                     Log.e("Extracted content", extractedContent)
                 } else {
+                    throw Exception("No eval function")
 //                    return null
                 }
             }

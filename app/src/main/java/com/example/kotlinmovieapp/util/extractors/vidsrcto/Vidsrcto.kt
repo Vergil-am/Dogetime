@@ -1,10 +1,15 @@
 package com.example.kotlinmovieapp.util.extractors.vidsrcto
 
+import android.util.Log
 import com.example.kotlinmovieapp.domain.model.Source
 import com.example.kotlinmovieapp.domain.model.VidSrcSources
 import com.example.kotlinmovieapp.domain.model.VidsrcSource
 import com.example.kotlinmovieapp.util.extractors.Filemoon
 import com.example.kotlinmovieapp.util.extractors.vidplay.Vidplay
+import com.example.kotlinmovieapp.util.extractors.vidplay.models.Subtitle
+import com.example.kotlinmovieapp.util.extractors.vidplay.models.SubtitlesDTO
+import com.example.kotlinmovieapp.util.extractors.vidsrcto.model.VidsrctoReturnType
+import com.google.gson.Gson
 import okio.ByteString.Companion.decodeBase64
 import org.jsoup.Jsoup
 import retrofit2.Response
@@ -36,6 +41,11 @@ class Vidsrcto {
         suspend fun getSource(
             @Path("sourceId") sourceId: String
         ): VidsrcSource
+
+        @GET
+        suspend fun getSubtitles(
+            @Url url: String
+        ): Response<SubtitlesDTO>
     }
 
     private val api = Retrofit.Builder()
@@ -45,7 +55,7 @@ class Vidsrcto {
         .build()
         .create(API::class.java)
 
-    suspend fun getSources(url: String): List<Source> {
+    suspend fun getSources(url: String) : VidsrctoReturnType {
         try {
             val res = api.getMovie(url).body()
             val doc = res?.let { Jsoup.parse(it) }
@@ -54,6 +64,7 @@ class Vidsrcto {
 
             val sources = api.getSources(dataId).result
             val result = mutableListOf<Source>()
+            val subtitles = mutableListOf<Subtitle>()
 
             sources.map {
                 val link = api.getSource(it.id).result.url
@@ -65,16 +76,48 @@ class Vidsrcto {
                     )
                 )
                 when {
-                    decodedLink.contains("vidplay") -> result.addAll(Vidplay().resolveSource(decodedLink))
+                    decodedLink.contains("vidplay") -> {
+                        subtitles.addAll(getSubtitles(decodedLink))
+                        result.addAll(Vidplay().resolveSource(decodedLink))
+                    }
+
                     decodedLink.contains("filemoon") -> Filemoon().resolveSource(decodedLink)
                         ?.let { it1 -> result.add(it1) }
+
                     else -> {}
                 }
             }
-            return result
+            return VidsrctoReturnType(
+                sources = result,
+                subtitles = subtitles
+            )
+        } catch (e: Exception) {
+            e.printStackTrace()
+            return VidsrctoReturnType(
+                sources = emptyList(),
+                subtitles = emptyList()
+            )
+        }
+    }
+
+    private suspend fun getSubtitles(url: String): List<Subtitle> {
+        try {
+            val urlData = url.split("?")[1]
+            val pattern = Regex("info=([^&]+)")
+            val matchResult = pattern.find(urlData) ?: throw Exception("Subtitle data not found")
+
+            val subtitlesUrlFormatted = URLDecoder.decode(matchResult.groupValues[1], "UTF-8")
+            val res = api.getSubtitles(subtitlesUrlFormatted)
+
+            if (res.code() != 200) {
+                throw Exception("Subtitles not found")
+            }
+
+            return res.body() ?: throw Exception("failed to return subtitles")
         } catch (e: Exception) {
             e.printStackTrace()
             return emptyList()
         }
+
     }
 }

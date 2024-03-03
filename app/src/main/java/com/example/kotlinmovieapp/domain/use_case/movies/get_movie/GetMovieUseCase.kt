@@ -9,8 +9,10 @@ import com.example.kotlinmovieapp.domain.model.Source
 import com.example.kotlinmovieapp.domain.repository.MovieRepository
 import com.example.kotlinmovieapp.util.Constants
 import com.example.kotlinmovieapp.util.Resource
+import com.example.kotlinmovieapp.util.extractors.vidplay.models.Subtitle
 import com.example.kotlinmovieapp.util.extractors.vidsrcme.Vidsrcme
 import com.example.kotlinmovieapp.util.extractors.vidsrcto.Vidsrcto
+import com.example.kotlinmovieapp.util.extractors.vidsrcto.model.VidsrctoReturnType
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import okio.IOException
@@ -127,26 +129,32 @@ class GetMovieUseCase @Inject constructor(
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
-    fun getSources(id: Int?, type: String, episode: Int?, season: Int?): Flow<List<Source>> = flow {
+    fun getSources(id: Int?, type: String, episode: Int?, season: Int?): Flow<VidsrctoReturnType> = flow {
         val sources = mutableListOf<Source>()
+        val subtitles = mutableListOf<Subtitle>()
         try {
             when (type) {
                 "movie" -> {
-                    sources.addAll(Vidsrcto().getSources("${Constants.VIDSRC_MULTI}/embed/movie/$id"))
+                    sources.addAll(Vidsrcto().getSources("${Constants.VIDSRC_MULTI}/embed/movie/$id").sources)
+                    subtitles.addAll(Vidsrcto().getSources("${Constants.VIDSRC_MULTI}/embed/movie/$id").subtitles)
                     sources.addAll(Vidsrcme().getSources("${Constants.VIDSRC_FHD}/embed/movie/$id"))
+
                 }
 
                 "show" -> {
-                    sources.addAll(Vidsrcto().getSources("${Constants.VIDSRC_MULTI}/embed/tv/$id/$season/$episode"))
+                    sources.addAll(Vidsrcto().getSources("${Constants.VIDSRC_MULTI}/embed/tv/$id/$season/$episode").sources)
                     sources.addAll(Vidsrcme().getSources("${Constants.VIDSRC_FHD}/embed/tv/$id/$season/$episode"))
                 }
             }
+            emit(VidsrctoReturnType(sources, subtitles))
 
         } catch (e: Exception) {
             e.printStackTrace()
         }
 
-        emit(sources)
+        emit(VidsrctoReturnType(sources, subtitles))
+
+//        emit(sources)
     }
 
 }
