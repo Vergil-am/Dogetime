@@ -32,6 +32,7 @@ val context = LocalContext.current
         .padding(10.dp), onClick = {
         val url = URLEncoder.encode(link)
 
+
         // This is specific to MX player
         intent.setDataAndType(Uri.parse(url), "video/*")
         intent.putExtra("title", title)
@@ -39,6 +40,8 @@ val context = LocalContext.current
         intent.putExtra("subs", subtitles?.map{ it.file }?.toTypedArray())
         intent.putExtra("subs.name", subtitles?.map { it.label }?.toTypedArray())
         context.startActivity(intent)
+
+
         onClick()
     }) {
         Row(

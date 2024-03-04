@@ -58,20 +58,20 @@ dependencies {
     implementation("androidx.core:core-ktx:1.12.0")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.7.0")
     implementation("androidx.activity:activity-compose:1.8.2")
-    implementation(platform("androidx.compose:compose-bom:2023.10.01"))
+    implementation(platform("androidx.compose:compose-bom:2024.02.01"))
     implementation("androidx.compose.ui:ui")
     implementation("androidx.compose.ui:ui-graphics")
     implementation("androidx.compose.ui:ui-tooling-preview")
     implementation("androidx.compose.material3:material3")
     implementation("androidx.datastore:datastore-preferences-android:1.1.0-beta01")
     // Navigation
-    implementation("androidx.navigation:navigation-compose:2.7.6")
+    implementation("androidx.navigation:navigation-compose:2.7.7")
     // Coil Image loading library
     implementation("io.coil-kt:coil-compose:2.5.0")
 
     // dagger hilt dependency injection library
     implementation("com.google.dagger:hilt-android:2.48.1")
-    implementation("com.google.android.engage:engage-core:1.3.1")
+    implementation("com.google.android.engage:engage-core:1.4.0")
     kapt("com.google.dagger:hilt-android-compiler:2.48.1")
 
     // Retrofit HTTP library
@@ -92,6 +92,8 @@ dependencies {
     // Js unpacker
     implementation("dev.datlag.jsunpacker:jsunpacker:1.0.1")
 
+    //Exo player
+    implementation("com.google.android.exoplayer:exoplayer:2.19.1")
 
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
