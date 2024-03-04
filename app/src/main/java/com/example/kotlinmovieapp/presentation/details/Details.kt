@@ -172,7 +172,7 @@ fun Details(
                         info = it.label,
                         header = it.header,
                         subtitles = state.subtitles,
-//                        title = state.media?.title ?: "movie",
+                        title = state.media?.title ?: "movie",
                         onClick = {
                             opened = false
 

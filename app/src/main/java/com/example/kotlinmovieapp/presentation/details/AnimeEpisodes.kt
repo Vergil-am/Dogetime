@@ -155,7 +155,7 @@ fun AnimeEpisodes(
                         link = it.url,
                         header = it.header,
                         subtitles = null,
-//                        title = "${state.media?.title} EP$selected",
+                        title = "${state.media?.title} EP$selected",
                         onClick = {
                             opened = false
                         })

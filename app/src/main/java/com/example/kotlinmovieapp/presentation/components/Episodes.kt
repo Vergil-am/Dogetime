@@ -179,7 +179,7 @@ fun Episodes(
                                 info = it.label,
                                 header = it.header,
                                 subtitles = state.subtitles,
-//                                title = "${state.media?.title} S${selected.season} EP${selected.episode}",
+                                title = "${state.media?.title} S${selected.season} EP${selected.episode}",
                                 onClick = {
                                     opened = false
                                 })

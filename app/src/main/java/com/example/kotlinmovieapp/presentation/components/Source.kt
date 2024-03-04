@@ -23,7 +23,7 @@ import java.net.URLEncoder
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Source(
-    source: String, info: String, link: String, header: String?, subtitles : List<Subtitle>? , onClick: () -> Unit
+    source: String, info: String, link: String, header: String?, subtitles : List<Subtitle>?, title: String , onClick: () -> Unit
 ) {
     val intent = Intent(Intent.ACTION_VIEW)
 val context = LocalContext.current
@@ -34,7 +34,7 @@ val context = LocalContext.current
 
         // This is specific to MX player
         intent.setDataAndType(Uri.parse(url), "video/*")
-        intent.putExtra(Intent.EXTRA_TITLE, "Test title")
+        intent.putExtra("title", title)
         intent.putExtra(Intent.EXTRA_REFERRER, header)
         intent.putExtra("subs", subtitles?.map{ it.file }?.toTypedArray())
         intent.putExtra("subs.name", subtitles?.map { it.label }?.toTypedArray())
