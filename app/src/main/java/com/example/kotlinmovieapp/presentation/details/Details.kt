@@ -1,5 +1,7 @@
 package com.example.kotlinmovieapp.presentation.details
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -35,6 +37,7 @@ import com.example.kotlinmovieapp.data.local.entities.WatchListMedia
 import com.example.kotlinmovieapp.presentation.components.DetailsHeader
 import com.example.kotlinmovieapp.presentation.components.Source
 
+@RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Details(
@@ -169,6 +172,7 @@ fun Details(
                         info = it.label,
                         header = it.header,
                         subtitles = state.subtitles,
+//                        title = state.media?.title ?: "movie",
                         onClick = {
                             opened = false
 

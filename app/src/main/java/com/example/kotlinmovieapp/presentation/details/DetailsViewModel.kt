@@ -136,49 +136,17 @@ class DetailsViewModel @Inject constructor(
 
     @RequiresApi(Build.VERSION_CODES.O)
     fun getVidsrc(id: Int?, type: String, episode: Int?, season: Int?) {
-       _state.value = _state.value.copy(
-           movieSources = emptyList(),
-           subtitles = emptyList()
-       )
+        _state.value = _state.value.copy(
+            movieSources = emptyList(),
+            subtitles = emptyList()
+        )
         if (id != null) {
             getMovieUseCase.getSources(id, type, episode, season).onEach {
                 _state.value = _state.value.copy(
                     movieSources = it.sources,
                     subtitles = it.subtitles
-                    )
+                )
             }.launchIn(viewModelScope)
-//            vidsrc.getSources(url).onEach {
-//                _state.value = _state.value.copy(
-//                    movieSources = it.plus(
-//                        Source(
-//                            source = "vidsrc", url = when (type) {
-//                                "movie" -> {
-//                                    "${Constants.VIDSRC_FHD}/movie/$id?ds_langs=en,ar,fr"
-//                                }
-//
-//                                "show" -> {
-//                                    "${Constants.VIDSRC_FHD}/tv/$id/$season/$episode?ds_langs=en,ar,fr"
-//                                }
-//                                else -> ""
-//                            }, quality = "1080p", label = "webview", header = null
-//                        )
-//                    ).plus(
-//                        Source(
-//                            source = "vidsrc", url = when (type) {
-//                                "movie" -> {
-//                                    "${Constants.VIDSRC_MULTI}/embed/movie/$id"
-//                                }
-//
-//                                "show" -> {
-//                                    "${Constants.VIDSRC_MULTI}/embed/tv/$id/$season/$episode"
-//                                }
-//
-//                                else -> ""
-//                            }, quality = "mutli", label = "webview", header = null
-//                        )
-//                    )
-//                )
-//            }.launchIn(viewModelScope)
         }
     }
 }

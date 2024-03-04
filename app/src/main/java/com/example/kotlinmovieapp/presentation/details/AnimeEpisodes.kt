@@ -27,13 +27,13 @@ import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
@@ -51,31 +51,28 @@ fun AnimeEpisodes(
     val state = viewModel.state.collectAsState().value
     val columnState = rememberLazyListState()
     val episodes = state.animeEpisodes
-    var opened by remember {
-        mutableStateOf(false)
-    }
-
-    LazyColumn(
-        state = columnState
-    ) {
+    var opened by remember { mutableStateOf(false) }
+    var selected by remember { mutableIntStateOf(1) }
+    LazyColumn(state = columnState) {
         episodes.forEach { episode ->
             item {
                 Card(
                     onClick = {
+                        selected = episode.episodeNumber.toIntOrNull() ?: 0
                         val media = state.media
                         if (media != null) {
-                            viewModel.addToWatchList(
-                                WatchListMedia(
-                                    id = media.id,
-                                    title = media.title,
-                                    poster = media.poster,
-                                    type = media.type,
-                                    list = "watching",
-                                    season = null,
-                                    episode = episode.episodeNumber.toIntOrNull()
-                                )
+                        viewModel.addToWatchList(
+                            WatchListMedia(
+                                id = media.id,
+                                title = media.title,
+                                poster = media.poster,
+                                type = media.type,
+                                list = "watching",
+                                season = null,
+                                episode = episode.episodeNumber.toIntOrNull()
                             )
-                        }
+                        )
+                    }
                         viewModel.getLinks(episode.slug)
                         opened = true
                     },
@@ -158,6 +155,7 @@ fun AnimeEpisodes(
                         link = it.url,
                         header = it.header,
                         subtitles = null,
+//                        title = "${state.media?.title} EP$selected",
                         onClick = {
                             opened = false
                         })

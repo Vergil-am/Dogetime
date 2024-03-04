@@ -1,5 +1,7 @@
 package com.example.kotlinmovieapp.presentation.components
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -40,6 +42,7 @@ data class SelectedEpisode(
     val season: Int, val episode: Int
 )
 
+@RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Episodes(
@@ -176,6 +179,7 @@ fun Episodes(
                                 info = it.label,
                                 header = it.header,
                                 subtitles = state.subtitles,
+//                                title = "${state.media?.title} S${selected.season} EP${selected.episode}",
                                 onClick = {
                                     opened = false
                                 })

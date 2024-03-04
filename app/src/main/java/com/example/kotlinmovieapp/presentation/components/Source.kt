@@ -17,7 +17,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
 import com.example.kotlinmovieapp.util.extractors.vidplay.models.Subtitle
 import java.net.URLEncoder
 
@@ -27,17 +26,18 @@ fun Source(
     source: String, info: String, link: String, header: String?, subtitles : List<Subtitle>? , onClick: () -> Unit
 ) {
     val intent = Intent(Intent.ACTION_VIEW)
-    val context = LocalContext.current
+val context = LocalContext.current
     Card(modifier = Modifier
         .fillMaxWidth()
         .padding(10.dp), onClick = {
         val url = URLEncoder.encode(link)
+
+        // This is specific to MX player
         intent.setDataAndType(Uri.parse(url), "video/*")
-        intent.putExtra("SUBTITLES_TRACK", subtitles?.get(0)?.file.toString())
-//        subtitles?.forEach {
-//            intent.putExtra("SUBTITLES_TRACK", it.file)
-//        }
+        intent.putExtra(Intent.EXTRA_TITLE, "Test title")
         intent.putExtra(Intent.EXTRA_REFERRER, header)
+        intent.putExtra("subs", subtitles?.map{ it.file }?.toTypedArray())
+        intent.putExtra("subs.name", subtitles?.map { it.label }?.toTypedArray())
         context.startActivity(intent)
         onClick()
     }) {
