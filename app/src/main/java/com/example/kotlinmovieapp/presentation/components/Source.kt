@@ -2,6 +2,7 @@ package com.example.kotlinmovieapp.presentation.components
 
 import android.content.Intent
 import android.net.Uri
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -26,19 +27,23 @@ fun Source(
     source: String, info: String, link: String, header: String?, subtitles : List<Subtitle>?, title: String , onClick: () -> Unit
 ) {
     val intent = Intent(Intent.ACTION_VIEW)
-val context = LocalContext.current
+    val context = LocalContext.current
     Card(modifier = Modifier
         .fillMaxWidth()
         .padding(10.dp), onClick = {
         val url = URLEncoder.encode(link)
 
 
+
         // This is specific to MX player
         intent.setDataAndType(Uri.parse(url), "video/*")
+        intent.putExtra("headers", arrayOf("Referer", header))
         intent.putExtra("title", title)
-        intent.putExtra(Intent.EXTRA_REFERRER, header)
-        intent.putExtra("subs", subtitles?.map{ it.file }?.toTypedArray())
+        intent.putExtra("subs", subtitles?.map{ Uri.parse(it.file) }?.toTypedArray())
         intent.putExtra("subs.name", subtitles?.map { it.label }?.toTypedArray())
+
+        Log.e("Extras", intent.extras.toString())
+
         context.startActivity(intent)
 
 
