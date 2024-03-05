@@ -37,7 +37,9 @@ fun Source(
 
         // This is specific to MX player
         intent.setDataAndType(Uri.parse(url), "video/*")
-        intent.putExtra("headers", arrayOf("Referer", header))
+        if (header != null) {
+            intent.putExtra("headers", arrayOf("Referer", header))
+        }
         intent.putExtra("title", title)
         intent.putExtra("subs", subtitles?.map{ Uri.parse(it.file) }?.toTypedArray())
         intent.putExtra("subs.name", subtitles?.map { it.label }?.toTypedArray())

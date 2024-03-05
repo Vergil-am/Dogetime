@@ -158,5 +158,8 @@ fun NavGraph(
             }
         }
 
+        composable(Route.Mediaplayer.route) {
+        }
+
     }
 }

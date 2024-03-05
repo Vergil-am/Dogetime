@@ -23,5 +23,7 @@ sealed class Route (
 
     object AnimeEpisodes: Route("anime/episodes/{slug}")
 
+    object Mediaplayer: Route("media-player")
+
 
 }

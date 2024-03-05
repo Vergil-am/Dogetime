@@ -4,6 +4,8 @@ import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
 import com.example.kotlinmovieapp.domain.model.Source
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import org.jsoup.Jsoup
 import retrofit2.Response
 import retrofit2.Retrofit
@@ -90,9 +92,20 @@ class Vidsrcme {
         }
 
         when {
-            source.contains("vidsrc.stream") -> VidsrcPro().vidsrcPro(res.body()!!)
-                ?.let { sources.add(it) }
-            source.contains("streambucket") -> StreamBucket().streamBucket(res.body()!!)
+
+            source.contains("vidsrc.stream") ->
+                coroutineScope {
+                    async {
+                        VidsrcPro().vidsrcPro(res.body()!!)
+                            ?.let { sources.add(it) }
+                    }
+                }
+
+            source.contains("streambucket") -> coroutineScope {
+                async {
+                    StreamBucket().streamBucket(res.body()!!)
+                }
+            }
         }
         return sources
     }

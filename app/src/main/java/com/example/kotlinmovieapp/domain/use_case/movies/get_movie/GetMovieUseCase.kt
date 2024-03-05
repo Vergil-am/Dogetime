@@ -13,6 +13,9 @@ import com.example.kotlinmovieapp.util.extractors.vidplay.models.Subtitle
 import com.example.kotlinmovieapp.util.extractors.vidsrcme.Vidsrcme
 import com.example.kotlinmovieapp.util.extractors.vidsrcto.Vidsrcto
 import com.example.kotlinmovieapp.util.extractors.vidsrcto.model.VidsrctoReturnType
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import okio.IOException
@@ -135,15 +138,32 @@ class GetMovieUseCase @Inject constructor(
         try {
             when (type) {
                 "movie" -> {
-                    sources.addAll(Vidsrcto().getSources("${Constants.VIDSRC_MULTI}/embed/movie/$id").sources)
-                    subtitles.addAll(Vidsrcto().getSources("${Constants.VIDSRC_MULTI}/embed/movie/$id").subtitles)
-                    sources.addAll(Vidsrcme().getSources("${Constants.VIDSRC_FHD}/embed/movie/$id"))
+                    coroutineScope {
+                       awaitAll(
+                           async {
+                               sources.addAll( Vidsrcto().getSources("${Constants.VIDSRC_MULTI}/embed/movie/$id").sources)
+                           }, async {
+                               subtitles.addAll(Vidsrcto().getSources("${Constants.VIDSRC_MULTI}/embed/movie/$id").subtitles)
+                           }, async {
+                               sources.addAll(Vidsrcme().getSources("${Constants.VIDSRC_FHD}/embed/movie/$id"))
+                           }
+                       )
+                    }
 
                 }
 
                 "show" -> {
-                    sources.addAll(Vidsrcto().getSources("${Constants.VIDSRC_MULTI}/embed/tv/$id/$season/$episode").sources)
-                    sources.addAll(Vidsrcme().getSources("${Constants.VIDSRC_FHD}/embed/tv/$id/$season/$episode"))
+                    coroutineScope {
+                        awaitAll(async {
+                            sources.addAll(Vidsrcto().getSources("${Constants.VIDSRC_MULTI}/embed/tv/$id/$season/$episode").sources)
+                        }, async {
+                            sources.addAll(Vidsrcme().getSources("${Constants.VIDSRC_FHD}/embed/tv/$id/$season/$episode"))
+                        }, async {
+                            subtitles.addAll(Vidsrcto().getSources("${Constants.VIDSRC_MULTI}/embed/movie/$id").subtitles)
+                        })
+                    }
+//                    sources.addAll(Vidsrcto().getSources("${Constants.VIDSRC_MULTI}/embed/tv/$id/$season/$episode").sources)
+//                    sources.addAll(Vidsrcme().getSources("${Constants.VIDSRC_FHD}/embed/tv/$id/$season/$episode"))
                 }
             }
             emit(VidsrctoReturnType(sources, subtitles))

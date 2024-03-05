@@ -10,6 +10,8 @@ import com.example.kotlinmovieapp.util.extractors.vidplay.models.Subtitle
 import com.example.kotlinmovieapp.util.extractors.vidplay.models.SubtitlesDTO
 import com.example.kotlinmovieapp.util.extractors.vidsrcto.model.VidsrctoReturnType
 import com.google.gson.Gson
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import okio.ByteString.Companion.decodeBase64
 import org.jsoup.Jsoup
 import retrofit2.Response
@@ -77,12 +79,24 @@ class Vidsrcto {
                 )
                 when {
                     decodedLink.contains("vidplay") -> {
-                        subtitles.addAll(getSubtitles(decodedLink))
-                        result.addAll(Vidplay().resolveSource(decodedLink))
+                        coroutineScope {
+                            async {
+                                result.addAll(Vidplay().resolveSource(decodedLink))
+                            }
+                            async {
+                                subtitles.addAll(getSubtitles(decodedLink))
+                            }
+                        }
                     }
 
-                    decodedLink.contains("filemoon") -> Filemoon().resolveSource(decodedLink)
-                        ?.let { it1 -> result.add(it1) }
+                    decodedLink.contains("filemoon") ->
+                        coroutineScope {
+                            async {
+                                Filemoon().resolveSource(decodedLink)
+                                    ?.let { it1 -> result.add(it1) }
+                            }
+                        }
+
 
                     else -> {}
                 }
