@@ -101,6 +101,7 @@ class Vidsrcto {
                     else -> {}
                 }
             }
+            Log.e("Vidplay Source", result.toString())
             return VidsrctoReturnType(
                 sources = result,
                 subtitles = subtitles

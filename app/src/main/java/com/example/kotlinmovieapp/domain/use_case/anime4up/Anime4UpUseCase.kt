@@ -26,9 +26,12 @@ class Anime4upUseCase @Inject constructor(
     fun getLatestEpisodes(): Flow<Resource<List<MovieHome>>> = flow {
         emit(Resource.Loading())
         try {
-            val res = repo.getLatestEpisodes().body()
-            if (res != null) {
-                val doc = Jsoup.parse(res)
+            val res = repo.getLatestEpisodes()
+            if (res.code() != 200) {
+                throw Exception("Anime4up error ${res.code()}")
+            }
+
+                val doc = res.body()?.let { Jsoup.parse(it) } ?: throw Exception("Anime episodes not found")
                 val animeCards = doc.getElementsByClass("anime-card-container")
                 val episodes = animeCards.map { card ->
                     val slug = card.selectFirst("a")?.attr("href")?.split("/")?.reversed()?.get(1)
@@ -42,10 +45,11 @@ class Anime4upUseCase @Inject constructor(
 
                 }
                 emit(Resource.Success(episodes))
-            }
         } catch (e: HttpException) {
+            e.printStackTrace()
             emit(Resource.Error("HTTP Error"))
         } catch (e: IOException) {
+            e.printStackTrace()
             emit(Resource.Error("IO Error"))
         }
     }

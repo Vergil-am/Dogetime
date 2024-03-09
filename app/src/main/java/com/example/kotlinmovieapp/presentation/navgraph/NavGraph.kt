@@ -24,6 +24,7 @@ import com.example.kotlinmovieapp.presentation.details.ShowSeasons
 import com.example.kotlinmovieapp.presentation.home.Home
 import com.example.kotlinmovieapp.presentation.home.HomeViewModel
 import com.example.kotlinmovieapp.presentation.layouts.HomeLayout
+import com.example.kotlinmovieapp.presentation.player.MediaPlayer
 import com.example.kotlinmovieapp.presentation.search.Search
 import com.example.kotlinmovieapp.presentation.search.SearchViewModel
 import com.example.kotlinmovieapp.presentation.settings.Account
@@ -61,6 +62,7 @@ fun NavGraph(
     NavHost(
         navController = navController, startDestination = startDestination, modifier = Modifier
     ) {
+
         composable(route = Route.Home.route) {
             HomeLayout(navController = navController) {
                 Home(navController = navController, viewModel = homeViewModel)
@@ -153,12 +155,12 @@ fun NavGraph(
             val url = it.arguments?.getString("url")
             if (url != null) {
                 val decodedUrl = URLDecoder.decode(url)
-                Log.e("URL", url)
                 WebView(url = decodedUrl, windowCompat = windowCompat)
             }
         }
 
         composable(Route.Mediaplayer.route) {
+            MediaPlayer()
         }
 
     }
