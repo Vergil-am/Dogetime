@@ -160,7 +160,10 @@ fun NavGraph(
         }
 
         composable(Route.Mediaplayer.route) {
-            MediaPlayer()
+            MediaPlayer(
+                viewmodel = detailsViewModel,
+                windowCompat = windowCompat
+            )
         }
 
     }

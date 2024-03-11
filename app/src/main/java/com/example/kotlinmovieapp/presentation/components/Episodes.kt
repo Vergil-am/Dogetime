@@ -36,6 +36,7 @@ import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
 import com.example.kotlinmovieapp.data.local.entities.WatchListMedia
 import com.example.kotlinmovieapp.presentation.details.DetailsViewModel
+import com.example.kotlinmovieapp.presentation.navgraph.Route
 import com.example.kotlinmovieapp.util.Constants
 
 data class SelectedEpisode(
@@ -174,14 +175,13 @@ fun Episodes(
                             )
                     } else {
                         state.movieSources.forEach {
-                            Source(source = it.source,
-                                link = it.url,
-                                info = it.label,
-                                header = it.header,
+                            Source(source = it,
                                 subtitles = state.subtitles,
                                 title = "${state.media?.title} S${selected.season} EP${selected.episode}",
                                 onClick = {
                                     opened = false
+                                    viewModel.selectSource(it)
+                                    navController.navigate(Route.Mediaplayer.route)
                                 })
                         }
                     }

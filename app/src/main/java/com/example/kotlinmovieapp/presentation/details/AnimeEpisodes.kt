@@ -41,6 +41,7 @@ import coil.compose.rememberAsyncImagePainter
 import com.example.kotlinmovieapp.data.local.entities.WatchListMedia
 import com.example.kotlinmovieapp.presentation.components.Source
 import com.example.kotlinmovieapp.presentation.components.WatchedIndicator
+import com.example.kotlinmovieapp.presentation.navgraph.Route
 
 @RequiresApi(Build.VERSION_CODES.N)
 @OptIn(ExperimentalMaterial3Api::class)
@@ -150,14 +151,13 @@ fun AnimeEpisodes(
                 )
                 sources.map {
                     Log.e("Source", it.toString())
-                    Source(source = it.source,
-                        info = it.quality,
-                        link = it.url,
-                        header = it.header,
+                    Source(source = it,
                         subtitles = null,
                         title = "${state.media?.title} EP$selected",
                         onClick = {
                             opened = false
+                            viewModel.selectSource(it)
+                            navController.navigate(Route.Mediaplayer.route)
                         })
                 }
             }

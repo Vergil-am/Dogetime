@@ -6,6 +6,7 @@ import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.kotlinmovieapp.data.local.entities.WatchListMedia
+import com.example.kotlinmovieapp.domain.model.Source
 import com.example.kotlinmovieapp.domain.use_case.anime4up.Anime4upUseCase
 import com.example.kotlinmovieapp.domain.use_case.movies.get_movie.GetMovieUseCase
 import com.example.kotlinmovieapp.domain.use_case.watchlist.WatchListUseCase
@@ -148,5 +149,11 @@ class DetailsViewModel @Inject constructor(
                 )
             }.launchIn(viewModelScope)
         }
+    }
+
+    fun selectSource(source: Source) {
+        _state.value = _state.value.copy(
+            selectedSource = source
+        )
     }
 }

@@ -36,6 +36,7 @@ import androidx.navigation.NavController
 import com.example.kotlinmovieapp.data.local.entities.WatchListMedia
 import com.example.kotlinmovieapp.presentation.components.DetailsHeader
 import com.example.kotlinmovieapp.presentation.components.Source
+import com.example.kotlinmovieapp.presentation.navgraph.Route
 
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
@@ -167,15 +168,13 @@ fun Details(
                     style = MaterialTheme.typography.titleLarge
                 )
                 state.movieSources.onEach {
-                    Source(source = it.source,
-                        link = it.url,
-                        info = it.label,
-                        header = it.header,
+                    Source(source = it,
                         subtitles = state.subtitles,
                         title = state.media?.title ?: "movie",
                         onClick = {
                             opened = false
-
+                            viewModel.selectSource(it)
+                            navController.navigate(Route.Mediaplayer.route)
                         })
                 }
             }

@@ -17,5 +17,6 @@ data class MovieState(
     var animeEpisodeSources: List<Source> = mutableListOf(),
     var episodeUrl : String? = null,
     val movieSources: List<Source> = emptyList(),
-    val subtitles : List<Subtitle> = emptyList()
+    val subtitles : List<Subtitle> = emptyList(),
+    val selectedSource: Source? = null
 )
