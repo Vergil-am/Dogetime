@@ -1,5 +1,6 @@
 package com.example.kotlinmovieapp.presentation.player
 
+import androidx.annotation.OptIn
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
@@ -20,19 +21,22 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.media3.common.MediaItem
+import androidx.media3.common.util.UnstableApi
+import androidx.media3.datasource.DefaultHttpDataSource
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.exoplayer.source.DefaultMediaSourceFactory
 import androidx.media3.ui.PlayerView
 import com.example.kotlinmovieapp.presentation.details.DetailsViewModel
 
 
+@OptIn(UnstableApi::class)
 @Composable
 fun MediaPlayer(
     viewmodel : DetailsViewModel,
     windowCompat: WindowInsetsControllerCompat
 ) {
     val state = viewmodel.state.collectAsState()
-    val uri = state.value.selectedSource?.url
+    val source = state.value.selectedSource
 
     windowCompat.hide(WindowInsetsCompat.Type.systemBars())
     windowCompat.systemBarsBehavior =
@@ -63,7 +67,6 @@ fun MediaPlayer(
         }
     }
 
-
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -72,10 +75,15 @@ fun MediaPlayer(
             factory = { context ->
                 PlayerView(context).apply {
                     setBackgroundColor(Color.Black.toArgb())
+                    val dataSourceFactory = DefaultHttpDataSource.Factory()
+                        source?.header?.let {
+                            dataSourceFactory.setDefaultRequestProperties(mapOf("Referer" to it))
+                        }
 
+                    val mediaSourceFactory = DefaultMediaSourceFactory(context).setDataSourceFactory(dataSourceFactory)
                     this.player  = ExoPlayer.Builder(context)
-                        .setMediaSourceFactory(DefaultMediaSourceFactory(context)).build().also { player = it }
-                    uri?.let { MediaItem.fromUri(it) }?.let { player?.setMediaItem(it) }
+                        .setMediaSourceFactory(mediaSourceFactory).build().also { player = it }
+                    source?.url?.let { MediaItem.fromUri(it) }?.let { player?.setMediaItem(it) }
                     player?.prepare()
                 }
             },
