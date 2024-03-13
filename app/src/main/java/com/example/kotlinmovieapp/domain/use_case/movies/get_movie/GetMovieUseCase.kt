@@ -132,49 +132,48 @@ class GetMovieUseCase @Inject constructor(
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
-    fun getSources(id: Int?, type: String, episode: Int?, season: Int?): Flow<VidsrctoReturnType> = flow {
-        val sources = mutableListOf<Source>()
-        val subtitles = mutableListOf<Subtitle>()
-        try {
-            when (type) {
-                "movie" -> {
-                    coroutineScope {
-                       awaitAll(
-                           async {
-                               sources.addAll( Vidsrcto().getSources("${Constants.VIDSRC_MULTI}/embed/movie/$id").sources)
-                           }, async {
-                               subtitles.addAll(Vidsrcto().getSources("${Constants.VIDSRC_MULTI}/embed/movie/$id").subtitles)
-                           }, async {
-                               sources.addAll(Vidsrcme().getSources("${Constants.VIDSRC_FHD}/embed/movie/$id"))
-                           }
-                       )
+    fun getSources(id: Int?, type: String, episode: Int?, season: Int?): Flow<VidsrctoReturnType> =
+        flow {
+            val sources = mutableListOf<Source>()
+            val subtitles = mutableListOf<Subtitle>()
+            try {
+                when (type) {
+                    "movie" -> {
+                        coroutineScope {
+                            awaitAll(
+                                async {
+                                    subtitles.addAll(Vidsrcto().getSources("${Constants.VIDSRC_MULTI}/embed/movie/$id").subtitles)
+                                }, async {
+                                    sources.addAll(Vidsrcto().getSources("${Constants.VIDSRC_MULTI}/embed/movie/$id").sources)
+                                }, async {
+                                    sources.addAll(Vidsrcme().getSources("${Constants.VIDSRC_FHD}/embed/movie/$id"))
+                                }
+                            )
+                        }
+
                     }
 
+                    "show" -> {
+                        coroutineScope {
+                            awaitAll(
+                                async {
+                                    subtitles.addAll(Vidsrcto().getSources("${Constants.VIDSRC_MULTI}/embed/tv/$id/$season/$episode").subtitles)
+                                }, async {
+                                    sources.addAll(Vidsrcme().getSources("${Constants.VIDSRC_FHD}/embed/tv/$id/$season/$episode"))
+                                }, async {
+                                    sources.addAll(Vidsrcto().getSources("${Constants.VIDSRC_MULTI}/embed/tv/$id/$season/$episode").sources)
+                                })
+                        }
+                    }
                 }
 
-                "show" -> {
-                    coroutineScope {
-                        awaitAll(async {
-                            sources.addAll(Vidsrcto().getSources("${Constants.VIDSRC_MULTI}/embed/tv/$id/$season/$episode").sources)
-                        }, async {
-                            sources.addAll(Vidsrcme().getSources("${Constants.VIDSRC_FHD}/embed/tv/$id/$season/$episode"))
-                        }, async {
-                            subtitles.addAll(Vidsrcto().getSources("${Constants.VIDSRC_MULTI}/embed/movie/$id").subtitles)
-                        })
-                    }
-//                    sources.addAll(Vidsrcto().getSources("${Constants.VIDSRC_MULTI}/embed/tv/$id/$season/$episode").sources)
-//                    sources.addAll(Vidsrcme().getSources("${Constants.VIDSRC_FHD}/embed/tv/$id/$season/$episode"))
-                }
+                emit(VidsrctoReturnType(sources, subtitles))
+
+            } catch (e: Exception) {
+                e.printStackTrace()
+                emit(VidsrctoReturnType(emptyList(), emptyList()))
             }
-            emit(VidsrctoReturnType(sources, subtitles))
 
-        } catch (e: Exception) {
-            e.printStackTrace()
         }
-
-        emit(VidsrctoReturnType(sources, subtitles))
-
-//        emit(sources)
-    }
 
 }

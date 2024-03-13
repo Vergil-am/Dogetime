@@ -9,7 +9,6 @@ import com.example.kotlinmovieapp.util.extractors.vidplay.Vidplay
 import com.example.kotlinmovieapp.util.extractors.vidplay.models.Subtitle
 import com.example.kotlinmovieapp.util.extractors.vidplay.models.SubtitlesDTO
 import com.example.kotlinmovieapp.util.extractors.vidsrcto.model.VidsrctoReturnType
-import com.google.gson.Gson
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import okio.ByteString.Companion.decodeBase64
@@ -101,7 +100,6 @@ class Vidsrcto {
                     else -> {}
                 }
             }
-            Log.e("Vidplay Source", result.toString())
             return VidsrctoReturnType(
                 sources = result,
                 subtitles = subtitles
@@ -123,12 +121,14 @@ class Vidsrcto {
 
             val subtitlesUrlFormatted = URLDecoder.decode(matchResult.groupValues[1], "UTF-8")
             val res = api.getSubtitles(subtitlesUrlFormatted)
-
+            Log.e("subtitles response", res.toString())
             if (res.code() != 200) {
                 throw Exception("Subtitles not found")
             }
 
-            return res.body() ?: throw Exception("failed to return subtitles")
+
+            return res.body()?.toList() ?: throw Exception("no subtitles found")
+
         } catch (e: Exception) {
             e.printStackTrace()
             return emptyList()

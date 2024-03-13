@@ -18,12 +18,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.kotlinmovieapp.domain.model.Source
 import com.example.kotlinmovieapp.util.extractors.vidplay.models.Subtitle
-import java.net.URLEncoder
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Source(
     source: Source,
@@ -40,17 +37,18 @@ fun Source(
 
 
         // This is specific to MX player
-//        intent.setDataAndType(Uri.parse(url), "video/*")
+        intent.setDataAndType(Uri.parse(source.url), "video/*")
 //        if (header != null) {
-//            intent.putExtra("headers", arrayOf("Referer", header))
+//            intent.putExtra("headers", arrayOf("Referer", state))
 //        }
-//        intent.putExtra("title", title)
-//        intent.putExtra("subs", subtitles?.map { Uri.parse(it.file) }?.toTypedArray())
-//        intent.putExtra("subs.name", subtitles?.map { it.label }?.toTypedArray())
-//
-//        Log.e("Extras", intent.extras.toString())
+        intent.putExtra("title", title)
+        Log.e("Subtitles", subtitles.toString())
+        intent.putExtra("subs", subtitles?.map { Uri.parse(it.file) }?.toTypedArray())
+        intent.putExtra("subs.name", subtitles?.map { it.label }?.toTypedArray())
 
-//        context.startActivity(intent)
+        Log.e("Extras", intent.extras.toString())
+
+        context.startActivity(intent)
 
         onClick()
     }) {
