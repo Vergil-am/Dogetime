@@ -1,6 +1,7 @@
 package com.example.kotlinmovieapp.presentation.player
 
 import android.net.Uri
+import android.util.Log
 import androidx.annotation.OptIn
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -22,6 +23,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.media3.common.MediaItem
+import androidx.media3.common.MediaItem.SubtitleConfiguration
 import androidx.media3.common.MimeTypes
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.datasource.DefaultHttpDataSource
@@ -85,20 +87,34 @@ fun MediaPlayer(
                     val mediaSourceFactory =
                         DefaultMediaSourceFactory(context).setDataSourceFactory(dataSourceFactory)
 
+                    val subtitles = state.value.subtitles.map {
+                        SubtitleConfiguration.Builder(Uri.parse(it.file))
+                            .setMimeType(MimeTypes.TEXT_VTT)
+                            .setLabel(it.label)
+                            .build()
+                    }
+
+                    Log.e("Subtitles", subtitles.toString())
+                    Log.e("Subtitles", state.value.subtitles.toString())
+
                     val mediaItem = MediaItem.Builder()
                         .setUri(source?.url)
-                        .setSubtitles(state.value.subtitles.map {
-                            MediaItem.Subtitle(
-                                Uri.parse(it.file),
-                                MimeTypes.TEXT_VTT,
-                                it.label
-                            )
-                        }).build()
+                        .setSubtitleConfigurations(subtitles)
+//                        .setSubtitles(state.value.subtitles.map {
+//                            MediaItem.Subtitle(
+//                                Uri.parse(it.file),
+//                                MimeTypes.TEXT_VTT,
+//                                it.label
+//                            )
+//                        })
+                        .build()
                     this.player = ExoPlayer.Builder(context)
                         .setMediaSourceFactory(mediaSourceFactory).build().also { player = it }
-//                    source?.url?.let { MediaItem.fromUri(it) }?.let { player?.setMediaItem(it) }
                     player?.setMediaItem(mediaItem)
                     player?.prepare()
+                    setShowPreviousButton(false)
+                    setShowNextButton(false)
+                    setShowSubtitleButton(true)
 
                 }
             },

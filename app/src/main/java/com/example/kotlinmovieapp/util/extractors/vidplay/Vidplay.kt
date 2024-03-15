@@ -4,7 +4,6 @@ import android.util.Base64
 import android.util.Log
 import com.example.kotlinmovieapp.domain.model.Source
 import com.example.kotlinmovieapp.util.extractors.vidplay.models.GithubKeysDTO
-import com.example.kotlinmovieapp.util.extractors.vidplay.models.Subtitle
 import com.example.kotlinmovieapp.util.extractors.vidplay.models.VidplayFile
 import com.example.kotlinmovieapp.util.extractors.vidsrcto.Utils
 import com.google.gson.Gson
@@ -17,7 +16,6 @@ import retrofit2.converter.scalars.ScalarsConverterFactory
 import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.Url
-import java.net.URLDecoder
 
 class Vidplay {
     //    private val keyUrl = "https://raw.githubusercontent.com/KillerDogeEmpire/vidplay-keys/keys/"
@@ -60,6 +58,7 @@ class Vidplay {
             val key = encodeId(urlData[0].split("/e/").last())
             val token = getFuToken(key = key, url = url)
             val newUrl = "${providerUrl}/mediainfo/${token}?${urlData[1]}&autostart=true"
+            Log.e("New url", newUrl)
             getFile(newUrl)
         } catch (e: Exception) {
             e.printStackTrace()

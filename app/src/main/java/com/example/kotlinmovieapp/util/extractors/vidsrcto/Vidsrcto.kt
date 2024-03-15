@@ -1,6 +1,5 @@
 package com.example.kotlinmovieapp.util.extractors.vidsrcto
 
-import android.util.Log
 import com.example.kotlinmovieapp.domain.model.Source
 import com.example.kotlinmovieapp.domain.model.VidSrcSources
 import com.example.kotlinmovieapp.domain.model.VidsrcSource
@@ -62,7 +61,6 @@ class Vidsrcto {
             val doc = res?.let { Jsoup.parse(it) }
             val dataId = doc?.selectFirst("a[data-id]")?.attr("data-id")
                 ?: throw Exception("Data id not found")
-
             val sources = api.getSources(dataId).result
             val result = mutableListOf<Source>()
             val subtitles = mutableListOf<Subtitle>()
@@ -77,7 +75,7 @@ class Vidsrcto {
                     )
                 )
                 when {
-                    decodedLink.contains("vidplay") -> {
+                    decodedLink.contains("vidplay") || decodedLink.contains("55a0716b8c") -> {
                         coroutineScope {
                             async {
                                 result.addAll(Vidplay().resolveSource(decodedLink))
@@ -88,7 +86,7 @@ class Vidsrcto {
                         }
                     }
 
-                    decodedLink.contains("filemoon") ->
+                    decodedLink.contains("filemoon") || decodedLink.contains("keraproxy")->
                         coroutineScope {
                             async {
                                 Filemoon().resolveSource(decodedLink)
@@ -121,7 +119,6 @@ class Vidsrcto {
 
             val subtitlesUrlFormatted = URLDecoder.decode(matchResult.groupValues[1], "UTF-8")
             val res = api.getSubtitles(subtitlesUrlFormatted)
-            Log.e("subtitles response", res.toString())
             if (res.code() != 200) {
                 throw Exception("Subtitles not found")
             }
