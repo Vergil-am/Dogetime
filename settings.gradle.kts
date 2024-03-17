@@ -13,5 +13,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "Kotlin Movie app"
+rootProject.name = "Dogetime"
 include(":app")
