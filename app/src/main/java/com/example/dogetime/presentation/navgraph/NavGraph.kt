@@ -34,16 +34,6 @@ import com.example.dogetime.presentation.webView.WebView
 import java.net.URLDecoder
 
 
-class Item(val icon: ImageVector, val title: String)
-
-val Items = listOf(
-    Item(icon = Icons.Outlined.Home, Route.Home.route),
-    Item(icon = Icons.Outlined.Menu, Route.Browse.route),
-    Item(icon = Icons.Outlined.FavoriteBorder, Route.WatchList.route),
-    Item(icon = Icons.Outlined.Settings, Route.Account.route),
-
-    )
-
 @SuppressLint("SourceLockedOrientationActivity")
 @RequiresApi(34)
 @Composable

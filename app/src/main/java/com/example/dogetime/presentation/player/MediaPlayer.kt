@@ -68,6 +68,7 @@ fun MediaPlayer(
         lifecycleOwner.lifecycle.addObserver(observer)
         onDispose {
             lifecycleOwner.lifecycle.removeObserver(observer)
+            player?.release()
         }
     }
 
@@ -93,20 +94,9 @@ fun MediaPlayer(
                             .setLabel(it.label)
                             .build()
                     }
-
-                    Log.e("Subtitles", subtitles.toString())
-                    Log.e("Subtitles", state.value.subtitles.toString())
-
                     val mediaItem = MediaItem.Builder()
                         .setUri(source?.url)
                         .setSubtitleConfigurations(subtitles)
-//                        .setSubtitles(state.value.subtitles.map {
-//                            MediaItem.Subtitle(
-//                                Uri.parse(it.file),
-//                                MimeTypes.TEXT_VTT,
-//                                it.label
-//                            )
-//                        })
                         .build()
                     this.player = ExoPlayer.Builder(context)
                         .setMediaSourceFactory(mediaSourceFactory).build().also { player = it }

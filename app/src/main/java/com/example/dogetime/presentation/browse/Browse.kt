@@ -65,14 +65,14 @@ fun Browse(
             Filters(viewModel)
             LazyVerticalGrid(
                 state = gridState,
-                columns = GridCells.Fixed(3),
+                columns = GridCells.Adaptive(100.dp),
                 contentPadding = PaddingValues(10.dp)
             ) {
                 state.movies.forEachIndexed { _, movie ->
                     item {
                         Card(modifier = Modifier
                             .padding(10.dp)
-                            .height(155.dp), onClick = {
+                            .height(150.dp), onClick = {
                             when (state.type.value) {
                                 "movie" -> navController.navigate("movie/${movie.id}")
                                 "anime" -> navController.navigate("anime/${movie.id}")

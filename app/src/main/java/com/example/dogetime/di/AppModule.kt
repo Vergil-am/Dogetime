@@ -5,17 +5,21 @@ import androidx.room.Room
 import com.example.dogetime.data.local.dao.WatchListDAO
 import com.example.dogetime.data.local.database.ListDatabase
 import com.example.dogetime.data.remote.Anime4upAPI
+import com.example.dogetime.data.remote.AniwaveAPI
 import com.example.dogetime.data.remote.MoviesAPI
 import com.example.dogetime.data.remote.WitanimeAPI
 import com.example.dogetime.data.repository.Anime4upRepoImplementation
+import com.example.dogetime.data.repository.AniwaveReopIementation
 import com.example.dogetime.data.repository.MovieRepoImplementation
 import com.example.dogetime.data.repository.WatchListRepositoryImpl
 import com.example.dogetime.data.repository.WitanimeRepoImplementation
 import com.example.dogetime.domain.repository.Anime4upRepository
+import com.example.dogetime.domain.repository.AniwaveRepository
 import com.example.dogetime.domain.repository.MovieRepository
 import com.example.dogetime.domain.repository.WatchListRepository
 import com.example.dogetime.domain.repository.WitanimeRepository
 import com.example.dogetime.util.Constants.ANIME4UP_URL
+import com.example.dogetime.util.Constants.ANIWAVE_URL
 import com.example.dogetime.util.Constants.BASE_URL
 import com.example.dogetime.util.Constants.WITANIME_URL
 import dagger.Module
@@ -103,5 +107,22 @@ object AppModule {
     @Singleton
     fun provideWitanimeRepo(api: WitanimeAPI): WitanimeRepository{
         return WitanimeRepoImplementation(api)
+    }
+
+    // Aniwave
+    @Provides
+    @Singleton
+    fun provideAniwaveAPI() : AniwaveAPI{
+        return Retrofit.Builder()
+            .baseUrl(ANIWAVE_URL)
+            .addConverterFactory(ScalarsConverterFactory.create())
+            .build()
+            .create(AniwaveAPI::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideAniwaveRepo(api: AniwaveAPI): AniwaveRepository {
+        return AniwaveReopIementation(api)
     }
 }
