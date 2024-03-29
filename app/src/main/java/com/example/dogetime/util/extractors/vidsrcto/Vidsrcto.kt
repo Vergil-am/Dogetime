@@ -1,5 +1,6 @@
 package com.example.dogetime.util.extractors.vidsrcto
 
+import android.util.Log
 import com.example.dogetime.domain.model.Source
 import com.example.dogetime.domain.model.VidSrcSources
 import com.example.dogetime.domain.model.VidsrcSource
@@ -55,7 +56,7 @@ class Vidsrcto {
         .build()
         .create(API::class.java)
 
-    suspend fun getSources(url: String) : VidsrctoReturnType {
+    suspend fun getSources(url: String): VidsrctoReturnType {
         try {
             val res = api.getMovie(url).body()
             val doc = res?.let { Jsoup.parse(it) }
@@ -64,7 +65,6 @@ class Vidsrcto {
             val sources = api.getSources(dataId).result
             val result = mutableListOf<Source>()
             val subtitles = mutableListOf<Subtitle>()
-
             sources.map {
                 val link = api.getSource(it.id).result.url
                 val newLink = link.replace("_", "/").replace("-", "+").decodeBase64()?.toByteArray()
@@ -74,8 +74,12 @@ class Vidsrcto {
                         Utils().decodeData(data = newLink, key = key), Charsets.UTF_8
                     )
                 )
+
                 when {
-                    decodedLink.contains("vidplay") || decodedLink.contains("55a0716b8c") -> {
+                    decodedLink.contains("vidplay") ||
+                            decodedLink.contains("55a0716b8c") ||
+                            decodedLink.contains("e69975b881")
+                    -> {
                         coroutineScope {
                             async {
                                 result.addAll(Vidplay().resolveSource(decodedLink))
@@ -86,7 +90,7 @@ class Vidsrcto {
                         }
                     }
 
-                    decodedLink.contains("filemoon") || decodedLink.contains("keraproxy")->
+                    decodedLink.contains("filemoon") || decodedLink.contains("keraproxy") ->
                         coroutineScope {
                             async {
                                 Filemoon().resolveSource(decodedLink)
@@ -98,6 +102,7 @@ class Vidsrcto {
                     else -> {}
                 }
             }
+            Log.e("Subtitles", subtitles.toString())
             return VidsrctoReturnType(
                 sources = result,
                 subtitles = subtitles
