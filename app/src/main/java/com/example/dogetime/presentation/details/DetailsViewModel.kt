@@ -8,6 +8,8 @@ import androidx.lifecycle.viewModelScope
 import com.example.dogetime.data.local.entities.WatchListMedia
 import com.example.dogetime.domain.model.Source
 import com.example.dogetime.domain.use_case.anime4up.Anime4upUseCase
+import com.example.dogetime.domain.use_case.animecat.AnimeCatUseCase
+import com.example.dogetime.domain.use_case.aniwave.AniwaveUseCase
 import com.example.dogetime.domain.use_case.movies.get_movie.GetMovieUseCase
 import com.example.dogetime.domain.use_case.watchlist.WatchListUseCase
 import com.example.dogetime.domain.use_case.witanime.WitanimeUseCase
@@ -25,7 +27,9 @@ class DetailsViewModel @Inject constructor(
     private val getMovieUseCase: GetMovieUseCase,
     private val watchList: WatchListUseCase,
     private val anime4up: Anime4upUseCase,
-    private val witanime: WitanimeUseCase
+    private val witanime: WitanimeUseCase,
+    private val aniwave: AniwaveUseCase,
+    private val animeCat: AnimeCatUseCase
 ) : ViewModel() {
     private val _state = MutableStateFlow(MovieState())
     var state = _state.asStateFlow()
@@ -35,7 +39,9 @@ class DetailsViewModel @Inject constructor(
         when (type) {
             "movie" -> getMovie(id.toInt())
             "show" -> getShow(id.toInt())
-            "anime" -> getAnime(id)
+            "animeAR" -> getAnimeAR(id)
+            "animeEN" -> getAnimeEN(id)
+            "animeFR" -> getAnimeFR(id)
         }
     }
 
@@ -93,8 +99,44 @@ class DetailsViewModel @Inject constructor(
 
     }
 
-    private fun getAnime(slug: String) {
+    private fun getAnimeAR(slug: String) {
         anime4up.getAnimeDetails(slug).onEach {
+            when (it) {
+                is Resource.Loading -> _state.value = _state.value.copy(isLoading = true)
+                is Resource.Success -> _state.value = _state.value.copy(
+                    media = it.data?.details,
+                    animeEpisodes = it.data?.episodes ?: emptyList(),
+                    isLoading = false
+                )
+
+                is Resource.Error -> {
+                    TODO()
+                }
+            }
+        }.launchIn(viewModelScope)
+    }
+
+    private fun getAnimeEN(slug: String) {
+        aniwave.getAnimeDetails(slug).onEach {
+            when (it) {
+                is Resource.Loading -> _state.value = _state.value.copy(isLoading = true)
+                is Resource.Success -> _state.value = _state.value.copy(
+                    media = it.data?.details,
+                    animeEpisodes = it.data?.episodes ?: emptyList(),
+                    isLoading = false
+                )
+
+                is Resource.Error -> {
+                    TODO()
+                }
+            }
+        }.launchIn(viewModelScope)
+
+
+    }
+
+    private fun getAnimeFR(slug: String) {
+        animeCat.getAnimeDetails(slug).onEach {
             when (it) {
                 is Resource.Loading -> _state.value = _state.value.copy(isLoading = true)
                 is Resource.Success -> _state.value = _state.value.copy(

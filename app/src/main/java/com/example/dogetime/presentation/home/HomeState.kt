@@ -5,7 +5,9 @@ import com.example.dogetime.domain.model.MovieHome
 data class HomeState(
     val movies: MovieState = MovieState(),
     val shows: MovieState = MovieState(),
-    val anime: MovieState = MovieState(),
+    val animeAR: MovieState = MovieState(),
+    val animeEN: MovieState = MovieState(),
+    val animeFR: MovieState = MovieState(),
     val watchList: List<MovieHome>? = null,
 )
 

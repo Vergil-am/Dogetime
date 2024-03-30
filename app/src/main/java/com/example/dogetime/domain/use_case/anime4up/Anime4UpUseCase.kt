@@ -2,6 +2,7 @@ package com.example.dogetime.domain.use_case.anime4up
 
 import android.util.Base64
 import android.util.Log
+import com.example.dogetime.domain.model.AnimeDetails
 import com.example.dogetime.domain.model.Details
 import com.example.dogetime.domain.model.MovieHome
 import com.example.dogetime.domain.model.OkanimeEpisode
@@ -54,10 +55,7 @@ class Anime4upUseCase @Inject constructor(
         }
     }
 
-    data class AnimeDetails(
-        val details: Details,
-        val episodes: List<OkanimeEpisode>,
-    )
+
 
     fun getAnimeDetails(slug: String): Flow<Resource<AnimeDetails>> = flow {
         emit(Resource.Loading())

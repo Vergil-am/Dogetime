@@ -5,6 +5,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.dogetime.domain.model.MovieHome
 import com.example.dogetime.domain.use_case.anime4up.Anime4upUseCase
+import com.example.dogetime.domain.use_case.animecat.AnimeCatUseCase
+import com.example.dogetime.domain.use_case.aniwave.AniwaveUseCase
 import com.example.dogetime.domain.use_case.movies.get_movies.GetMoviesUseCase
 import com.example.dogetime.domain.use_case.watchlist.WatchListUseCase
 import com.example.dogetime.util.Resource
@@ -19,7 +21,9 @@ import javax.inject.Inject
 class HomeViewModel @Inject constructor(
     private val getMoviesUseCase: GetMoviesUseCase,
     private val watchList: WatchListUseCase,
-    private val anime4up: Anime4upUseCase
+    private val anime4up: Anime4upUseCase,
+    private val aniwave: AniwaveUseCase,
+    private val animeCat: AnimeCatUseCase
 ) : ViewModel() {
     private val _state = MutableStateFlow(HomeState())
     val state = _state.asStateFlow()
@@ -28,6 +32,8 @@ class HomeViewModel @Inject constructor(
         getMovies()
         getShows()
         getLatestEpisodes()
+        aniwaveLatestEpisodes()
+        animeCatLatestEpisodes()
 
     }
 
@@ -66,32 +72,64 @@ class HomeViewModel @Inject constructor(
         anime4up.getLatestEpisodes().onEach {
             when (it) {
                 is Resource.Loading -> _state.value =
-                    _state.value.copy(anime = MovieState(isLoading = true))
+                    _state.value.copy(animeAR = MovieState(isLoading = true))
 
                 is Resource.Error -> _state.value =
-                    _state.value.copy(anime = MovieState(error = it.message, isLoading = false))
+                    _state.value.copy(animeAR = MovieState(error = it.message, isLoading = false))
 
                 is Resource.Success -> _state.value =
-                    _state.value.copy(anime = MovieState(isLoading = false, data = it.data))
+                    _state.value.copy(animeAR = MovieState(isLoading = false, data = it.data))
             }
 
         }.launchIn(viewModelScope)
     }
 
-    fun getWatchlist() {
-        watchList.getList("watching").onEach { list ->
-            _state.value = _state.value.copy(watchList = list.map {
-                MovieHome(
-                    id = it.id,
-                    title = it.title,
-                    poster = it.poster,
-                    type = it.type,
-                )
-            })
+    private fun aniwaveLatestEpisodes() {
+        aniwave.getLatestEpisodes().onEach {
+            when (it) {
+                is Resource.Loading -> _state.value =
+                    _state.value.copy(animeEN = MovieState(isLoading = true))
+
+                is Resource.Error -> _state.value =
+                    _state.value.copy(animeEN = MovieState(error = it.message, isLoading = false))
+
+                is Resource.Success -> _state.value =
+                    _state.value.copy(animeEN = MovieState(isLoading = false, data = it.data))
+            }
 
         }.launchIn(viewModelScope)
     }
 
-}
+
+    private fun animeCatLatestEpisodes() {
+        animeCat.getLatestEpisodes().onEach {
+            when (it) {
+                is Resource.Loading -> _state.value =
+                    _state.value.copy(animeFR = MovieState(isLoading = true))
+
+                is Resource.Error -> _state.value =
+                    _state.value.copy(animeFR = MovieState(error = it.message, isLoading = false))
+
+                is Resource.Success -> _state.value =
+                    _state.value.copy(animeFR = MovieState(isLoading = false, data = it.data))
+            }
+
+        }.launchIn(viewModelScope)}
+
+        fun getWatchlist() {
+            watchList.getList("watching").onEach { list ->
+                _state.value = _state.value.copy(watchList = list.map {
+                    MovieHome(
+                        id = it.id,
+                        title = it.title,
+                        poster = it.poster,
+                        type = it.type,
+                    )
+                })
+
+            }.launchIn(viewModelScope)
+        }
+
+    }
 
 

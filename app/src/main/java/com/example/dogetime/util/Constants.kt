@@ -14,4 +14,7 @@ object Constants {
     const val WITANIME_URL = "https://witanime.pics/"
 
     const val ANIWAVE_URL = "https://aniwave.to/"
+
+
+    const val ANIMECAT_URL= "https://animecat.net/"
 }
