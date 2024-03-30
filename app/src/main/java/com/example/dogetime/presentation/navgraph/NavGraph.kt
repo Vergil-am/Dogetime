@@ -2,14 +2,8 @@ package com.example.dogetime.presentation.navgraph
 
 import android.annotation.SuppressLint
 import androidx.annotation.RequiresApi
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.FavoriteBorder
-import androidx.compose.material.icons.outlined.Home
-import androidx.compose.material.icons.outlined.Menu
-import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -122,12 +116,13 @@ fun NavGraph(
 
         composable(Route.AnimeDetails.route) {
             val slug = it.arguments?.getString("slug")
-            if (slug != null) {
+            val type = it.arguments?.getString("type")
+            if (slug != null && type != null) {
                 Details(
                     navController = navController,
                     viewModel = detailsViewModel,
                     id = slug,
-                    type = "anime"
+                    type = type
 
                 )
             }

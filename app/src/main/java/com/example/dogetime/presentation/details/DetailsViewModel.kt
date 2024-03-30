@@ -110,7 +110,7 @@ class DetailsViewModel @Inject constructor(
                 )
 
                 is Resource.Error -> {
-                    TODO()
+//                    TODO()
                 }
             }
         }.launchIn(viewModelScope)
@@ -127,7 +127,7 @@ class DetailsViewModel @Inject constructor(
                 )
 
                 is Resource.Error -> {
-                    TODO()
+//                    TODO()
                 }
             }
         }.launchIn(viewModelScope)
@@ -139,14 +139,16 @@ class DetailsViewModel @Inject constructor(
         animeCat.getAnimeDetails(slug).onEach {
             when (it) {
                 is Resource.Loading -> _state.value = _state.value.copy(isLoading = true)
-                is Resource.Success -> _state.value = _state.value.copy(
-                    media = it.data?.details,
-                    animeEpisodes = it.data?.episodes ?: emptyList(),
-                    isLoading = false
-                )
+                is Resource.Success -> {
+                    _state.value = _state.value.copy(
+                        media = it.data?.details,
+                        animeEpisodes = it.data?.episodes ?: emptyList(),
+                        isLoading = false
+                    )
+                }
 
                 is Resource.Error -> {
-                    TODO()
+//                    TODO()
                 }
             }
         }.launchIn(viewModelScope)

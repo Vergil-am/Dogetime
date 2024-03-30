@@ -41,7 +41,7 @@ class Anime4upUseCase @Inject constructor(
                         id = slug ?: "",
                         title = card.selectFirst("img")?.attr("alt") ?: "",
                         poster = card.selectFirst("img")?.attr("src") ?: "",
-                        type = "anime"
+                        type = "animeAR"
                     )
 
                 }

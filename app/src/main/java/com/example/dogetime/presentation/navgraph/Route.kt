@@ -19,7 +19,7 @@ sealed class Route (
     object ShowDetails: Route("show/{id}")
     object ShowSeasons: Route("show/seasons/{id}")
 
-    object AnimeDetails: Route("anime/{slug}")
+    object AnimeDetails: Route("{type}/{slug}")
 
     object AnimeEpisodes: Route("anime/episodes/{slug}")
 

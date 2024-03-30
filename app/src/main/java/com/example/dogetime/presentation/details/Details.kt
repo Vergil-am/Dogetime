@@ -80,7 +80,9 @@ fun Details(
                         }
 
                         "show" -> navController.navigate("show/seasons/$id")
-                        "anime" -> navController.navigate("anime/episodes/$id")
+                        "animeAR" -> navController.navigate("anime/episodes/$id")
+                        "animeFR" -> navController.navigate("anime/episodes/$id")
+                        "animeEN" -> navController.navigate("anime/episodes/$id")
                     }
                 }) {
                 Icon(imageVector = Icons.Filled.PlayArrow, contentDescription = "play")
