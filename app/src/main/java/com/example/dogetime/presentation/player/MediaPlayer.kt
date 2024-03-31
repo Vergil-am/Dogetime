@@ -1,7 +1,6 @@
 package com.example.dogetime.presentation.player
 
 import android.net.Uri
-import android.util.Log
 import androidx.annotation.OptIn
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -82,7 +81,13 @@ fun MediaPlayer(
                     setBackgroundColor(Color.Black.toArgb())
                     val dataSourceFactory = DefaultHttpDataSource.Factory()
                     source?.header?.let {
-                        dataSourceFactory.setDefaultRequestProperties(mapOf("Referer" to it))
+                        dataSourceFactory.setDefaultRequestProperties(
+                            mapOf(
+                                "Referer" to it,
+                                "Accept-Language" to "en-US,en;q=0.5",
+                                "Accept" to "*/*"
+                            )
+                        )
                     }
 
                     val mediaSourceFactory =

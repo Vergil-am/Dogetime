@@ -5,8 +5,11 @@ import com.example.dogetime.domain.model.AnimeDetails
 import com.example.dogetime.domain.model.Details
 import com.example.dogetime.domain.model.MovieHome
 import com.example.dogetime.domain.model.OkanimeEpisode
+import com.example.dogetime.domain.model.Source
 import com.example.dogetime.domain.repository.AnimeCatRepository
 import com.example.dogetime.util.Resource
+import com.example.dogetime.util.extractors.FuseVideo
+import com.example.dogetime.util.extractors.StreamTape
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import org.jsoup.Jsoup
@@ -117,14 +120,50 @@ class AnimeCatUseCase @Inject constructor(
 
     }
 
-    fun getEpisode(slug: String): Flow<Resource<List<MovieHome>>> = flow {
+//    fun getEpisode(slug: String): Flow<Resource<List<MovieHome>>> = flow {
+//
+//        emit(Resource.Loading())
+//        try {
+//
+//        } catch (e: Exception) {
+//            e.printStackTrace()
+//            emit(Resource.Error(e.message.toString()))
+//        }
+//
+//    }
 
-        emit(Resource.Loading())
+
+    fun getSources(slug: String): Flow<List<Source>> = flow {
+//        emit(Resource.Loading())
         try {
+            val res = repo.getEpisode(slug)
+            if (res.code() != 200) {
+                throw Exception("Anime-cat sources Error code ${res.code()}")
+            }
+            val doc = Jsoup.parse(res.body()!!)
+            val script = doc.selectFirst("script:containsData(var video = [];)")!!.data()
+            val playersRegex = Regex("video\\s*\\[\\d*]\\s*=\\s*'(.*?)'")
 
+            val links = mutableListOf<Source>()
+            playersRegex.findAll(script).map {
+                it.groupValues[1]
+            }.toList().forEach {
+                when {
+                    it.contains("fusevideo") -> links.addAll(FuseVideo().getVideo(it))
+
+                    it.contains("streamtape") -> StreamTape().getVideo(it)
+                }
+            }
+
+
+
+
+            emit(links)
+//            emit(Resource.Success(links))
         } catch (e: Exception) {
             e.printStackTrace()
-            emit(Resource.Error(e.message.toString()))
+            emit(emptyList())
+//            emit(Resource.Error(e.message.toString()))
         }
 
     }

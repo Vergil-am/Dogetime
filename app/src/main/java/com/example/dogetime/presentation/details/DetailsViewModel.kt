@@ -170,6 +170,17 @@ class DetailsViewModel @Inject constructor(
                 animeEpisodeSources = _state.value.animeEpisodeSources.plus(it)
             )
         }.launchIn(viewModelScope)
+        animeCat.getSources(slug).onEach {
+            _state.value = _state.value.copy(
+                animeEpisodeSources = _state.value.animeEpisodeSources.plus(it)
+            )
+//
+//                when (it) {
+//                    is Resource.Loading -> {}
+//                    is Resource.Success -> {}
+//                    is Resource.Error -> {}
+//                }
+        }.launchIn(viewModelScope)
     }
 
     fun deleteFromList(media: WatchListMedia) {

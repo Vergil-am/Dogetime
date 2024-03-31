@@ -1,7 +1,6 @@
 package com.example.dogetime.domain.use_case.anime4up
 
 import android.util.Base64
-import android.util.Log
 import com.example.dogetime.domain.model.AnimeDetails
 import com.example.dogetime.domain.model.Details
 import com.example.dogetime.domain.model.MovieHome
@@ -122,9 +121,6 @@ class Anime4upUseCase @Inject constructor(
                 data.sd?.values?.forEach { links.add(ExtractorProp(link = it, "SD")) }
                 data.fhd?.values?.forEach { links.add(ExtractorProp(link = it, "SD")) }
                 val extractedLinks = extractor(links)
-
-                Log.e("Extracted anime4up", extractedLinks.toString())
-
                 emit(extractedLinks)
             }
         } catch (e: Exception) {

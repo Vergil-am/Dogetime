@@ -1,9 +1,11 @@
 package com.example.dogetime.domain.use_case.aniwave
 
+import android.util.Log
 import com.example.dogetime.domain.model.AnimeDetails
 import com.example.dogetime.domain.model.Details
 import com.example.dogetime.domain.model.MovieHome
 import com.example.dogetime.domain.repository.AniwaveRepository
+import com.example.dogetime.domain.use_case.aniwave.util.AniwaveUtil
 import com.example.dogetime.util.Resource
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -83,12 +85,21 @@ class AniwaveUseCase @Inject constructor(
 
             val dataId = doc.selectFirst("div[data-id]")!!.attr("data-id")
 
+            getEpisodes(dataId)
             emit(Resource.Success(AnimeDetails(details, emptyList())))
 
         } catch (e: Exception) {
             e.printStackTrace()
             emit(Resource.Error(e.message.toString()))
         }
+    }
+
+    private fun getEpisodes(dataId: String) {
+        val vrf = AniwaveUtil().vrfEncrypt(dataId)
+
+        Log.e("VRF", vrf)
+        Log.e("ID", dataId)
+
     }
 
 }

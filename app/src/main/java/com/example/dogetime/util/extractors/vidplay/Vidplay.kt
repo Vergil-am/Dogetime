@@ -120,7 +120,6 @@ class Vidplay {
         val matches = regex.findAll(file)
         val sources = mutableListOf<Source>()
         val baseUrl = url.split("list")[0]
-        Log.e("Base url", baseUrl)
         matches.forEach {
             sources.add(
                 Source(
