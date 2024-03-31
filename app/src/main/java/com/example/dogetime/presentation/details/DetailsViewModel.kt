@@ -9,7 +9,7 @@ import com.example.dogetime.data.local.entities.WatchListMedia
 import com.example.dogetime.domain.model.Source
 import com.example.dogetime.domain.use_case.anime4up.Anime4upUseCase
 import com.example.dogetime.domain.use_case.animecat.AnimeCatUseCase
-import com.example.dogetime.domain.use_case.aniwave.AniwaveUseCase
+import com.example.dogetime.domain.use_case.goganime.GogoAnimeUseCase
 import com.example.dogetime.domain.use_case.movies.get_movie.GetMovieUseCase
 import com.example.dogetime.domain.use_case.watchlist.WatchListUseCase
 import com.example.dogetime.domain.use_case.witanime.WitanimeUseCase
@@ -28,7 +28,7 @@ class DetailsViewModel @Inject constructor(
     private val watchList: WatchListUseCase,
     private val anime4up: Anime4upUseCase,
     private val witanime: WitanimeUseCase,
-    private val aniwave: AniwaveUseCase,
+    private val aniwave: GogoAnimeUseCase,
     private val animeCat: AnimeCatUseCase
 ) : ViewModel() {
     private val _state = MutableStateFlow(MovieState())
@@ -170,16 +170,16 @@ class DetailsViewModel @Inject constructor(
                 animeEpisodeSources = _state.value.animeEpisodeSources.plus(it)
             )
         }.launchIn(viewModelScope)
+
         animeCat.getSources(slug).onEach {
             _state.value = _state.value.copy(
                 animeEpisodeSources = _state.value.animeEpisodeSources.plus(it)
             )
-//
-//                when (it) {
-//                    is Resource.Loading -> {}
-//                    is Resource.Success -> {}
-//                    is Resource.Error -> {}
-//                }
+        }.launchIn(viewModelScope)
+        aniwave.getSources(slug).onEach {
+            _state.value = _state.value.copy(
+                animeEpisodeSources = _state.value.animeEpisodeSources.plus(it)
+            )
         }.launchIn(viewModelScope)
     }
 

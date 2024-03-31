@@ -6,7 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.dogetime.domain.model.MovieHome
 import com.example.dogetime.domain.use_case.anime4up.Anime4upUseCase
 import com.example.dogetime.domain.use_case.animecat.AnimeCatUseCase
-import com.example.dogetime.domain.use_case.aniwave.AniwaveUseCase
+import com.example.dogetime.domain.use_case.goganime.GogoAnimeUseCase
 import com.example.dogetime.domain.use_case.movies.get_movies.GetMoviesUseCase
 import com.example.dogetime.domain.use_case.watchlist.WatchListUseCase
 import com.example.dogetime.util.Resource
@@ -22,7 +22,7 @@ class HomeViewModel @Inject constructor(
     private val getMoviesUseCase: GetMoviesUseCase,
     private val watchList: WatchListUseCase,
     private val anime4up: Anime4upUseCase,
-    private val aniwave: AniwaveUseCase,
+    private val aniwave: GogoAnimeUseCase,
     private val animeCat: AnimeCatUseCase
 ) : ViewModel() {
     private val _state = MutableStateFlow(HomeState())

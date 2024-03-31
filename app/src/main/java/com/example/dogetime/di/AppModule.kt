@@ -6,25 +6,25 @@ import com.example.dogetime.data.local.dao.WatchListDAO
 import com.example.dogetime.data.local.database.ListDatabase
 import com.example.dogetime.data.remote.Anime4upAPI
 import com.example.dogetime.data.remote.AnimeCatAPI
-import com.example.dogetime.data.remote.AniwaveAPI
+import com.example.dogetime.data.remote.GogoAnimeAPI
 import com.example.dogetime.data.remote.MoviesAPI
 import com.example.dogetime.data.remote.WitanimeAPI
 import com.example.dogetime.data.repository.Anime4upRepoImplementation
 import com.example.dogetime.data.repository.AnimeCatRepoImplementation
-import com.example.dogetime.data.repository.AniwaveReopIementation
+import com.example.dogetime.data.repository.GogoAnimeRepoIementation
 import com.example.dogetime.data.repository.MovieRepoImplementation
 import com.example.dogetime.data.repository.WatchListRepositoryImpl
 import com.example.dogetime.data.repository.WitanimeRepoImplementation
 import com.example.dogetime.domain.repository.Anime4upRepository
 import com.example.dogetime.domain.repository.AnimeCatRepository
-import com.example.dogetime.domain.repository.AniwaveRepository
+import com.example.dogetime.domain.repository.GogoAnimeRepository
 import com.example.dogetime.domain.repository.MovieRepository
 import com.example.dogetime.domain.repository.WatchListRepository
 import com.example.dogetime.domain.repository.WitanimeRepository
 import com.example.dogetime.util.Constants.ANIME4UP_URL
 import com.example.dogetime.util.Constants.ANIMECAT_URL
-import com.example.dogetime.util.Constants.ANIWAVE_URL
 import com.example.dogetime.util.Constants.BASE_URL
+import com.example.dogetime.util.Constants.GOGOANIME_URL
 import com.example.dogetime.util.Constants.WITANIME_URL
 import dagger.Module
 import dagger.Provides
@@ -116,18 +116,18 @@ object AppModule {
     // Aniwave
     @Provides
     @Singleton
-    fun provideAniwaveAPI() : AniwaveAPI{
+    fun provideGogoAnimeAPI() : GogoAnimeAPI{
         return Retrofit.Builder()
-            .baseUrl(ANIWAVE_URL)
+            .baseUrl(GOGOANIME_URL)
             .addConverterFactory(ScalarsConverterFactory.create())
             .build()
-            .create(AniwaveAPI::class.java)
+            .create(GogoAnimeAPI::class.java)
     }
 
     @Provides
     @Singleton
-    fun provideAniwaveRepo(api: AniwaveAPI): AniwaveRepository {
-        return AniwaveReopIementation(api)
+    fun provideGogoAnimeRepo(api: GogoAnimeAPI): GogoAnimeRepository {
+        return GogoAnimeRepoIementation(api)
     }
 
 

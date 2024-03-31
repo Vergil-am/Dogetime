@@ -1,11 +1,8 @@
 package com.example.dogetime.domain.repository
 
 import retrofit2.Response
-import retrofit2.http.GET
-import retrofit2.http.Path
-import retrofit2.http.Query
 
-interface AniwaveRepository {
+interface GogoAnimeRepository {
     suspend fun getLatestEpisodes(): Response<String>
 
     suspend fun getNewestAnime(page: Int? = 1): Response<String>
@@ -13,5 +10,8 @@ interface AniwaveRepository {
     suspend fun searchAnime(search: String, page: Int? = 1): Response<String>
 
     suspend fun getAnimeDetails(id: String ): Response<String>
+
+
+    suspend fun getSources(slug : String ): Response<String>
 
 }
