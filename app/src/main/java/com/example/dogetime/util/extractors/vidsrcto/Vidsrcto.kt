@@ -24,8 +24,8 @@ import java.net.URLDecoder
 
 class Vidsrcto {
     private val baseUrl = "https://vidsrc.to"
-    private val key = "8z5Ag5wgagfsOuhz"
-
+//    private val key = "8z5Ag5wgagfsOuhz"
+    private val key = "WXrUARXb1aDLaZjI"
 
     interface API {
         @GET
@@ -74,7 +74,6 @@ class Vidsrcto {
                         Utils().decodeData(data = newLink, key = key), Charsets.UTF_8
                     )
                 )
-
                 when {
                     decodedLink.contains("vidplay") ||
                             decodedLink.contains("55a0716b8c") ||

@@ -1,7 +1,6 @@
 package com.example.dogetime.util.extractors.vidplay
 
 import android.util.Base64
-import android.util.Log
 import com.example.dogetime.domain.model.Source
 import com.example.dogetime.util.extractors.vidplay.models.GithubKeysDTO
 import com.example.dogetime.util.extractors.vidplay.models.VidplayFile
@@ -43,7 +42,8 @@ class Vidplay {
 
         @GET
         suspend fun getVideo(
-            @Url url: String
+            @Url url: String,
+            @Header("Referer") referer: String?
         ): Response<String>
     }
 
@@ -58,8 +58,7 @@ class Vidplay {
             val key = encodeId(urlData[0].split("/e/").last())
             val token = getFuToken(key = key, url = url)
             val newUrl = "${providerUrl}/mediainfo/${token}?${urlData[1]}&autostart=true"
-            Log.e("New url", newUrl)
-            getFile(newUrl)
+            getFile(newUrl, url)
         } catch (e: Exception) {
             e.printStackTrace()
             emptyList()
@@ -89,7 +88,6 @@ class Vidplay {
 
     private suspend fun getFuToken(key: String, url: String): String {
         val res = vidplayAPI.getFutoken(url)
-        Log.e("Futoken", res.toString())
         val regex = Regex("var\\s+k\\s*=\\s*'([^']+)'")
         val matchResult = res.body()?.let { regex.find(it) }
         val fukey = matchResult?.groupValues?.get(1) ?: throw Exception("can't get token")
@@ -102,20 +100,17 @@ class Vidplay {
         return result.toString()
     }
 
-    private suspend fun getFile(url: String): List<Source> {
-        val res = vidplayAPI.getVideo(url)
-        Log.e("res", res.body().toString())
-
+    private suspend fun getFile(url: String, referer: String): List<Source> {
+        val res = vidplayAPI.getVideo(url, referer = null)
         val json = Gson().fromJson(res.body(), VidplayFile::class.java)
         val fileUrl = json.result.sources[0].file
-        val file = vidplayAPI.getVideo(fileUrl).body() ?: throw Exception("file not found")
-
-        return parseM3u8(file, fileUrl)
+        val file = vidplayAPI.getVideo(fileUrl, referer).body() ?: throw Exception("file not found")
+        return parseM3u8(file, fileUrl, referer)
 
 
     }
 
-    private fun parseM3u8(file: String, url: String): List<Source> {
+    private fun parseM3u8(file: String, url: String, referer: String): List<Source> {
         val regex = Regex("""#EXT-X-STREAM-INF:BANDWIDTH=\d+?,RESOLUTION=\d+x(\d+)\n(\S+)""")
         val matches = regex.findAll(file)
         val sources = mutableListOf<Source>()
@@ -127,7 +122,7 @@ class Vidplay {
                     quality = "${it.groupValues[1]}P",
                     label = "${it.groupValues[1]}P",
                     source = "Vidplay",
-                    header = null
+                    header = referer
                 )
             )
 
