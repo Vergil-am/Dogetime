@@ -11,6 +11,7 @@ import com.example.dogetime.util.extractors.Vidblue
 import com.example.dogetime.util.extractors.Vidmoly
 import com.example.dogetime.util.extractors.vidplay.Vidplay
 import com.example.dogetime.util.extractors.dailymotion.Dailymotion
+import com.example.dogetime.util.extractors.gogostream.GogoStream
 
 suspend fun extractor(links: List<ExtractorProp>): List<Source> {
     val sources = mutableListOf<Source>()
@@ -33,7 +34,7 @@ suspend fun extractor(links: List<ExtractorProp>): List<Source> {
                 ?.let { it1 -> sources.add(it1) }
 
             it.link.contains("dailymotion") -> sources.addAll(Dailymotion().getVideoFromUrl(it.link))
-            it.link.contains("cdnwish") || it.link.contains("filelions") || it.link.contains("awish") -> Streamwish().getVideoFromUrl(
+            it.link.contains("cdnwish") || it.link.contains("alions") || it.link.contains("awish") -> Streamwish().getVideoFromUrl(
                 it.link
             )
                 ?.let { it1 -> sources.add(it1) }
@@ -52,6 +53,8 @@ suspend fun extractor(links: List<ExtractorProp>): List<Source> {
 
             it.link.contains("4shared") -> Shared().getVideoFromUrl(it.link)
                 ?.let { it1 -> sources.add(it1) }
+
+            it.link.contains("mangafrenzy") || it.link.contains("embtaku") -> GogoStream().extractVideos(it.link)
         }
     }
 

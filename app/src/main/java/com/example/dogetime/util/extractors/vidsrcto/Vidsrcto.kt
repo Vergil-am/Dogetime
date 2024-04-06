@@ -1,6 +1,5 @@
 package com.example.dogetime.util.extractors.vidsrcto
 
-import android.util.Log
 import com.example.dogetime.domain.model.Source
 import com.example.dogetime.domain.model.VidSrcSources
 import com.example.dogetime.domain.model.VidsrcSource
@@ -24,7 +23,8 @@ import java.net.URLDecoder
 
 class Vidsrcto {
     private val baseUrl = "https://vidsrc.to"
-//    private val key = "8z5Ag5wgagfsOuhz"
+
+    //    private val key = "8z5Ag5wgagfsOuhz"
     private val key = "WXrUARXb1aDLaZjI"
 
     interface API {
@@ -101,7 +101,6 @@ class Vidsrcto {
                     else -> {}
                 }
             }
-            Log.e("Subtitles", subtitles.toString())
             return VidsrctoReturnType(
                 sources = result,
                 subtitles = subtitles
