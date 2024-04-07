@@ -54,7 +54,9 @@ suspend fun extractor(links: List<ExtractorProp>): List<Source> {
             it.link.contains("4shared") -> Shared().getVideoFromUrl(it.link)
                 ?.let { it1 -> sources.add(it1) }
 
-            it.link.contains("mangafrenzy") || it.link.contains("embtaku") -> GogoStream().extractVideos(it.link)
+            it.link.contains("mangafrenzy") || it.link.contains("embtaku") -> sources.addAll(
+                GogoStream().extractVideos(it.link)
+            )
         }
     }
 

@@ -110,7 +110,6 @@ fun MediaPlayer(
                     setShowPreviousButton(false)
                     setShowNextButton(false)
                     setShowSubtitleButton(true)
-
                 }
             },
             modifier = Modifier.fillMaxSize(),
