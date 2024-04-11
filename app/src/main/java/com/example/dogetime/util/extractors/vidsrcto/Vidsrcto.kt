@@ -1,5 +1,6 @@
 package com.example.dogetime.util.extractors.vidsrcto
 
+import android.util.Log
 import com.example.dogetime.domain.model.Source
 import com.example.dogetime.domain.model.VidSrcSources
 import com.example.dogetime.domain.model.VidsrcSource
@@ -74,10 +75,13 @@ class Vidsrcto {
                         Utils().decodeData(data = newLink, key = key), Charsets.UTF_8
                     )
                 )
+                Log.
+                e("Decoded link", decodedLink)
                 when {
                     decodedLink.contains("vidplay") ||
                             decodedLink.contains("55a0716b8c") ||
-                            decodedLink.contains("e69975b881")
+                            decodedLink.contains("e69975b881") ||
+                            decodedLink.contains("vid30c")
                     -> {
                         coroutineScope {
                             async {

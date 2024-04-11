@@ -87,7 +87,7 @@ class Vidplay {
     }
 
     private suspend fun getFuToken(key: String, url: String): String {
-        val res = vidplayAPI.getFutoken(url)
+        val res = vidplayAPI.getFutoken(referer = url)
         val regex = Regex("var\\s+k\\s*=\\s*'([^']+)'")
         val matchResult = res.body()?.let { regex.find(it) }
         val fukey = matchResult?.groupValues?.get(1) ?: throw Exception("can't get token")
@@ -101,7 +101,7 @@ class Vidplay {
     }
 
     private suspend fun getFile(url: String, referer: String): List<Source> {
-        val res = vidplayAPI.getVideo(url, referer = null)
+        val res = vidplayAPI.getVideo(url, referer = url)
         val json = Gson().fromJson(res.body(), VidplayFile::class.java)
         val fileUrl = json.result.sources[0].file
         val file = vidplayAPI.getVideo(fileUrl, referer).body() ?: throw Exception("file not found")
@@ -120,7 +120,14 @@ class Vidplay {
                 Source(
                     url = "$baseUrl${it.groupValues[2]}",
                     quality = "${it.groupValues[1]}P",
-                    label = "${it.groupValues[1]}P",
+                    label = when (it.groupValues[1]) {
+                        "1080" -> "FHD"
+                        "720" -> "HD"
+                        "360" -> "SD"
+                        else -> {
+                            "Unknown"
+                        }
+                    },
                     source = "Vidplay",
                     header = referer
                 )
