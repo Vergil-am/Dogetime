@@ -6,6 +6,7 @@ import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.dogetime.data.local.entities.WatchListMedia
+import com.example.dogetime.data.repository.MyCimaRepoImplementation
 import com.example.dogetime.domain.model.Source
 import com.example.dogetime.domain.use_case.anime4up.Anime4upUseCase
 import com.example.dogetime.domain.use_case.animecat.AnimeCatUseCase
@@ -29,7 +30,8 @@ class DetailsViewModel @Inject constructor(
     private val anime4up: Anime4upUseCase,
     private val witanime: WitanimeUseCase,
     private val aniwave: GogoAnimeUseCase,
-    private val animeCat: AnimeCatUseCase
+    private val animeCat: AnimeCatUseCase,
+    private val myCima: MyCimaRepoImplementation
 ) : ViewModel() {
     private val _state = MutableStateFlow(MovieState())
     var state = _state.asStateFlow()
@@ -42,11 +44,14 @@ class DetailsViewModel @Inject constructor(
             "animeAR" -> getAnimeAR(id)
             "animeEN" -> getAnimeEN(id)
             "animeFR" -> getAnimeFR(id)
+            "mycima" -> getMyCimaDetails(id)
         }
     }
 
+
     private fun getMovie(id: Int) {
         getMovieUseCase.getMovieDetails(id).onEach {
+
             when (it) {
                 is Resource.Loading -> {
                     _state.value = _state.value.copy(isLoading = true, media = null)
@@ -54,7 +59,6 @@ class DetailsViewModel @Inject constructor(
 
                 is Resource.Success -> {
                     _state.value = _state.value.copy(isLoading = false, media = it.data)
-                    Log.e("TV", it.data?.seasons.toString())
                 }
 
                 is Resource.Error -> _state.value =
@@ -210,5 +214,25 @@ class DetailsViewModel @Inject constructor(
         _state.value = _state.value.copy(
             selectedSource = source
         )
+    }
+
+    private fun getMyCimaDetails(id: String) {
+        viewModelScope.launch {
+            myCima.getDetails(id).onEach {
+
+                when (it) {
+                    is Resource.Loading -> {
+                        _state.value = _state.value.copy(isLoading = true, media = null)
+                    }
+
+                    is Resource.Success -> {
+                        _state.value = _state.value.copy(isLoading = false, media = it.data)
+                    }
+
+                    is Resource.Error -> _state.value =
+                        _state.value.copy(isLoading = false, media = null)
+                }
+            }.launchIn(viewModelScope)
+        }
     }
 }

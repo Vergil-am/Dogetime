@@ -6,20 +6,20 @@ import com.example.dogetime.data.local.dao.WatchListDAO
 import com.example.dogetime.data.local.database.ListDatabase
 import com.example.dogetime.data.remote.Anime4upAPI
 import com.example.dogetime.data.remote.AnimeCatAPI
-import com.example.dogetime.data.remote.CimaLekAPI
+import com.example.dogetime.data.remote.MyCimaAPI
 import com.example.dogetime.data.remote.GogoAnimeAPI
 import com.example.dogetime.data.remote.MoviesAPI
 import com.example.dogetime.data.remote.WitanimeAPI
 import com.example.dogetime.data.repository.Anime4upRepoImplementation
 import com.example.dogetime.data.repository.AnimeCatRepoImplementation
-import com.example.dogetime.data.repository.CimaLekRepoImplementation
+import com.example.dogetime.data.repository.MyCimaRepoImplementation
 import com.example.dogetime.data.repository.GogoAnimeRepoIementation
 import com.example.dogetime.data.repository.MovieRepoImplementation
 import com.example.dogetime.data.repository.WatchListRepositoryImpl
 import com.example.dogetime.data.repository.WitanimeRepoImplementation
 import com.example.dogetime.domain.repository.Anime4upRepository
 import com.example.dogetime.domain.repository.AnimeCatRepository
-import com.example.dogetime.domain.repository.CimaLekRepository
+import com.example.dogetime.domain.repository.MyCimaRepository
 import com.example.dogetime.domain.repository.GogoAnimeRepository
 import com.example.dogetime.domain.repository.MovieRepository
 import com.example.dogetime.domain.repository.WatchListRepository
@@ -155,17 +155,17 @@ object AppModule {
     // Cima lek
     @Provides
     @Singleton
-    fun provideCimaLekAPi(): CimaLekAPI {
+    fun provideMyCimaAPi(): MyCimaAPI {
         return Retrofit.Builder()
             .baseUrl(CIMALEK_URL)
             .addConverterFactory(ScalarsConverterFactory.create())
             .build()
-            .create(CimaLekAPI::class.java)
+            .create(MyCimaAPI::class.java)
     }
 
     @Provides
     @Singleton
-    fun provideCimaLekRepo(api: CimaLekAPI): CimaLekRepository {
-        return CimaLekRepoImplementation(api)
+    fun provideMyCimaRepo(api: MyCimaAPI): MyCimaRepository {
+        return MyCimaRepoImplementation(api)
     }
 }

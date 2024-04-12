@@ -4,7 +4,7 @@ package com.example.dogetime.presentation.home
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.dogetime.domain.model.MovieHome
-import com.example.dogetime.domain.repository.CimaLekRepository
+import com.example.dogetime.domain.repository.MyCimaRepository
 import com.example.dogetime.domain.use_case.anime4up.Anime4upUseCase
 import com.example.dogetime.domain.use_case.animecat.AnimeCatUseCase
 import com.example.dogetime.domain.use_case.goganime.GogoAnimeUseCase
@@ -26,7 +26,7 @@ class HomeViewModel @Inject constructor(
     private val anime4up: Anime4upUseCase,
     private val aniwave: GogoAnimeUseCase,
     private val animeCat: AnimeCatUseCase,
-    private val cimaLek: CimaLekRepository
+    private val cimaLek: MyCimaRepository
 ) : ViewModel() {
     private val _state = MutableStateFlow(HomeState())
     val state = _state.asStateFlow()
@@ -37,7 +37,7 @@ class HomeViewModel @Inject constructor(
         getLatestEpisodes()
         aniwaveLatestEpisodes()
         animeCatLatestEpisodes()
-        getCimaLekLatest()
+        getMyCimaLatest()
 
     }
 
@@ -135,7 +135,7 @@ class HomeViewModel @Inject constructor(
         }.launchIn(viewModelScope)
     }
 
-    private fun getCimaLekLatest() {
+    private fun getMyCimaLatest() {
         viewModelScope.launch {
             cimaLek.getLatest().onEach {
                 when (it) {
