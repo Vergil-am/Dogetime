@@ -73,6 +73,21 @@ fun Home(
             }
         }
 
+        when (state.cimalek.isLoading) {
+            true -> Text(text = "Loading ...")
+            false -> state.cimalek.data?.let {
+                Text(
+                    text = "Arab movies and series",
+                    style = MaterialTheme.typography.titleMedium,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(10.dp)
+                )
+                MovieRow(data = it, navController = navController)
+            }
+        }
+
         when (state.animeAR.isLoading) {
             true -> Text(text = "Loading ... ")
             false -> state.animeAR.data?.let {

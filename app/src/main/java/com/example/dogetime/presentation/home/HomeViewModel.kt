@@ -4,6 +4,7 @@ package com.example.dogetime.presentation.home
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.dogetime.domain.model.MovieHome
+import com.example.dogetime.domain.repository.CimaLekRepository
 import com.example.dogetime.domain.use_case.anime4up.Anime4upUseCase
 import com.example.dogetime.domain.use_case.animecat.AnimeCatUseCase
 import com.example.dogetime.domain.use_case.goganime.GogoAnimeUseCase
@@ -15,6 +16,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
@@ -23,7 +25,8 @@ class HomeViewModel @Inject constructor(
     private val watchList: WatchListUseCase,
     private val anime4up: Anime4upUseCase,
     private val aniwave: GogoAnimeUseCase,
-    private val animeCat: AnimeCatUseCase
+    private val animeCat: AnimeCatUseCase,
+    private val cimaLek: CimaLekRepository
 ) : ViewModel() {
     private val _state = MutableStateFlow(HomeState())
     val state = _state.asStateFlow()
@@ -34,6 +37,7 @@ class HomeViewModel @Inject constructor(
         getLatestEpisodes()
         aniwaveLatestEpisodes()
         animeCatLatestEpisodes()
+        getCimaLekLatest()
 
     }
 
@@ -114,22 +118,50 @@ class HomeViewModel @Inject constructor(
                     _state.value.copy(animeFR = MovieState(isLoading = false, data = it.data))
             }
 
-        }.launchIn(viewModelScope)}
+        }.launchIn(viewModelScope)
+    }
 
-        fun getWatchlist() {
-            watchList.getList("watching").onEach { list ->
-                _state.value = _state.value.copy(watchList = list.map {
-                    MovieHome(
-                        id = it.id,
-                        title = it.title,
-                        poster = it.poster,
-                        type = it.type,
-                    )
-                })
+    fun getWatchlist() {
+        watchList.getList("watching").onEach { list ->
+            _state.value = _state.value.copy(watchList = list.map {
+                MovieHome(
+                    id = it.id,
+                    title = it.title,
+                    poster = it.poster,
+                    type = it.type,
+                )
+            })
 
+        }.launchIn(viewModelScope)
+    }
+
+    private fun getCimaLekLatest() {
+        viewModelScope.launch {
+            cimaLek.getLatest().onEach {
+                when (it) {
+                    is Resource.Loading -> _state.value =
+                        _state.value.copy(cimalek = MovieState(isLoading = true))
+
+                    is Resource.Error -> _state.value =
+                        _state.value.copy(
+                            cimalek = MovieState(
+                                error = it.message,
+                                isLoading = false
+                            )
+                        )
+
+                    is Resource.Success -> _state.value =
+                        _state.value.copy(
+                            cimalek = MovieState(
+                                isLoading = false,
+                                data = it.data
+                            )
+                        )
+                }
             }.launchIn(viewModelScope)
         }
-
     }
+}
+
 
 

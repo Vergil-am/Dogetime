@@ -8,6 +8,7 @@ data class HomeState(
     val animeAR: MovieState = MovieState(),
     val animeEN: MovieState = MovieState(),
     val animeFR: MovieState = MovieState(),
+    val cimalek: MovieState = MovieState(),
     val watchList: List<MovieHome>? = null,
 )
 

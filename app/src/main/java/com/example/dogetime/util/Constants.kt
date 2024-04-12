@@ -19,4 +19,5 @@ object Constants {
 
 
     const val ANIMECAT_URL= "https://animecat.net/"
+    const val CIMALEK_URL = "https://shahid4u.digital/"
 }

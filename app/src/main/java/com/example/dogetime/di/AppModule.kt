@@ -6,17 +6,20 @@ import com.example.dogetime.data.local.dao.WatchListDAO
 import com.example.dogetime.data.local.database.ListDatabase
 import com.example.dogetime.data.remote.Anime4upAPI
 import com.example.dogetime.data.remote.AnimeCatAPI
+import com.example.dogetime.data.remote.CimaLekAPI
 import com.example.dogetime.data.remote.GogoAnimeAPI
 import com.example.dogetime.data.remote.MoviesAPI
 import com.example.dogetime.data.remote.WitanimeAPI
 import com.example.dogetime.data.repository.Anime4upRepoImplementation
 import com.example.dogetime.data.repository.AnimeCatRepoImplementation
+import com.example.dogetime.data.repository.CimaLekRepoImplementation
 import com.example.dogetime.data.repository.GogoAnimeRepoIementation
 import com.example.dogetime.data.repository.MovieRepoImplementation
 import com.example.dogetime.data.repository.WatchListRepositoryImpl
 import com.example.dogetime.data.repository.WitanimeRepoImplementation
 import com.example.dogetime.domain.repository.Anime4upRepository
 import com.example.dogetime.domain.repository.AnimeCatRepository
+import com.example.dogetime.domain.repository.CimaLekRepository
 import com.example.dogetime.domain.repository.GogoAnimeRepository
 import com.example.dogetime.domain.repository.MovieRepository
 import com.example.dogetime.domain.repository.WatchListRepository
@@ -24,6 +27,7 @@ import com.example.dogetime.domain.repository.WitanimeRepository
 import com.example.dogetime.util.Constants.ANIME4UP_URL
 import com.example.dogetime.util.Constants.ANIMECAT_URL
 import com.example.dogetime.util.Constants.BASE_URL
+import com.example.dogetime.util.Constants.CIMALEK_URL
 import com.example.dogetime.util.Constants.GOGOANIME_URL
 import com.example.dogetime.util.Constants.WITANIME_URL
 import dagger.Module
@@ -99,7 +103,7 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideWitanimeAPI(): WitanimeAPI{
+    fun provideWitanimeAPI(): WitanimeAPI {
         return Retrofit.Builder()
             .baseUrl(WITANIME_URL)
             .addConverterFactory(ScalarsConverterFactory.create())
@@ -109,14 +113,14 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideWitanimeRepo(api: WitanimeAPI): WitanimeRepository{
+    fun provideWitanimeRepo(api: WitanimeAPI): WitanimeRepository {
         return WitanimeRepoImplementation(api)
     }
 
-    // Aniwave
+    // GOGO anime
     @Provides
     @Singleton
-    fun provideGogoAnimeAPI() : GogoAnimeAPI{
+    fun provideGogoAnimeAPI(): GogoAnimeAPI {
         return Retrofit.Builder()
             .baseUrl(GOGOANIME_URL)
             .addConverterFactory(ScalarsConverterFactory.create())
@@ -134,7 +138,7 @@ object AppModule {
     // Anime cat
     @Provides
     @Singleton
-    fun provideAnimeCatAPI() : AnimeCatAPI{
+    fun provideAnimeCatAPI(): AnimeCatAPI {
         return Retrofit.Builder()
             .baseUrl(ANIMECAT_URL)
             .addConverterFactory(ScalarsConverterFactory.create())
@@ -146,5 +150,22 @@ object AppModule {
     @Singleton
     fun provideAnimeCatRepo(api: AnimeCatAPI): AnimeCatRepository {
         return AnimeCatRepoImplementation(api)
+    }
+
+    // Cima lek
+    @Provides
+    @Singleton
+    fun provideCimaLekAPi(): CimaLekAPI {
+        return Retrofit.Builder()
+            .baseUrl(CIMALEK_URL)
+            .addConverterFactory(ScalarsConverterFactory.create())
+            .build()
+            .create(CimaLekAPI::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideCimaLekRepo(api: CimaLekAPI): CimaLekRepository {
+        return CimaLekRepoImplementation(api)
     }
 }
