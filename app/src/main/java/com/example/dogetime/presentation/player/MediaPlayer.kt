@@ -2,7 +2,7 @@ package com.example.dogetime.presentation.player
 
 import android.net.Uri
 import androidx.annotation.OptIn
-import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -71,7 +71,7 @@ fun MediaPlayer(
         }
     }
 
-    Column(
+    Box(
         modifier = Modifier
             .fillMaxSize()
     ) {
@@ -107,15 +107,22 @@ fun MediaPlayer(
                         .setMediaSourceFactory(mediaSourceFactory).build().also { player = it }
                     player?.setMediaItem(mediaItem)
                     player?.prepare()
-                    setShowPreviousButton(false)
-                    setShowNextButton(false)
-                    setShowSubtitleButton(true)
+//                    setShowPreviousButton(false)
+//                    setShowNextButton(false)
+//                    setShowSubtitleButton(true)
+                    useController = false
                 }
             },
             modifier = Modifier.fillMaxSize(),
         )
-
-
+        if (player != null) {
+            PlayerControls(
+                isPlaying = player!!.isPlaying,
+                onPlay = { player!!.play() },
+                onPause = { player!!.pause() },
+                onSeek = { player?.seekTo(it) }
+            )
+        }
     }
 }
 

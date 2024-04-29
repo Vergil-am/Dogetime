@@ -30,7 +30,6 @@ class GetMovieUseCase @Inject constructor(
         try {
             val res = repo.getMovie(movieId = id)
             val movie = Details(
-
                 id = res.id.toString(),
                 title = res.title,
                 backdrop = "${Constants.IMAGE_BASE_URL}/w500/${res.backdrop_path}",
