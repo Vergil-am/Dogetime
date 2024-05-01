@@ -22,6 +22,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.example.dogetime.R
+import com.example.dogetime.util.convertTime
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -97,12 +98,14 @@ fun PlayerControls(
                 )
             }
         }
-        Row(
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(bottom = 25.dp)
+                .padding(bottom = 25.dp),
+//            horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Slider(
+                modifier = Modifier.padding(horizontal = 6.dp),
                 value = currentPosition.toFloat(),
                 valueRange = 0f..totalDuration.toFloat(),
                 onValueChange = {
@@ -113,8 +116,14 @@ fun PlayerControls(
                     activeTrackColor = Color.White,
                     inactiveTrackColor = Color.White.copy(alpha = 0.5f)
                 ),
-                thumb = {}
-            )
+                thumb = {})
+            Row (
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(text = convertTime(currentPosition))
+                Text(text = convertTime(totalDuration))
+            }
         }
 
     }
