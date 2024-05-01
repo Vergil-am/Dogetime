@@ -3,6 +3,7 @@ package com.example.dogetime.presentation.navgraph
 import android.annotation.SuppressLint
 import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.navigation.compose.NavHost
@@ -18,6 +19,8 @@ import com.example.dogetime.presentation.home.Home
 import com.example.dogetime.presentation.home.HomeViewModel
 import com.example.dogetime.presentation.layouts.HomeLayout
 import com.example.dogetime.presentation.player.MediaPlayer
+import com.example.dogetime.presentation.player.PlayerSource
+import com.example.dogetime.presentation.player.PlayerViewModel
 import com.example.dogetime.presentation.search.Search
 import com.example.dogetime.presentation.search.SearchViewModel
 import com.example.dogetime.presentation.settings.Account
@@ -39,6 +42,7 @@ fun NavGraph(
     searchViewModel: SearchViewModel,
     accountViewModel: SettingsViewModel,
     listViewModel: ListViewModel,
+    playerViewModel: PlayerViewModel,
     windowCompat: WindowInsetsControllerCompat
 ) {
     val navController = rememberNavController()
@@ -131,7 +135,7 @@ fun NavGraph(
         composable(Route.AnimeEpisodes.route) {
             val slug = it.arguments?.getString("slug")
             if (slug != null) {
-                AnimeEpisodes(viewModel = detailsViewModel,  navController)
+                AnimeEpisodes(viewModel = detailsViewModel, navController)
             }
         }
 
@@ -144,8 +148,15 @@ fun NavGraph(
         }
 
         composable(Route.Mediaplayer.route) {
+            val detailsState = detailsViewModel.state.collectAsState().value
+            playerViewModel.setSource(
+                PlayerSource(
+                    source = detailsState.selectedSource,
+                    subtitles = detailsState.subtitles
+                )
+            )
             MediaPlayer(
-                viewmodel = detailsViewModel,
+                viewmodel = playerViewModel,
                 windowCompat = windowCompat
             )
         }

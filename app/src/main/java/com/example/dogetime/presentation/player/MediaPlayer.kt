@@ -1,6 +1,7 @@
 package com.example.dogetime.presentation.player
 
 import android.net.Uri
+import android.util.Log
 import androidx.annotation.OptIn
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -24,23 +25,22 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaItem.SubtitleConfiguration
 import androidx.media3.common.MimeTypes
+import androidx.media3.common.Player
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.datasource.DefaultHttpDataSource
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.exoplayer.source.DefaultMediaSourceFactory
 import androidx.media3.ui.PlayerView
-import com.example.dogetime.presentation.details.DetailsViewModel
 
 
 @OptIn(UnstableApi::class)
 @Composable
 fun MediaPlayer(
-    viewmodel: DetailsViewModel,
+    viewmodel: PlayerViewModel,
     windowCompat: WindowInsetsControllerCompat
 ) {
-    val state = viewmodel.state.collectAsState()
-    val source = state.value.selectedSource
-
+    val state = viewmodel.state.collectAsState().value
+    val source = state.source
     windowCompat.hide(WindowInsetsCompat.Type.systemBars())
     windowCompat.systemBarsBehavior =
         WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
@@ -51,8 +51,13 @@ fun MediaPlayer(
     var lifecycle by remember {
         mutableStateOf(Lifecycle.Event.ON_CREATE)
     }
-
     val lifecycleOwner = LocalContext.current as LifecycleOwner
+
+
+    Log.e("Current position", state.currentTime.toString())
+    Log.e("total duration", state.totalDuration.toString())
+
+
 
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
@@ -65,6 +70,17 @@ fun MediaPlayer(
             }
         }
         lifecycleOwner.lifecycle.addObserver(observer)
+        val listener = object : Player.Listener {
+            override fun onEvents(player: Player, events: Player.Events) {
+                super.onEvents(player, events)
+                viewmodel.updateDuration(
+                    currentTime = player.currentPosition.coerceAtLeast(0L),
+                    totalDuration = player.duration.coerceAtLeast(0L)
+                )
+            }
+        }
+
+        player?.addListener(listener)
         onDispose {
             lifecycleOwner.lifecycle.removeObserver(observer)
             player?.release()
@@ -80,7 +96,7 @@ fun MediaPlayer(
                 PlayerView(context).apply {
                     setBackgroundColor(Color.Black.toArgb())
                     val dataSourceFactory = DefaultHttpDataSource.Factory()
-                    source?.header?.let {
+                    source?.source?.header?.let {
                         dataSourceFactory.setDefaultRequestProperties(
                             mapOf(
                                 "Referer" to it,
@@ -93,23 +109,24 @@ fun MediaPlayer(
                     val mediaSourceFactory =
                         DefaultMediaSourceFactory(context).setDataSourceFactory(dataSourceFactory)
 
-                    val subtitles = state.value.subtitles.map {
+                    val subtitles = state.source?.subtitles?.map {
                         SubtitleConfiguration.Builder(Uri.parse(it.file))
                             .setMimeType(MimeTypes.TEXT_VTT)
                             .setLabel(it.label)
                             .build()
                     }
-                    val mediaItem = MediaItem.Builder()
-                        .setUri(source?.url)
-                        .setSubtitleConfigurations(subtitles)
-                        .build()
+                    val mediaItem = subtitles?.let {
+                        MediaItem.Builder()
+                            .setUri(source?.source?.url)
+                            .setSubtitleConfigurations(it)
+                            .build()
+                    }
                     this.player = ExoPlayer.Builder(context)
                         .setMediaSourceFactory(mediaSourceFactory).build().also { player = it }
-                    player?.setMediaItem(mediaItem)
+                    if (mediaItem != null) {
+                        player?.setMediaItem(mediaItem)
+                    }
                     player?.prepare()
-//                    setShowPreviousButton(false)
-//                    setShowNextButton(false)
-//                    setShowSubtitleButton(true)
                     useController = false
                 }
             },
@@ -117,9 +134,17 @@ fun MediaPlayer(
         )
         if (player != null) {
             PlayerControls(
-                isPlaying = player!!.isPlaying,
-                onPlay = { player!!.play() },
-                onPause = { player!!.pause() },
+                isPlaying = state.isPlaying,
+                currentPosition = state.currentTime,
+                totalDuration = state.totalDuration,
+                onPlay = {
+                    player!!.play()
+                    viewmodel.updateIsPlaying(it)
+                },
+                onPause = {
+                    player!!.pause()
+                    viewmodel.updateIsPlaying(it)
+                },
                 onSeek = { player?.seekTo(it) }
             )
         }
