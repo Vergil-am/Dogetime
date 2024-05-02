@@ -1,7 +1,6 @@
 package com.example.dogetime.presentation.player
 
 import android.net.Uri
-import android.util.Log
 import androidx.annotation.OptIn
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -52,11 +51,6 @@ fun MediaPlayer(
         mutableStateOf(Lifecycle.Event.ON_CREATE)
     }
     val lifecycleOwner = LocalContext.current as LifecycleOwner
-
-
-    Log.e("Current position", state.currentTime.toString())
-    Log.e("total duration", state.totalDuration.toString())
-
 
 
     DisposableEffect(lifecycleOwner) {
@@ -145,7 +139,9 @@ fun MediaPlayer(
                     player!!.pause()
                     viewmodel.updateIsPlaying(it)
                 },
-                onSeek = { player?.seekTo(it) }
+                onSeek = { player?.seekTo(it) },
+                subtitles = source?.subtitles ?: emptyList(),
+                sources = state.sources
             )
         }
     }

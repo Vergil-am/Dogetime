@@ -155,6 +155,9 @@ fun NavGraph(
                     subtitles = detailsState.subtitles
                 )
             )
+
+            playerViewModel.setSources(detailsState.movieSources)
+
             MediaPlayer(
                 viewmodel = playerViewModel,
                 windowCompat = windowCompat

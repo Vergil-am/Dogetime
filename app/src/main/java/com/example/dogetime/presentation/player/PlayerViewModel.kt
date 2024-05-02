@@ -1,6 +1,7 @@
 package com.example.dogetime.presentation.player
 
 import androidx.lifecycle.ViewModel
+import com.example.dogetime.domain.model.Source
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
@@ -22,6 +23,12 @@ class PlayerViewModel : ViewModel() {
         currentTime: Long, totalDuration: Long,
     ) {
         _state.value = _state.value.copy(totalDuration = totalDuration, currentTime = currentTime)
+    }
+
+    fun setSources(
+        sources: List<Source>
+    ) {
+        _state.value = _state.value.copy(sources = sources)
     }
 
 }
