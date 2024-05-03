@@ -155,8 +155,13 @@ fun NavGraph(
                     subtitles = detailsState.subtitles
                 )
             )
+            val type = detailsState.media?.type
+            when (type) {
+                "movie" -> playerViewModel.setSources(detailsState.movieSources)
+                "show" -> playerViewModel.setSources(detailsState.movieSources)
+                else -> playerViewModel.setSources(detailsState.animeEpisodeSources)
+            }
 
-            playerViewModel.setSources(detailsState.movieSources)
 
             MediaPlayer(
                 viewmodel = playerViewModel,

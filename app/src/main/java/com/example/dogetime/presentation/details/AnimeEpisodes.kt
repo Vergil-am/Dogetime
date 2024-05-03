@@ -150,7 +150,6 @@ fun AnimeEpisodes(
                     style = MaterialTheme.typography.titleLarge
                 )
                 sources.map {
-                    Log.e("Source", it.toString())
                     Source(source = it,
                         subtitles = null,
                         title = "${state.media?.title} EP$selected",

@@ -238,7 +238,11 @@ fun PlayerControls(
                     item {
                         ListItem(headlineContent = {
                             Text(text = it.source)
-                        })
+                        },
+                            supportingContent = {
+                                Text(text = it.label)
+                            }
+                        )
                     }
                 }
             }
