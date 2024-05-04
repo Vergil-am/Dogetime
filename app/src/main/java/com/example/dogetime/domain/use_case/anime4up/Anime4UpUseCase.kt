@@ -79,7 +79,7 @@ class Anime4upUseCase @Inject constructor(
                     status = row[2].select("a").text(),
                     tagline = null,
                     rating = null,
-                    type = "anime",
+                    type = "animeAR",
                     seasons = null,
                     lastAirDate = null,
                     episodes = row[3].text().split(":")[1],
