@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -52,6 +53,15 @@ fun MediaPlayer(
     }
     val lifecycleOwner = LocalContext.current as LifecycleOwner
 
+    LaunchedEffect(key1 = state.source) {
+        val currentPosition = state.currentTime
+        val mediaItem = MediaItem.Builder()
+            .setUri(source?.source?.url)
+//                .setSubtitleConfigurations(it)
+            .build()
+        player?.setMediaItem(mediaItem)
+        player?.seekTo(currentPosition)
+    }
 
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
@@ -109,6 +119,7 @@ fun MediaPlayer(
                             .setLabel(it.label)
                             .build()
                     }
+
                     val mediaItem = subtitles?.let {
                         MediaItem.Builder()
                             .setUri(source?.source?.url)
@@ -141,7 +152,16 @@ fun MediaPlayer(
                 },
                 onSeek = { player?.seekTo(it) },
                 subtitles = source?.subtitles ?: emptyList(),
-                sources = state.sources
+                sources = state.sources,
+                source = source?.source,
+                changeSource = {
+                    viewmodel.setSource(
+                        PlayerSource(
+                            source = it,
+                            subtitles = state.source?.subtitles ?: emptyList()
+                        )
+                    )
+                }
             )
         }
     }

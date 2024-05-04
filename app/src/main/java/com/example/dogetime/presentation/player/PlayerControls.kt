@@ -1,5 +1,6 @@
 package com.example.dogetime.presentation.player
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -10,6 +11,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -45,7 +47,9 @@ fun PlayerControls(
     onPause: (Boolean) -> Unit,
     onSeek: (seekTo: Long) -> Unit,
     subtitles: List<Subtitle>,
-    sources: List<Source>
+    source: Source?,
+    sources: List<Source>,
+    changeSource: (Source) -> Unit
 ) {
     var opened by remember {
         mutableStateOf("")
@@ -236,11 +240,21 @@ fun PlayerControls(
             LazyColumn {
                 sources.map {
                     item {
-                        ListItem(headlineContent = {
-                            Text(text = it.source)
-                        },
+                        ListItem(
+                            modifier = Modifier.clickable {
+                                changeSource(it)
+                            },
+                            headlineContent = {
+                                Text(text = it.source)
+                            },
                             supportingContent = {
                                 Text(text = it.label)
+                            },
+                            trailingContent = {
+                                if (source?.url == it.url) {
+                                    Icon(imageVector = Icons.Filled.Check, contentDescription = "")
+                                }
+
                             }
                         )
                     }
