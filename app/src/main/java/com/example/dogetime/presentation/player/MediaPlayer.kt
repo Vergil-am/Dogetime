@@ -57,7 +57,6 @@ fun MediaPlayer(
         val currentPosition = state.currentTime
         val mediaItem = MediaItem.Builder()
             .setUri(source?.source?.url)
-//                .setSubtitleConfigurations(it)
             .build()
         player?.setMediaItem(mediaItem)
         player?.seekTo(currentPosition)
@@ -120,17 +119,16 @@ fun MediaPlayer(
                             .build()
                     }
 
-                    val mediaItem = subtitles?.let {
-                        MediaItem.Builder()
-                            .setUri(source?.source?.url)
-                            .setSubtitleConfigurations(it)
-                            .build()
-                    }
+                    val mediaItem = MediaItem.Builder()
+                        .setUri(source?.source?.url)
+                        .setSubtitleConfigurations(
+                            subtitles?.toMutableList()
+                                ?: mutableListOf()
+                        )
+                        .build()
                     this.player = ExoPlayer.Builder(context)
                         .setMediaSourceFactory(mediaSourceFactory).build().also { player = it }
-                    if (mediaItem != null) {
-                        player?.setMediaItem(mediaItem)
-                    }
+                    player?.setMediaItem(mediaItem)
                     player?.prepare()
                     useController = false
                 }
