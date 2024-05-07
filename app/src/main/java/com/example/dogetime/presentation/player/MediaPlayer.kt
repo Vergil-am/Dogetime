@@ -37,7 +37,8 @@ import androidx.media3.ui.PlayerView
 @Composable
 fun MediaPlayer(
     viewmodel: PlayerViewModel,
-    windowCompat: WindowInsetsControllerCompat
+    windowCompat: WindowInsetsControllerCompat,
+    back: () -> Unit
 ) {
     val state = viewmodel.state.collectAsState().value
     val source = state.source
@@ -159,7 +160,9 @@ fun MediaPlayer(
                             subtitles = state.source?.subtitles ?: emptyList()
                         )
                     )
-                }
+                },
+                title = "Text",
+                back = back
             )
         }
     }

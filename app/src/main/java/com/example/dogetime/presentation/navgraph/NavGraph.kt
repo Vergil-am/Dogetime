@@ -162,10 +162,10 @@ fun NavGraph(
                 else -> playerViewModel.setSources(detailsState.animeEpisodeSources)
             }
 
-
             MediaPlayer(
                 viewmodel = playerViewModel,
-                windowCompat = windowCompat
+                windowCompat = windowCompat,
+                back = { navController.navigateUp() }
             )
         }
 
