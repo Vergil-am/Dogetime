@@ -9,9 +9,10 @@ interface GogoAnimeRepository {
 
     suspend fun searchAnime(search: String, page: Int? = 1): Response<String>
 
-    suspend fun getAnimeDetails(id: String ): Response<String>
+    suspend fun getAnimeDetails(id: String): Response<String>
+    suspend fun getEpisodes(url: String): Response<String>
 
 
-    suspend fun getSources(slug : String ): Response<String>
+    suspend fun getSources(slug: String): Response<String>
 
 }

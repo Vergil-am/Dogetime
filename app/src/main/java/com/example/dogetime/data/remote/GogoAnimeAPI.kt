@@ -4,9 +4,10 @@ import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.Path
 import retrofit2.http.Query
+import retrofit2.http.Url
 
 interface GogoAnimeAPI {
-    @GET("/")
+    @GET("/home.html")
     suspend fun getLatestEpisodes(): Response<String>
 
     @GET("popular.html")
@@ -23,12 +24,17 @@ interface GogoAnimeAPI {
     @GET("category/{id}")
     suspend fun getAnimeDetails(
         @Path("id") id: String
-    ) : Response<String>
+    ): Response<String>
+
+    @GET()
+    suspend fun getEpisodes(
+        @Url url: String
+    ): Response<String>
 
     @GET("{slug}")
     suspend fun getSources(
         @Path("slug") slug: String
-    ) : Response<String>
+    ): Response<String>
 
 
 }

@@ -24,6 +24,10 @@ class GogoAnimeRepoIementation @Inject constructor(
         return api.getAnimeDetails(id)
     }
 
+    override suspend fun getEpisodes(url: String): Response<String> {
+        return api.getEpisodes(url)
+    }
+
     override suspend fun getSources(slug: String): Response<String> {
         return api.getSources(slug)
     }
