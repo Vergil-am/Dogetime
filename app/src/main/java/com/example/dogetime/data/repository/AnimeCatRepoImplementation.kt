@@ -13,8 +13,11 @@ class AnimeCatRepoImplementation @Inject constructor(
 
     }
 
-    override suspend fun getAnime(page: Int?): Response<String> {
-        return api.getAnime(page)
+//    override suspend fun getAnime(page: Int?): Response<String> {
+//        return api.getAnime(page)
+//    }
+    override suspend fun getAnime(): Response<String> {
+        return api.getAnime()
     }
 
     override suspend fun getDetails(slug: String): Response<String> {

@@ -7,6 +7,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.outlined.ArrowBack
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -45,7 +46,10 @@ fun Search(
             IconButton(onClick = {
                 navController.navigate(Route.Browse.route)
             }) {
-                Icon(imageVector = Icons.Outlined.ArrowBack, contentDescription = "Search")
+                Icon(
+                    imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
+                    contentDescription = "Search"
+                )
             }
             OutlinedTextField(value = search,
                 placeholder = { Text(text = "Search") },
@@ -95,9 +99,21 @@ fun Search(
                 )
                 MovieRow(data = it, navController = navController)
             }
-            state.anime?.let {
+            state.animeAR?.let {
                 Text(
-                    text = "Anime",
+                    text = "Anime - AR",
+                    style = MaterialTheme.typography.titleMedium,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(10.dp)
+                )
+                MovieRow(data = it, navController = navController)
+            }
+
+            state.animeFR?.let {
+                Text(
+                    text = "Anime - FR",
                     style = MaterialTheme.typography.titleMedium,
                     textAlign = TextAlign.Center,
                     modifier = Modifier

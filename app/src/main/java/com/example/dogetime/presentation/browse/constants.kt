@@ -115,7 +115,9 @@ val animeGenres = listOf(
 val Types = listOf(
     Type("Movies", "movie", MovieCatalog, MovieGenres),
     Type("Shows", "tv", ShowCatalog, TvGenres),
-    Type("Anime", "anime", AnimeCatalog, animeGenres)
+    Type("Anime - AR", "animeAR", AnimeCatalog, animeGenres),
+    Type("Anime - EN", "animeEN", AnimeCatalog, animeGenres),
+    Type("Anime - FR", "animeFR", AnimeCatalog, animeGenres)
 )
 
 data class Genre(

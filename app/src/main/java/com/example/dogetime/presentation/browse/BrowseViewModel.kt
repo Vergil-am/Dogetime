@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.dogetime.domain.model.MovieHome
 import com.example.dogetime.domain.use_case.anime4up.Anime4upUseCase
+import com.example.dogetime.domain.use_case.animecat.AnimeCatUseCase
 import com.example.dogetime.domain.use_case.movies.get_movies.GetMoviesUseCase
 import com.example.dogetime.util.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -15,7 +16,9 @@ import javax.inject.Inject
 
 @HiltViewModel
 class BrowseViewModel @Inject constructor(
-    private val getMoviesUseCase: GetMoviesUseCase, private val anime4up: Anime4upUseCase
+    private val getMoviesUseCase: GetMoviesUseCase,
+    private val anime4up: Anime4upUseCase,
+    private val animeCat: AnimeCatUseCase
 ) : ViewModel() {
     private val _state = MutableStateFlow(BrowseState())
     var state = _state.asStateFlow()
@@ -66,6 +69,7 @@ class BrowseViewModel @Inject constructor(
                     }
                 } else if (page > 1) {
                     when (it) {
+                        is Resource.Loading -> _state.value = _state.value.copy(isLoading = true)
                         is Resource.Success<List<MovieHome>> -> {
                             val movies = _state.value.movies.plus(it.data ?: emptyList())
                             _state.value = _state.value.copy(
@@ -78,7 +82,7 @@ class BrowseViewModel @Inject constructor(
                 }
             }.launchIn(viewModelScope)
 
-            "anime" -> anime4up.getAnime(page, genre?.name, catalog).onEach {
+            "animeAR" -> anime4up.getAnime(page, genre?.name, catalog).onEach {
                 if (page == 1) {
                     when (it) {
                         is Resource.Loading -> _state.value = _state.value.copy(isLoading = true)
@@ -100,6 +104,15 @@ class BrowseViewModel @Inject constructor(
 
                         else -> {}
                     }
+                }
+            }.launchIn(viewModelScope)
+
+            "animeFR" -> animeCat.getAnime(null).onEach {
+                when (it) {
+                    is Resource.Success ->
+                        _state.value = _state.value.copy(movies = it.data!!)
+
+                    else -> {}
                 }
             }.launchIn(viewModelScope)
         }

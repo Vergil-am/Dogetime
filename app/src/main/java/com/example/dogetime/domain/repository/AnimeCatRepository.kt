@@ -6,9 +6,10 @@ interface AnimeCatRepository {
 
     suspend fun getLatestEpisodes(): Response<String>
 
-    suspend fun getAnime(
-        page: Int?
-    ): Response<String>
+//    suspend fun getAnime(
+//        page: Int?
+//    ): Response<String>
+    suspend fun getAnime(): Response<String>
 
     suspend fun getDetails(
         slug: String
@@ -18,5 +19,6 @@ interface AnimeCatRepository {
     suspend fun getEpisode(
         slug: String
     ): Response<String>
+
 
 }

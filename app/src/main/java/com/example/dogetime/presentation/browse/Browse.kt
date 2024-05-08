@@ -10,7 +10,6 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.material3.Card
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -25,7 +24,6 @@ import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
 import com.example.dogetime.presentation.components.Filters
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Browse(
     navController: NavController, viewModel: BrowseViewModel
@@ -75,7 +73,9 @@ fun Browse(
                             .height(150.dp), onClick = {
                             when (state.type.value) {
                                 "movie" -> navController.navigate("movie/${movie.id}")
-                                "anime" -> navController.navigate("anime/${movie.id}")
+                                "animeAR" -> navController.navigate("animeAR/${movie.id}")
+                                "animeFR" -> navController.navigate("animeFR/${movie.id}")
+                                "animeEN" -> navController.navigate("animeEN/${movie.id}")
                                 "tv" -> navController.navigate("show/${movie.id}")
                             }
                         }) {
