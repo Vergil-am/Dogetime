@@ -1,6 +1,5 @@
 package com.example.dogetime.domain.use_case.animecat
 
-import android.util.Log
 import com.example.dogetime.data.remote.dto.AnimeCatDTO
 import com.example.dogetime.domain.model.AnimeDetails
 import com.example.dogetime.domain.model.Details
@@ -74,7 +73,9 @@ class AnimeCatUseCase @Inject constructor(
             if (query == null) {
                 emit(Resource.Success(anime))
             } else {
-                emit(Resource.Success(anime.filter { it.title.lowercase().contains(query.lowercase()) }))
+                emit(Resource.Success(anime.filter {
+                    it.title.lowercase().contains(query.lowercase())
+                }))
             }
         } catch (e: Exception) {
             e.printStackTrace()
@@ -94,7 +95,6 @@ class AnimeCatUseCase @Inject constructor(
             val doc = Jsoup.parse(res.body()!!)
             val animeInfo = doc.select("div#anime-info-list").select("div.item")
             val cover = doc.select("div.cover").select("img").attr("src")
-            Log.e("Cover", cover.toString())
             val details = Details(
                 id = slug,
                 imdbId = null,
@@ -116,21 +116,37 @@ class AnimeCatUseCase @Inject constructor(
             )
 
             val episodesContainer =
-                doc.select("div.episodes").select("div.col-lg-4.col-sm-6.col-xs-6")
+                doc.select("div.episodes")
+                    .select("div.col-lg-4.col-sm-6.col-xs-6")
+
             val episodes = mutableListOf<OkanimeEpisode>()
 
-            episodesContainer.map {
-                episodes.add(
-                    OkanimeEpisode(
-                        title = it.select("div.limit").text(),
-                        slug = it.select("a").attr("href").split("/").last(),
-                        poster = it.select("img").attr("src"),
-                        episodeNumber = it.select("span.episode").text().split(" ").last()
+            if (episodesContainer.isNotEmpty()) {
+                episodesContainer.map {
+                    episodes.add(
+                        OkanimeEpisode(
+                            title = it.select("div.limit").text(),
+                            slug = it.select("a").attr("href").split("/").last(),
+                            poster = cover,
+                            episodeNumber = it.select("span.episode").text().split(" ").last()
+                        )
                     )
-                )
+                }
+
+            } else {
+                val altEpisodesContainer = doc.select("div.episodes")
+                    .select("div.col-lg-12.col-sm-12.col-xs-12")
+                altEpisodesContainer.map {
+                    episodes.add(
+                        OkanimeEpisode(
+                            title = it.text(),
+                            slug = it.select("a").attr("href").split("/").last(),
+                            poster = cover,
+                            episodeNumber = it.text().split("-").last()
+                        )
+                    )
+                }
             }
-
-
             emit(Resource.Success(AnimeDetails(details, episodes)))
         } catch (e: Exception) {
             e.printStackTrace()
