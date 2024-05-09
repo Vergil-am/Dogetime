@@ -31,20 +31,21 @@ class Anime4upUseCase @Inject constructor(
                 throw Exception("Anime4up error ${res.code()}")
             }
 
-                val doc = res.body()?.let { Jsoup.parse(it) } ?: throw Exception("Anime episodes not found")
-                val animeCards = doc.getElementsByClass("anime-card-container")
-                val episodes = animeCards.map { card ->
-                    val slug = card.selectFirst("a")?.attr("href")?.split("/")?.reversed()?.get(1)
-                        ?.split("%")?.get(0)?.dropLast(1)
-                    MovieHome(
-                        id = slug ?: "",
-                        title = card.selectFirst("img")?.attr("alt") ?: "",
-                        poster = card.selectFirst("img")?.attr("src") ?: "",
-                        type = "animeAR"
-                    )
+            val doc =
+                res.body()?.let { Jsoup.parse(it) } ?: throw Exception("Anime episodes not found")
+            val animeCards = doc.getElementsByClass("anime-card-container")
+            val episodes = animeCards.map { card ->
+                val slug = card.selectFirst("a")?.attr("href")?.split("/")?.reversed()?.get(1)
+                    ?.split("%")?.get(0)?.dropLast(1)
+                MovieHome(
+                    id = slug ?: "",
+                    title = card.selectFirst("img")?.attr("alt") ?: "",
+                    poster = card.selectFirst("img")?.attr("src") ?: "",
+                    type = "animeAR"
+                )
 
-                }
-                emit(Resource.Success(episodes))
+            }
+            emit(Resource.Success(episodes))
         } catch (e: HttpException) {
             e.printStackTrace()
             emit(Resource.Error("HTTP Error"))
@@ -53,7 +54,6 @@ class Anime4upUseCase @Inject constructor(
             emit(Resource.Error("IO Error"))
         }
     }
-
 
 
     fun getAnimeDetails(slug: String): Flow<Resource<AnimeDetails>> = flow {
@@ -153,12 +153,21 @@ class Anime4upUseCase @Inject constructor(
             }
         }
 
-    fun searchAnime(query: String): Flow<List<MovieHome>> = flow {
-        val doc = repo.searchAnime(query).body()
-        if (doc != null) {
-            val animeCards = Jsoup.parse(doc).select("div.anime-card-poster")
+    fun searchAnime(query: String): Flow<Resource<List<MovieHome>>> = flow {
+        emit(Resource.Loading())
+        try {
+            val res = repo.searchAnime(query)
+            if (res.code() != 200) {
+                throw Exception("Anime4up error code ${res.code()}")
+            }
+            val doc = Jsoup.parse(res.body()!!)
+            val animeCards = doc.select("div.anime-card-poster")
             val anime = parseAnime(animeCards)
-            emit(anime)
+            emit(Resource.Success(anime))
+        } catch (e: Exception) {
+            e.printStackTrace()
+            emit(Resource.Error("anime4up error ${e.message}"))
         }
+
     }
 }

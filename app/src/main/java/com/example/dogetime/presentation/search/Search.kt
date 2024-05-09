@@ -111,6 +111,18 @@ fun Search(
                 MovieRow(data = it, navController = navController)
             }
 
+            state.animeEN?.let {
+                Text(
+                    text = "Anime - EN",
+                    style = MaterialTheme.typography.titleMedium,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(10.dp)
+                )
+                MovieRow(data = it, navController = navController)
+            }
+
             state.animeFR?.let {
                 Text(
                     text = "Anime - FR",

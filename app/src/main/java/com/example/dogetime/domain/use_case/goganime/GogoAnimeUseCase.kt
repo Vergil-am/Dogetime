@@ -150,5 +150,35 @@ class GogoAnimeUseCase @Inject constructor(
 
     }
 
+    fun search(
+        query: String,
+        page: Int
+    ): Flow<Resource<List<MovieHome>>> = flow {
+        emit(Resource.Loading())
+        try {
+            val res = repo.searchAnime(query, page)
+            if (res.code() != 200) {
+                throw Exception("Gogoanime error code ${res.code()}")
+            }
+            val doc = Jsoup.parse(res.body()!!)
+            val animeContainer = doc.select("ul.items").select("li")
+            val anime = mutableListOf<MovieHome>()
+            animeContainer.map {
+                anime.add(
+                    MovieHome(
+                        id = it.select("a").attr("href").split("/").last(),
+                        poster = it.select("img").attr("src"),
+                        title = it.select("a").text(),
+                        type = "animeEN"
+                    )
+                )
 
+            }
+            emit(Resource.Success(anime))
+        } catch (e: Exception) {
+            e.printStackTrace()
+            emit(Resource.Error("gogoanime error ${e.message}"))
+        }
+
+    }
 }

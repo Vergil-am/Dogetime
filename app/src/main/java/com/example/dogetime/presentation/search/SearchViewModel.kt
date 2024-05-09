@@ -1,6 +1,5 @@
 package com.example.dogetime.presentation.search
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.dogetime.domain.use_case.anime4up.Anime4upUseCase
@@ -20,7 +19,7 @@ class SearchViewModel @Inject constructor(
     private val search: Search,
     private val anime4up: Anime4upUseCase,
     private val animeCat: AnimeCatUseCase,
-//    private val gogoAnime: GogoAnimeUseCase
+    private val gogoAnime: GogoAnimeUseCase
 
 ) : ViewModel() {
     private val _state = MutableStateFlow(SearchState())
@@ -39,7 +38,6 @@ class SearchViewModel @Inject constructor(
         }.launchIn(viewModelScope)
 
         animeCat.getAnime(query).onEach {
-            Log.e("animeCat", it.data.toString())
             when (it) {
                 is Resource.Success ->
                     _state.value = _state.value.copy(animeFR = it.data)
@@ -48,6 +46,14 @@ class SearchViewModel @Inject constructor(
             }
         }.launchIn(viewModelScope)
 
+        gogoAnime.search(query, page = 1).onEach {
+            when (it) {
+                is Resource.Success ->
+                    _state.value = _state.value.copy(animeEN = it.data)
+
+                else -> {}
+            }
+        }.launchIn(viewModelScope)
 
     }
 
