@@ -34,7 +34,12 @@ class SearchViewModel @Inject constructor(
             _state.value = _state.value.copy(shows = it)
         }.launchIn(viewModelScope)
         anime4up.searchAnime(query).onEach {
-            _state.value = _state.value.copy(animeAR = it)
+            when (it) {
+                is Resource.Success ->
+                    _state.value = _state.value.copy(animeAR = it.data)
+
+                else -> {}
+            }
         }.launchIn(viewModelScope)
 
         animeCat.getAnime(query).onEach {
