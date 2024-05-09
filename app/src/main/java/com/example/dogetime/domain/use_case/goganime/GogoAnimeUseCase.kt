@@ -1,6 +1,5 @@
 package com.example.dogetime.domain.use_case.goganime
 
-import android.util.Log
 import com.example.dogetime.domain.model.AnimeDetails
 import com.example.dogetime.domain.model.Details
 import com.example.dogetime.domain.model.MovieHome
@@ -62,17 +61,13 @@ class GogoAnimeUseCase @Inject constructor(
             val infoContainer = doc.select("div.anime_info_body")
             val poster = infoContainer.select("img").attr("src")
             val info = infoContainer.select("p.type")
-            val episodesContainer = doc.select("div.anime_video_body").select("li")
             val id = infoContainer.select("div.anime_info_episodes_next")
                 .select("input")[0].attr("value")
-            val endEpisode =
-                episodesContainer.select("ul.episode_page").select("li").last()?.text()?.split("-")
-                    ?.last() ?: ""
-            Log.e("Last episode", endEpisode)
             val episodes = getEpisodes(
                 id = id,
                 poster = poster,
-                endEpisode = endEpisode
+                // This is not the best solution but it works i guess
+                endEpisode = 10000.toString()
             )
             val details = Details(
                 id = slug,
@@ -111,17 +106,22 @@ class GogoAnimeUseCase @Inject constructor(
         val res = repo.getEpisodes(
             "$GOGOANIME_AJAX_URL/load-list-episode?ep_start=0&ep_end=$endEpisode&id=$id"
         )
-        Log.e("Response", res.body().toString())
-        val episodes = emptyList<OkanimeEpisode>()
-//            elements.map {
-//            OkanimeEpisode(
-//                title = it.select("div.name").text(),
-//                slug = it.select("a").attr("href").substringAfter("/"),
-//                poster = poster,
-//                episodeNumber = it.select("div.name").text().substringAfter(" "),
-//            )
-//        }
-        Log.e("Episodes", episodes.toString())
+        if (res.code() != 200) {
+            throw Exception("Gogo anime failed to get episodes error code ${res.code()}")
+        }
+        val listItems = Jsoup.parse(res.body()!!).select("li")
+
+        val episodes = mutableListOf<OkanimeEpisode>()
+        listItems.map {
+            episodes.add(
+                OkanimeEpisode(
+                    title = it.select("div.name").text(),
+                    slug = it.select("a").attr("href").substringAfter("/"),
+                    poster = poster,
+                    episodeNumber = it.select("div.name").text().substringAfter(" "),
+                )
+            )
+        }
         return episodes.reversed()
     }
 

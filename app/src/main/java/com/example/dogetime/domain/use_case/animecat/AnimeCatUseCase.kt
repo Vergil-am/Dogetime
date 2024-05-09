@@ -19,9 +19,7 @@ import javax.inject.Inject
 class AnimeCatUseCase @Inject constructor(
     private val repo: AnimeCatRepository
 ) {
-
     fun getLatestEpisodes(): Flow<Resource<List<MovieHome>>> = flow {
-
         emit(Resource.Loading())
         try {
             val res = repo.getLatestEpisodes()
