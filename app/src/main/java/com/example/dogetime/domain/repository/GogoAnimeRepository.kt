@@ -5,7 +5,7 @@ import retrofit2.Response
 interface GogoAnimeRepository {
     suspend fun getLatestEpisodes(): Response<String>
 
-    suspend fun getNewestAnime(page: Int? = 1): Response<String>
+    suspend fun getPopular(page: Int? = 1): Response<String>
 
     suspend fun searchAnime(search: String, page: Int? = 1): Response<String>
 

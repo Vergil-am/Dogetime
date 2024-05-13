@@ -181,4 +181,28 @@ class GogoAnimeUseCase @Inject constructor(
         }
 
     }
+
+    fun getPopular(page: Int): Flow<Resource<List<MovieHome>>> = flow {
+        emit(Resource.Loading())
+        try {
+            val res = repo.getPopular(page)
+            if (res.code() != 200) {
+                throw Exception("Gogoanime error code ${res.code()}")
+            }
+            val doc = Jsoup.parse(res.body()!!)
+            val animeContainer = doc.select("div.last_episodes").select("li")
+            val anime = animeContainer.map {
+                MovieHome(
+                    id = it.select("a").attr("href").split("/").last(),
+                    poster = it.select("img").attr("src"),
+                    type = "animeEN",
+                    title = it.select("p.name").text()
+                )
+            }
+            emit(Resource.Success(anime))
+        } catch (e: Exception) {
+            e.printStackTrace()
+            emit(Resource.Error("gogoanime error ${e.message}"))
+        }
+    }
 }

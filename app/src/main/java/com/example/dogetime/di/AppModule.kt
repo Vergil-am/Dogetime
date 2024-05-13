@@ -13,7 +13,7 @@ import com.example.dogetime.data.remote.WitanimeAPI
 import com.example.dogetime.data.repository.Anime4upRepoImplementation
 import com.example.dogetime.data.repository.AnimeCatRepoImplementation
 import com.example.dogetime.data.repository.MyCimaRepoImplementation
-import com.example.dogetime.data.repository.GogoAnimeRepoIementation
+import com.example.dogetime.data.repository.GogoAnimeRepoImplementation
 import com.example.dogetime.data.repository.MovieRepoImplementation
 import com.example.dogetime.data.repository.WatchListRepositoryImpl
 import com.example.dogetime.data.repository.WitanimeRepoImplementation
@@ -131,7 +131,7 @@ object AppModule {
     @Provides
     @Singleton
     fun provideGogoAnimeRepo(api: GogoAnimeAPI): GogoAnimeRepository {
-        return GogoAnimeRepoIementation(api)
+        return GogoAnimeRepoImplementation(api)
     }
 
 

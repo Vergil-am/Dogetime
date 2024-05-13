@@ -5,14 +5,14 @@ import com.example.dogetime.domain.repository.GogoAnimeRepository
 import retrofit2.Response
 import javax.inject.Inject
 
-class GogoAnimeRepoIementation @Inject constructor(
+class GogoAnimeRepoImplementation @Inject constructor(
     private val api: GogoAnimeAPI
 ) : GogoAnimeRepository {
     override suspend fun getLatestEpisodes(): Response<String> {
         return api.getLatestEpisodes()
     }
 
-    override suspend fun getNewestAnime(page: Int?): Response<String> {
+    override suspend fun getPopular(page: Int?): Response<String> {
         return api.getPopularAnime(page)
     }
 

@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.dogetime.domain.model.MovieHome
 import com.example.dogetime.domain.use_case.anime4up.Anime4upUseCase
 import com.example.dogetime.domain.use_case.animecat.AnimeCatUseCase
+import com.example.dogetime.domain.use_case.goganime.GogoAnimeUseCase
 import com.example.dogetime.domain.use_case.movies.get_movies.GetMoviesUseCase
 import com.example.dogetime.util.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -18,7 +19,8 @@ import javax.inject.Inject
 class BrowseViewModel @Inject constructor(
     private val getMoviesUseCase: GetMoviesUseCase,
     private val anime4up: Anime4upUseCase,
-    private val animeCat: AnimeCatUseCase
+    private val animeCat: AnimeCatUseCase,
+    private val gogoAnime: GogoAnimeUseCase
 ) : ViewModel() {
     private val _state = MutableStateFlow(BrowseState())
     var state = _state.asStateFlow()
@@ -109,10 +111,36 @@ class BrowseViewModel @Inject constructor(
 
             "animeFR" -> animeCat.getAnime(null).onEach {
                 when (it) {
+                    is Resource.Loading -> _state.value = _state.value.copy(isLoading = true)
                     is Resource.Success ->
-                        _state.value = _state.value.copy(movies = it.data!!)
+                        _state.value = _state.value.copy(movies = it.data!!, isLoading = false)
 
                     else -> {}
+                }
+
+
+            }.launchIn(viewModelScope)
+
+            "animeEN" -> gogoAnime.getPopular(page).onEach {
+                if (page == 1) {
+                    when (it) {
+                        is Resource.Loading -> _state.value = _state.value.copy(isLoading = true)
+                        is Resource.Success ->
+                            _state.value = _state.value.copy(movies = it.data!!, isLoading = false)
+
+                        else -> {}
+                    }
+                } else {
+                    when (it) {
+                        is Resource.Success ->
+                            _state.value =
+                                _state.value.copy(
+                                    movies = state.value.movies.plus(it.data!!),
+                                    page = page
+                                )
+
+                        else -> {}
+                    }
                 }
             }.launchIn(viewModelScope)
         }
