@@ -49,10 +49,7 @@ fun Details(
         viewModel.getMedia(type = type, id = id)
         if (type == "movie") {
             viewModel.getVidsrc(
-                id = id.toIntOrNull(),
-                type = type,
-                episode = null,
-                season = null
+                id = id.toIntOrNull(), type = type, episode = null, season = null
             )
         }
     }
@@ -72,16 +69,19 @@ fun Details(
     when (state.isLoading) {
         true -> Text(text = "Loading ...")
         false -> Scaffold(floatingActionButton = {
-            ExtendedFloatingActionButton(containerColor = MaterialTheme.colorScheme.primary,
+            ExtendedFloatingActionButton(
+                containerColor = MaterialTheme.colorScheme.primary,
                 onClick = {
                     when (type) {
                         "movie" -> {
                             opened = true
                         }
 
-                        "mycima" -> {
+                        "mycima - movie" -> {
                             opened = true
                         }
+
+                        "mycima - show" -> navController.navigate("mycima - show/seasons/$id")
 
                         "show" -> navController.navigate("show/seasons/$id")
                         "animeAR" -> navController.navigate("anime/episodes/$id")

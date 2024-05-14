@@ -9,7 +9,7 @@ import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.Url
 
-class Vidbom {
+class Mycima {
 
     private val baseUrl = "https://vidbom.com/"
 
@@ -25,7 +25,7 @@ class Vidbom {
         .addConverterFactory(ScalarsConverterFactory.create()).build()
         .create(API::class.java)
 
-    suspend fun extractSource(url: String, header: String): Source? {
+    suspend fun extractSource(url: String, header: String, source: String): Source? {
         try {
             val res = api.getSource(url, header)
             Log.e("Vidbom", res.toString())
@@ -40,7 +40,7 @@ class Vidbom {
                 url = fileUrl,
                 label = "uknown",
                 quality = "uknown",
-                source = "vidbom",
+                source = source,
                 header = null
             )
 

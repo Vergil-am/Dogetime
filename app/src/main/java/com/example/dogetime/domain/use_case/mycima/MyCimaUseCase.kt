@@ -6,9 +6,7 @@ import com.example.dogetime.domain.model.Source
 import com.example.dogetime.domain.repository.MyCimaRepository
 import com.example.dogetime.util.Constants
 import com.example.dogetime.util.Resource
-import com.example.dogetime.util.extractors.Govid
-import com.example.dogetime.util.extractors.Vidbom
-import com.example.dogetime.util.extractors.Vidshare
+import com.example.dogetime.util.extractors.Mycima
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import org.jsoup.Jsoup
@@ -39,12 +37,13 @@ class MyCimaUseCase @Inject constructor(
                     it.selectFirst("a")?.attr("href")?.split("/")?.reversed()?.get(1)
                         ?: throw Exception("My cima can't get Id")
 
+                val title = it.selectFirst("a")?.attr("title")
                 movies.add(
                     MovieHome(
                         id = id,
                         poster = it.select("img").attr("src"),
-                        title = it.selectFirst("a")?.attr("title") ?: "",
-                        type = "mycima"
+                        title = title ?: "",
+                        type = if (title?.contains("فيلم") == true) "mycima - movie" else "mycima - show"
                     )
                 )
             }
@@ -101,53 +100,22 @@ class MyCimaUseCase @Inject constructor(
                 throw Exception("My cima sources error code ${res.code()}")
             }
             val doc = Jsoup.parse(res.body()!!)
-
             val links = doc.select("ul.tabContainer").select("li")
             val sources = mutableListOf<Source>()
             links.map {
                 val link = it.select("a").attr("data-embed")
                 val referer = Constants.CIMALEK_URL
-                when (it.text()) {
-                    "vidbom" -> {
-                        Vidbom().extractSource(
-                            url = link,
-                            header = referer
-                        )?.let { it1 ->
-                            sources.add(
-                                it1
-                            )
-                        }
-
-                    }
-
-                    "vidshar" -> {
-                        Vidshare().extractSource(
-                            url = link,
-                            header = referer
-                        )?.let { it1 ->
-                            sources.add(
-                                it1
-                            )
-                        }
-
-                    }
-
-                    "govid" -> {
-                        Govid().extractSource(
-                            url = link,
-                            header = referer
-                        )?.let { it1 ->
-                            sources.add(
-                                it1
-                            )
-                        }
-
-                    }
-
-                    else -> {}
+                val source = it.text()
+                Mycima().extractSource(
+                    url = link,
+                    header = referer,
+                    source = source
+                )?.let { it1 ->
+                    sources.add(
+                        it1
+                    )
                 }
             }
-
             emit(sources)
         } catch (e: Exception) {
             e.printStackTrace()

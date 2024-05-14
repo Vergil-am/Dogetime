@@ -1,7 +1,6 @@
 package com.example.dogetime.presentation.details
 
 import android.os.Build
-import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -45,7 +44,8 @@ class DetailsViewModel @Inject constructor(
             "animeAR" -> getAnimeAR(id)
             "animeEN" -> getAnimeEN(id)
             "animeFR" -> getAnimeFR(id)
-            "mycima" -> getMyCimaDetails(id)
+            "mycima - movie" -> getMyCimaDetails(id)
+            "mycima - show" -> getMyCimaDetails(id)
         }
     }
 
@@ -79,7 +79,6 @@ class DetailsViewModel @Inject constructor(
 
                 is Resource.Success -> {
                     _state.value = _state.value.copy(isLoading = false, media = it.data)
-                    Log.e("DETAILS", "hello ${it.data?.seasons.toString()}")
                 }
 
                 is Resource.Error -> _state.value =
@@ -222,7 +221,11 @@ class DetailsViewModel @Inject constructor(
             myCima.getDetails(id).onEach {
                 when (it) {
                     is Resource.Loading -> {
-                        _state.value = _state.value.copy(isLoading = true, media = null)
+                        _state.value = _state.value.copy(
+                            isLoading = true,
+                            media = null,
+                            movieSources = emptyList()
+                        )
                     }
 
                     is Resource.Success -> {
