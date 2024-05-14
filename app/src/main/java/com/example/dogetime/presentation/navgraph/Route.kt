@@ -1,6 +1,6 @@
 package com.example.dogetime.presentation.navgraph
 
-sealed class Route (
+sealed class Route(
     val route: String
 
 ) {
@@ -9,21 +9,23 @@ sealed class Route (
 
     object Browse : Route("browse")
 
-    object WatchList: Route("watchlist")
+    object WatchList : Route("watchlist")
 
     object Account : Route("account")
 
-    object WebView: Route("web-view/{url}")
-    object MovieDetails: Route("movie/{id}")
+    object WebView : Route("web-view/{url}")
+    object MovieDetails : Route("movie/{id}")
 
-    object ShowDetails: Route("show/{id}")
-    object ShowSeasons: Route("show/seasons/{id}")
+    object ShowDetails : Route("show/{id}")
+    object ShowSeasons : Route("show/seasons/{id}")
 
-    object AnimeDetails: Route("{type}/{slug}")
 
-    object AnimeEpisodes: Route("anime/episodes/{slug}")
+    object MyCimaSeasons : Route("mycima - show/seasons/{id}")
+    object AnimeDetails : Route("{type}/{slug}")
 
-    object Mediaplayer: Route("media-player")
+    object AnimeEpisodes : Route("anime/episodes/{slug}")
+
+    object Mediaplayer : Route("media-player")
 
 
 }
