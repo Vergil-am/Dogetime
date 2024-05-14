@@ -79,6 +79,10 @@ fun Details(
                             opened = true
                         }
 
+                        "mycima" -> {
+                            opened = true
+                        }
+
                         "show" -> navController.navigate("show/seasons/$id")
                         "animeAR" -> navController.navigate("anime/episodes/$id")
                         "animeFR" -> navController.navigate("anime/episodes/$id")

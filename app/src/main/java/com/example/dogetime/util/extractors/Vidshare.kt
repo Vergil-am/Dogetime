@@ -1,20 +1,23 @@
 package com.example.dogetime.util.extractors
 
+import android.util.Log
 import com.example.dogetime.domain.model.Source
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.scalars.ScalarsConverterFactory
 import retrofit2.http.GET
+import retrofit2.http.Header
 import retrofit2.http.Url
 
-class Vidmoly {
+class Vidshare {
 
-    private val baseUrl = "https://vidmoly.to"
+    private val baseUrl = "https://vidshare.com/"
 
     interface API {
         @GET
-        suspend fun getDocument(
-            @Url url: String
+        suspend fun getSource(
+            @Url url: String,
+            @Header("Referer") header: String
         ): Response<String>
     }
 
@@ -22,20 +25,24 @@ class Vidmoly {
         .addConverterFactory(ScalarsConverterFactory.create()).build()
         .create(API::class.java)
 
-    suspend fun getVideoFromUrl(url: String, quality: String?): Source? {
+    suspend fun extractSource(url: String, header: String): Source? {
         try {
-            val res = api.getDocument(url)
+            val res = api.getSource(url, header)
+            Log.e("Vidshare", res.toString())
+            if (res.code() != 200) {
+                throw Exception("Vidshare error code ${res.code()}")
+            }
             val pattern =
                 Regex("""sources:\s*\[.*?file:"(.*?)".*?\]""", RegexOption.DOT_MATCHES_ALL)
             val matchResult = pattern.find(res.body() ?: "")
             val fileUrl = matchResult?.groupValues?.get(1) ?: throw Exception("File not found")
-
+            Log.e("Vidshare", fileUrl)
             return Source(
                 url = fileUrl,
-                quality = quality ?: "unknown",
-                header = baseUrl,
-                label = quality ?: "unknown",
-                source = "Vidmoly"
+                label = "uknown",
+                quality = "uknown",
+                source = "vidshare",
+                header = null
             )
 
         } catch (e: Exception) {

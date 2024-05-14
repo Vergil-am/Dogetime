@@ -4,11 +4,11 @@ package com.example.dogetime.presentation.home
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.dogetime.domain.model.MovieHome
-import com.example.dogetime.domain.repository.MyCimaRepository
 import com.example.dogetime.domain.use_case.anime4up.Anime4upUseCase
 import com.example.dogetime.domain.use_case.animecat.AnimeCatUseCase
 import com.example.dogetime.domain.use_case.goganime.GogoAnimeUseCase
 import com.example.dogetime.domain.use_case.movies.get_movies.GetMoviesUseCase
+import com.example.dogetime.domain.use_case.mycima.MyCimaUseCase
 import com.example.dogetime.domain.use_case.watchlist.WatchListUseCase
 import com.example.dogetime.util.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -24,9 +24,9 @@ class HomeViewModel @Inject constructor(
     private val getMoviesUseCase: GetMoviesUseCase,
     private val watchList: WatchListUseCase,
     private val anime4up: Anime4upUseCase,
-    private val aniwave: GogoAnimeUseCase,
+    private val gogoanime: GogoAnimeUseCase,
     private val animeCat: AnimeCatUseCase,
-    private val cimaLek: MyCimaRepository
+    private val mycima: MyCimaUseCase
 ) : ViewModel() {
     private val _state = MutableStateFlow(HomeState())
     val state = _state.asStateFlow()
@@ -35,7 +35,7 @@ class HomeViewModel @Inject constructor(
         getMovies()
         getShows()
         getLatestEpisodes()
-        aniwaveLatestEpisodes()
+        goganimeLatestEpisodes()
         animeCatLatestEpisodes()
         getMyCimaLatest()
 
@@ -88,8 +88,8 @@ class HomeViewModel @Inject constructor(
         }.launchIn(viewModelScope)
     }
 
-    private fun aniwaveLatestEpisodes() {
-        aniwave.getLatestEpisodes().onEach {
+    private fun goganimeLatestEpisodes() {
+        gogoanime.getLatestEpisodes().onEach {
             when (it) {
                 is Resource.Loading -> _state.value =
                     _state.value.copy(animeEN = MovieState(isLoading = true))
@@ -137,7 +137,7 @@ class HomeViewModel @Inject constructor(
 
     private fun getMyCimaLatest() {
         viewModelScope.launch {
-            cimaLek.getLatest().onEach {
+            mycima.getLatest().onEach {
                 when (it) {
                     is Resource.Loading -> _state.value =
                         _state.value.copy(cimalek = MovieState(isLoading = true))

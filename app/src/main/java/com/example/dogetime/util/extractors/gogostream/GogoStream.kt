@@ -30,17 +30,13 @@ class GogoStream {
 
         @GET
         suspend fun getJson(
-            @Url url: String,
-            @Header("X-Requested-With") requestedWith: String = "XMLHttpRequest"
+            @Url url: String, @Header("X-Requested-With") requestedWith: String = "XMLHttpRequest"
         ): Response<String>
 
     }
 
-    private val api: API = Retrofit.Builder()
-        .baseUrl("https://embtaku.pro/")
-        .addConverterFactory(ScalarsConverterFactory.create())
-        .build()
-        .create(API::class.java)
+    private val api: API = Retrofit.Builder().baseUrl("https://embtaku.pro/")
+        .addConverterFactory(ScalarsConverterFactory.create()).build().create(API::class.java)
 
     private fun Element.getBytesAfter(item: String) =
         className().substringAfter(item).filter(Char::isDigit).toByteArray()
@@ -58,9 +54,8 @@ class GogoStream {
             )
             val secretKey = doc.selectFirst("body[class]")?.getBytesAfter("container-")
                 ?: throw Exception("no Secret key found")
-            val decryptionKey =
-                doc.selectFirst("div.videocontent")?.getBytesAfter("videocontent-")
-                    ?: throw Exception("no decrypt key found")
+            val decryptionKey = doc.selectFirst("div.videocontent")?.getBytesAfter("videocontent-")
+                ?: throw Exception("no decrypt key found")
 
             val decryptedAjaxParams = cryptoHandler(
                 string = doc.selectFirst("script[data-value]")!!.attr("data-value"),
@@ -78,7 +73,7 @@ class GogoStream {
 
             val encryptedId = cryptoHandler(id, iv, secretKey)
             val token = httpUrl.queryParameter("token")
-            val qualityPrefix = if (token != null) "Gogostream - " else "Vidstreaming - "
+            val qualityPrefix = if (token != null) "Gogostream" else "Vidstreaming"
 
             val newUrl = "$host/encrypt-ajax.php?id=$encryptedId&$decryptedAjaxParams&alias=$id"
 
@@ -87,39 +82,19 @@ class GogoStream {
             val data = Gson().fromJson(jsonString, AjaxDTO::class.java).data
 
             val sourceList = cryptoHandler(
-                data,
-                iv,
-                decryptionKey,
-                false
+                data, iv, decryptionKey, false
             )
 
             val sourcesJson = Gson().fromJson(sourceList, SourcesDTO::class.java)
 
             val sources = mutableListOf<Source>()
 
-            sources.addAll(
-                sourcesJson.source.map {
-                    Source(
-                        url = it.file,
-                        header = null,
-                        quality = "Multi",
-                        label = "Multi",
-                        source = qualityPrefix
-                    )
-                }
-            )
-            sources.addAll(
-                sourcesJson.source_bk.map {
-                    Source(
-                        url = it.file,
-                        header = null,
-                        quality = "Multi",
-                        label = "Multi",
-                        source = qualityPrefix
-                    )
-                }
-            )
-
+            sources.addAll(sourcesJson.source.flatMap {
+                handleSources(it, qualityPrefix)
+            })
+            sources.addAll(sourcesJson.source_bk.flatMap {
+                handleSources(it, qualityPrefix)
+            })
             return sources
         } catch (e: Exception) {
             e.printStackTrace()
@@ -149,5 +124,42 @@ class GogoStream {
         }
 
 
+    }
+
+
+    private fun handleSources(
+        source: com.example.dogetime.domain.use_case.goganime.dto.Source, qualityPrefix: String
+    ): List<Source> {
+
+        return listOf(
+            Source(
+                url = source.file.replace(".m3u8", ".360.m3u8"),
+                label = "SD",
+                quality = "360p",
+                header = null,
+                source = qualityPrefix
+            ),
+            Source(
+                url = source.file.replace(".m3u8", ".480.m3u8"),
+                label = "SD",
+                quality = "480p",
+                header = null,
+                source = qualityPrefix
+            ),
+            Source(
+                url = source.file.replace(".m3u8", ".720.m3u8"),
+                label = "HD",
+                quality = "720p",
+                header = null,
+                source = qualityPrefix
+            ),
+            Source(
+                url = source.file.replace(".m3u8", ".1080.m3u8"),
+                label = "FHD",
+                quality = "1080p",
+                header = null,
+                source = qualityPrefix
+            ),
+        )
     }
 }

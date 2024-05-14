@@ -1,7 +1,6 @@
 package com.example.dogetime.presentation.details
 
 import android.os.Build
-import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -42,6 +41,7 @@ import com.example.dogetime.data.local.entities.WatchListMedia
 import com.example.dogetime.presentation.components.Source
 import com.example.dogetime.presentation.components.WatchedIndicator
 import com.example.dogetime.presentation.navgraph.Route
+import com.example.dogetime.util.Constants
 
 @RequiresApi(Build.VERSION_CODES.N)
 @OptIn(ExperimentalMaterial3Api::class)
@@ -62,18 +62,18 @@ fun AnimeEpisodes(
                         selected = episode.episodeNumber.toIntOrNull() ?: 0
                         val media = state.media
                         if (media != null) {
-                        viewModel.addToWatchList(
-                            WatchListMedia(
-                                id = media.id,
-                                title = media.title,
-                                poster = media.poster,
-                                type = media.type,
-                                list = "watching",
-                                season = null,
-                                episode = episode.episodeNumber.toIntOrNull()
+                            viewModel.addToWatchList(
+                                WatchListMedia(
+                                    id = media.id,
+                                    title = media.title,
+                                    poster = media.poster,
+                                    type = media.type,
+                                    list = "watching",
+                                    season = null,
+                                    episode = episode.episodeNumber.toIntOrNull()
+                                )
                             )
-                        )
-                    }
+                        }
                         viewModel.getLinks(episode.slug)
                         opened = true
                     },
@@ -149,16 +149,17 @@ fun AnimeEpisodes(
                     textAlign = TextAlign.Center,
                     style = MaterialTheme.typography.titleLarge
                 )
-                sources.map {
-                    Source(source = it,
-                        subtitles = null,
-                        title = "${state.media?.title} EP$selected",
-                        onClick = {
-                            opened = false
-                            viewModel.selectSource(it)
-                            navController.navigate(Route.Mediaplayer.route)
-                        })
-                }
+                sources.sortedBy { Constants.labelPriority.getOrDefault(it.label, Int.MAX_VALUE) }
+                    .map {
+                        Source(source = it,
+                            subtitles = null,
+                            title = "${state.media?.title} EP$selected",
+                            onClick = {
+                                opened = false
+                                viewModel.selectSource(it)
+                                navController.navigate(Route.Mediaplayer.route)
+                            })
+                    }
             }
 
         }

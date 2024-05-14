@@ -6,14 +6,15 @@ import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.dogetime.data.local.entities.WatchListMedia
-import com.example.dogetime.data.repository.MyCimaRepoImplementation
 import com.example.dogetime.domain.model.Source
 import com.example.dogetime.domain.use_case.anime4up.Anime4upUseCase
 import com.example.dogetime.domain.use_case.animecat.AnimeCatUseCase
 import com.example.dogetime.domain.use_case.goganime.GogoAnimeUseCase
 import com.example.dogetime.domain.use_case.movies.get_movie.GetMovieUseCase
+import com.example.dogetime.domain.use_case.mycima.MyCimaUseCase
 import com.example.dogetime.domain.use_case.watchlist.WatchListUseCase
 import com.example.dogetime.domain.use_case.witanime.WitanimeUseCase
+import com.example.dogetime.util.Constants
 import com.example.dogetime.util.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -29,9 +30,9 @@ class DetailsViewModel @Inject constructor(
     private val watchList: WatchListUseCase,
     private val anime4up: Anime4upUseCase,
     private val witanime: WitanimeUseCase,
-    private val aniwave: GogoAnimeUseCase,
+    private val gogoanime: GogoAnimeUseCase,
     private val animeCat: AnimeCatUseCase,
-    private val myCima: MyCimaRepoImplementation
+    private val myCima: MyCimaUseCase
 ) : ViewModel() {
     private val _state = MutableStateFlow(MovieState())
     var state = _state.asStateFlow()
@@ -121,7 +122,7 @@ class DetailsViewModel @Inject constructor(
     }
 
     private fun getAnimeEN(slug: String) {
-        aniwave.getAnimeDetails(slug).onEach {
+        gogoanime.getAnimeDetails(slug).onEach {
             when (it) {
                 is Resource.Loading -> _state.value = _state.value.copy(isLoading = true)
                 is Resource.Success -> _state.value = _state.value.copy(
@@ -180,7 +181,7 @@ class DetailsViewModel @Inject constructor(
                 animeEpisodeSources = _state.value.animeEpisodeSources.plus(it)
             )
         }.launchIn(viewModelScope)
-        aniwave.getSources(slug).onEach {
+        gogoanime.getSources(slug).onEach {
             _state.value = _state.value.copy(
                 animeEpisodeSources = _state.value.animeEpisodeSources.plus(it)
             )
@@ -219,7 +220,6 @@ class DetailsViewModel @Inject constructor(
     private fun getMyCimaDetails(id: String) {
         viewModelScope.launch {
             myCima.getDetails(id).onEach {
-
                 when (it) {
                     is Resource.Loading -> {
                         _state.value = _state.value.copy(isLoading = true, media = null)
@@ -227,6 +227,12 @@ class DetailsViewModel @Inject constructor(
 
                     is Resource.Success -> {
                         _state.value = _state.value.copy(isLoading = false, media = it.data)
+                        if (it.data?.type == "mycima - movie") {
+                            myCima.getSources("${Constants.CIMALEK_URL}/$id/see")
+                                .onEach { sources ->
+                                    _state.value = _state.value.copy(movieSources = sources)
+                                }.launchIn(viewModelScope)
+                        }
                     }
 
                     is Resource.Error -> _state.value =

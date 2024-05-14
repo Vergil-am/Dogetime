@@ -13,12 +13,20 @@ object Constants {
 
     const val WITANIME_URL = "https://witanime.pics/"
 
-//    const val ANIWAVE_URL = "https://aniwave.to/"
+    //    const val ANIWAVE_URL = "https://aniwave.to/"
 //    const val GOGOANIME_URL = "https://gogoanime.dev/"
     const val GOGOANIME_URL = "https://anitaku.so"
     const val GOGOANIME_AJAX_URL = "https://ajax.gogocdn.net/ajax/"
 
 
-    const val ANIMECAT_URL= "https://animecat.net/"
-    const val CIMALEK_URL = "https://shahid4u.digital/"
+    const val ANIMECAT_URL = "https://animecat.net/"
+    const val CIMALEK_URL = "https://shahid4u.watch/"
+
+    val labelPriority = mapOf(
+        "FHD" to 0,
+        "HD" to 1,
+        "SD" to 2,
+        "Multi" to 3,
+        "Unknown" to 4
+    )
 }
