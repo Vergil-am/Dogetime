@@ -1,6 +1,5 @@
 package com.example.dogetime.util.extractors
 
-import android.util.Log
 import com.example.dogetime.domain.model.Source
 import retrofit2.Response
 import retrofit2.Retrofit
@@ -28,18 +27,26 @@ class Mycima {
     suspend fun extractSource(url: String, header: String, source: String): Source? {
         try {
             val res = api.getSource(url, header)
-            Log.e("Vidbom", res.toString())
             if (res.code() != 200) {
                 throw Exception("Vidbom error code ${res.code()}")
             }
+
+            // File URl
             val pattern =
                 Regex("""sources:\s*\[.*?file:"(.*?)".*?\]""", RegexOption.DOT_MATCHES_ALL)
-            val matchResult = pattern.find(res.body() ?: "")
+//            val pattern = Regex("""file:"(.*?)",label:"([^"]+)"""")
+//                Regex("""sources:\s*\[.*?file:"(.*?)",\s*label:"(.*?)".*?\]""", RegexOption.DOT_MATCHES_ALL)
+
+            val matchResult = pattern.find(res.body()!!)
             val fileUrl = matchResult?.groupValues?.get(1) ?: throw Exception("File not found")
+            // label
+            val labelPattern = Regex("""file:"(.*?)",label:"([^"]+)"""")
+            val labelMatchResult = labelPattern.find(res.body()!!)
+            val label = labelMatchResult?.groupValues?.get(2)
             return Source(
                 url = fileUrl,
-                label = "uknown",
-                quality = "uknown",
+                label = label ?: "unknown",
+                quality = label ?: "unknown",
                 source = source,
                 header = null
             )
