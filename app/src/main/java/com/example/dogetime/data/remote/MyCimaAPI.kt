@@ -20,4 +20,9 @@ interface MyCimaAPI {
     suspend fun getSources(
         @Url url: String
     ): Response<String>
+
+    @GET
+    suspend fun getSeasons(
+        @Url url: String
+    ): Response<String>
 }

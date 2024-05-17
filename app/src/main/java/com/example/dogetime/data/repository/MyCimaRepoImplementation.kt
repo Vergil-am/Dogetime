@@ -20,5 +20,9 @@ class MyCimaRepoImplementation @Inject constructor(
         return api.getSources(url)
     }
 
+    override suspend fun getSeasons(url: String): Response<String> {
+        return api.getSeasons(url)
+    }
+
 
 }

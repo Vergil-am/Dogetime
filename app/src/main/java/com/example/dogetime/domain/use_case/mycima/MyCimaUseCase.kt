@@ -1,5 +1,6 @@
 package com.example.dogetime.domain.use_case.mycima
 
+import android.util.Log
 import com.example.dogetime.domain.model.Details
 import com.example.dogetime.domain.model.MovieHome
 import com.example.dogetime.domain.model.Source
@@ -65,13 +66,13 @@ class MyCimaUseCase @Inject constructor(
             val doc = Jsoup.parse(res.body()!!)
             val mediaDetails = doc.select("div.media-details")
             val title = mediaDetails.select("div.title").text()
+            val poster = mediaDetails.select("a.poster-image").attr("style")
+                .substringAfter("url(").substringBefore(")")
             val details = Details(
                 id = id,
                 title = title,
-                backdrop = mediaDetails.select("a.poster-image").attr("style")
-                    .substringAfter("url(").substringBefore(")"),
-                poster = mediaDetails.select("a.poster-image").attr("style")
-                    .substringAfter("url(").substringBefore(")"),
+                backdrop = poster,
+                poster = poster,
                 genres = emptyList(),
                 overview = mediaDetails.select("div.post-story").select("p").text(),
                 releaseDate = "",
@@ -86,11 +87,35 @@ class MyCimaUseCase @Inject constructor(
                 runtime = 45,
                 seasons = null,
             )
+            getSeasons(id, poster)
             emit(Resource.Success(details))
         } catch (e: Exception) {
             e.printStackTrace()
             emit(Resource.Error("My cima error ${e.message}"))
         }
+    }
+
+
+    suspend fun getSeasons(id: String, poster: String) {
+        try {
+            val seriesId =
+                id.substringAfter("مسلسل-").substringBefore("-حلقة").substringBefore("-موسم")
+            val url = "https://t4cce4ma.shop/series/$seriesId"
+            val res = repo.getSeasons(url)
+            if (res.code() != 200) {
+                throw Exception("My cima seasons error code ${res.code()}")
+            }
+
+            val doc = Jsoup.parse(res.body()!!)
+            val seasonsContainer = doc.select("div.List--Seasons--Episodes").select("a")
+
+            val episodesContainer = doc.select("div.Episodes--Seasons--Episodes").select("a")
+            Log.e("Seasons container", seasonsContainer.toString())
+//            Log.e("Episodes container", episodesContainer.toString())
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+
     }
 
     fun getSources(url: String): Flow<List<Source>> = flow {

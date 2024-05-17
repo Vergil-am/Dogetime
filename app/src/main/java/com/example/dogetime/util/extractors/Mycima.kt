@@ -34,9 +34,6 @@ class Mycima {
             // File URl
             val pattern =
                 Regex("""sources:\s*\[.*?file:"(.*?)".*?\]""", RegexOption.DOT_MATCHES_ALL)
-//            val pattern = Regex("""file:"(.*?)",label:"([^"]+)"""")
-//                Regex("""sources:\s*\[.*?file:"(.*?)",\s*label:"(.*?)".*?\]""", RegexOption.DOT_MATCHES_ALL)
-
             val matchResult = pattern.find(res.body()!!)
             val fileUrl = matchResult?.groupValues?.get(1) ?: throw Exception("File not found")
             // label
