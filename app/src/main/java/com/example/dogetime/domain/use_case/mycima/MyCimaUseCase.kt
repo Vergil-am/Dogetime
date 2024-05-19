@@ -1,8 +1,10 @@
 package com.example.dogetime.domain.use_case.mycima
 
-import android.util.Log
 import com.example.dogetime.domain.model.Details
+import com.example.dogetime.domain.model.Episode
 import com.example.dogetime.domain.model.MovieHome
+import com.example.dogetime.domain.model.MyCimaEpisode
+import com.example.dogetime.domain.model.MyCimaSeason
 import com.example.dogetime.domain.model.Source
 import com.example.dogetime.domain.repository.MyCimaRepository
 import com.example.dogetime.util.Constants
@@ -108,14 +110,41 @@ class MyCimaUseCase @Inject constructor(
 
             val doc = Jsoup.parse(res.body()!!)
             val seasonsContainer = doc.select("div.List--Seasons--Episodes").select("a")
-
             val episodesContainer = doc.select("div.Episodes--Seasons--Episodes").select("a")
-            Log.e("Seasons container", seasonsContainer.toString())
-//            Log.e("Episodes container", episodesContainer.toString())
+            val seasons = seasonsContainer.map {
+                MyCimaSeason(
+                    url = it.attr("href"),
+                    title = it.text(),
+                    seasonNumber = it.text().substringAfter(" ").toInt()
+                )
+            }
+
+            seasons.forEach {
+                getEpisodes(it.url, poster)
+            }
+
         } catch (e: Exception) {
             e.printStackTrace()
         }
 
+    }
+
+    private suspend fun getEpisodes(url: String, poster: String): List<Episode> {
+        val res = repo.getSeasons(url)
+        if (res.code() != 200) {
+            throw Exception("My cima episodes error code ${res.code()}")
+        }
+        val doc = Jsoup.parse(res.body()!!)
+        val episodesContainer = doc.select("div.Episodes--Seasons--Episodes").select("a")
+        val episodes = episodesContainer.map {
+            MyCimaEpisode(
+                url = it.select("a").attr("href"),
+                title = it.text(),
+                number = it.text().substringAfter(" ").toInt(),
+                poster = poster
+            )
+        }
+        return emptyList()
     }
 
     fun getSources(url: String): Flow<List<Source>> = flow {
