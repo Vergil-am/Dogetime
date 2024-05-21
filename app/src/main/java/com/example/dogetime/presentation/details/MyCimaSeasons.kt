@@ -1,7 +1,6 @@
 package com.example.dogetime.presentation.details
 
-import android.os.Build
-import androidx.annotation.RequiresApi
+import android.util.Log
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -23,18 +22,17 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.example.dogetime.presentation.components.Episodes
+import com.example.dogetime.presentation.components.MyCimaEpisodes
 
-@RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun ShowSeasons(
+fun MyCimaSeasons(
     viewModel: DetailsViewModel,
     navController: NavController,
-    id: Int
 ) {
 
-    val seasons = viewModel.state.collectAsState().value.media?.seasons
+
+    val seasons = viewModel.state.collectAsState().value.myCimaSeasons
     var selectedTab by remember { mutableIntStateOf(0) }
     if (!seasons.isNullOrEmpty()) {
         val pagerState = rememberPagerState(
@@ -64,7 +62,7 @@ fun ShowSeasons(
                         },
                         modifier = Modifier.padding(10.dp)
                     ) {
-                        Text(text = "Season ${season.season_number}")
+                        Text(text = season.title)
                     }
                 }
 
@@ -76,18 +74,14 @@ fun ShowSeasons(
                 Box(
                     modifier = Modifier.fillMaxSize()
                 ) {
-                    Episodes(
-                        season = page,
-                        viewModel,
-                        id,
-                        navController
+                    Log.e("Sesons $page", seasons[page].toString())
+                    MyCimaEpisodes(
+                        season = seasons[page],
+                        viewModel = viewModel,
+                        navController = navController
                     )
-
                 }
             }
         }
     }
 }
-
-
-//}

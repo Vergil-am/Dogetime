@@ -197,14 +197,12 @@ class DetailsViewModel @Inject constructor(
     @RequiresApi(Build.VERSION_CODES.O)
     fun getVidsrc(id: Int?, type: String, episode: Int?, season: Int?) {
         _state.value = _state.value.copy(
-            movieSources = emptyList(),
-            subtitles = emptyList()
+            movieSources = emptyList(), subtitles = emptyList()
         )
         if (id != null) {
             getMovieUseCase.getSources(id, type, episode, season).onEach {
                 _state.value = _state.value.copy(
-                    movieSources = it.sources,
-                    subtitles = it.subtitles
+                    movieSources = it.sources, subtitles = it.subtitles
                 )
             }.launchIn(viewModelScope)
         }
@@ -222,9 +220,7 @@ class DetailsViewModel @Inject constructor(
                 when (it) {
                     is Resource.Loading -> {
                         _state.value = _state.value.copy(
-                            isLoading = true,
-                            media = null,
-                            movieSources = emptyList()
+                            isLoading = true, media = null, movieSources = emptyList()
                         )
                     }
 
@@ -235,6 +231,19 @@ class DetailsViewModel @Inject constructor(
                                 .onEach { sources ->
                                     _state.value = _state.value.copy(movieSources = sources)
                                 }.launchIn(viewModelScope)
+                        } else {
+                            if (it.data != null) {
+                                myCima.getSeasons(it.data.id, it.data.poster).onEach { seasons ->
+                                    when (seasons) {
+                                        is Resource.Success -> {
+                                            _state.value =
+                                                _state.value.copy(myCimaSeasons = seasons.data)
+                                        }
+
+                                        else -> {}
+                                    }
+                                }.launchIn(viewModelScope)
+                            }
                         }
                     }
 
@@ -243,5 +252,11 @@ class DetailsViewModel @Inject constructor(
                 }
             }.launchIn(viewModelScope)
         }
+    }
+
+    fun getMyCimaEpisodeSources(url: String) {
+        myCima.getEpisodeSources(url).onEach {
+            _state.value = _state.value.copy(movieSources = it)
+        }.launchIn(viewModelScope)
     }
 }

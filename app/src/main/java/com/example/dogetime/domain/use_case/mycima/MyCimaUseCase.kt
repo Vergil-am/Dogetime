@@ -1,7 +1,6 @@
 package com.example.dogetime.domain.use_case.mycima
 
 import com.example.dogetime.domain.model.Details
-import com.example.dogetime.domain.model.Episode
 import com.example.dogetime.domain.model.MovieHome
 import com.example.dogetime.domain.model.MyCimaEpisode
 import com.example.dogetime.domain.model.MyCimaSeason
@@ -36,9 +35,8 @@ class MyCimaUseCase @Inject constructor(
             val movies = mutableListOf<MovieHome>()
 
             slider.map {
-                val id =
-                    it.selectFirst("a")?.attr("href")?.split("/")?.reversed()?.get(1)
-                        ?: throw Exception("My cima can't get Id")
+                val id = it.selectFirst("a")?.attr("href")?.split("/")?.reversed()?.get(1)
+                    ?: throw Exception("My cima can't get Id")
 
                 val title = it.selectFirst("a")?.attr("title")
                 movies.add(
@@ -68,8 +66,8 @@ class MyCimaUseCase @Inject constructor(
             val doc = Jsoup.parse(res.body()!!)
             val mediaDetails = doc.select("div.media-details")
             val title = mediaDetails.select("div.title").text()
-            val poster = mediaDetails.select("a.poster-image").attr("style")
-                .substringAfter("url(").substringBefore(")")
+            val poster = mediaDetails.select("a.poster-image").attr("style").substringAfter("url(")
+                .substringBefore(")")
             val details = Details(
                 id = id,
                 title = title,
@@ -89,7 +87,6 @@ class MyCimaUseCase @Inject constructor(
                 runtime = 45,
                 seasons = null,
             )
-            getSeasons(id, poster)
             emit(Resource.Success(details))
         } catch (e: Exception) {
             e.printStackTrace()
@@ -98,7 +95,8 @@ class MyCimaUseCase @Inject constructor(
     }
 
 
-    suspend fun getSeasons(id: String, poster: String) {
+    suspend fun getSeasons(id: String, poster: String): Flow<Resource<List<MyCimaSeason>>> = flow {
+        emit(Resource.Loading())
         try {
             val seriesId =
                 id.substringAfter("مسلسل-").substringBefore("-حلقة").substringBefore("-موسم")
@@ -110,41 +108,66 @@ class MyCimaUseCase @Inject constructor(
 
             val doc = Jsoup.parse(res.body()!!)
             val seasonsContainer = doc.select("div.List--Seasons--Episodes").select("a")
+
             val episodesContainer = doc.select("div.Episodes--Seasons--Episodes").select("a")
-            val seasons = seasonsContainer.map {
+
+            var seasons = seasonsContainer.map {
                 MyCimaSeason(
-                    url = it.attr("href"),
                     title = it.text(),
-                    seasonNumber = it.text().substringAfter(" ").toInt()
+                    seasonNumber = it.text().substringAfter(" ").toInt(),
+                    episodes = getEpisodes(it.attr("href"), poster)
                 )
             }
 
-            seasons.forEach {
-                getEpisodes(it.url, poster)
+            if (seasons.isEmpty()) {
+                seasons = listOf(
+                    MyCimaSeason(title = "موسم 1",
+                        seasonNumber = 1,
+                        episodes = episodesContainer.map {
+                            MyCimaEpisode(
+                                url = it.select("a").attr("href"),
+                                title = it.text(),
+                                number = it.text().substringAfter(" ").toInt(),
+                                poster = poster
+                            )
+                        })
+                )
             }
+
+
+
+
+            emit(Resource.Success(seasons))
 
         } catch (e: Exception) {
             e.printStackTrace()
+            emit(Resource.Error("My cima seasons error ${e.message}"))
         }
 
     }
 
-    private suspend fun getEpisodes(url: String, poster: String): List<Episode> {
-        val res = repo.getSeasons(url)
-        if (res.code() != 200) {
-            throw Exception("My cima episodes error code ${res.code()}")
+    private suspend fun getEpisodes(url: String, poster: String): List<MyCimaEpisode> {
+        try {
+
+            val res = repo.getSeasons(url)
+            if (res.code() != 200) {
+                throw Exception("My cima episodes error code ${res.code()}")
+            }
+            val doc = Jsoup.parse(res.body()!!)
+            val episodesContainer = doc.select("div.Episodes--Seasons--Episodes").select("a")
+            val episodes = episodesContainer.map {
+                MyCimaEpisode(
+                    url = it.select("a").attr("href"),
+                    title = it.text(),
+                    number = it.text().substringAfter(" ").toInt(),
+                    poster = poster
+                )
+            }
+            return episodes
+        } catch (e: Exception) {
+            e.printStackTrace()
+            return emptyList()
         }
-        val doc = Jsoup.parse(res.body()!!)
-        val episodesContainer = doc.select("div.Episodes--Seasons--Episodes").select("a")
-        val episodes = episodesContainer.map {
-            MyCimaEpisode(
-                url = it.select("a").attr("href"),
-                title = it.text(),
-                number = it.text().substringAfter(" ").toInt(),
-                poster = poster
-            )
-        }
-        return emptyList()
     }
 
     fun getSources(url: String): Flow<List<Source>> = flow {
@@ -161,9 +184,7 @@ class MyCimaUseCase @Inject constructor(
                 val referer = Constants.CIMALEK_URL
                 val source = it.text()
                 Mycima().extractSource(
-                    url = link,
-                    header = referer,
-                    source = source
+                    url = link, header = referer, source = source
                 )?.let { it1 ->
                     sources.add(
                         it1
@@ -174,6 +195,51 @@ class MyCimaUseCase @Inject constructor(
         } catch (e: Exception) {
             e.printStackTrace()
             emit(emptyList())
+        }
+    }
+
+    fun getEpisodeSources(url: String): Flow<List<Source>> = flow {
+        try {
+            val res = repo.getSources(url)
+            if (res.code() != 200) {
+                throw Exception("Get mycima episode sources error code ${res.code()}")
+            }
+
+            val doc = Jsoup.parse(res.body()!!)
+            val sourcesContainer = doc.select("ul.WatchServersList").select("li").select("btn")
+
+            val sources = mutableListOf<Source>()
+
+            sourcesContainer.map {
+                Mycima().extractSource(
+                    url = it.attr("data-url"),
+                    source = it.text(),
+                    header = "https://t4cce4ma.shop/"
+                )?.let { it1 ->
+                    sources.add(
+                        it1
+                    )
+                }
+            }
+
+            val downloadContainer =
+                doc.select("ul.List--Download--Wecima--Single").select("li").select("a")
+
+            downloadContainer.map {
+                sources.add(
+                    Source(
+                        url = it.attr("href"),
+                        source = it.select("quality").text(),
+                        quality = it.select("resolution").text().substringBefore(" "),
+                        label = it.select("resolution").text().substringAfter(" "),
+                        header = "https://t4cce4ma.shop/"
+                    )
+                )
+            }
+
+            emit(sources)
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
     }
 }

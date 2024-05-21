@@ -2,7 +2,6 @@ package com.example.dogetime.presentation.navgraph
 
 import android.annotation.SuppressLint
 import androidx.annotation.RequiresApi
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
@@ -15,6 +14,7 @@ import com.example.dogetime.presentation.browse.BrowseViewModel
 import com.example.dogetime.presentation.details.AnimeEpisodes
 import com.example.dogetime.presentation.details.Details
 import com.example.dogetime.presentation.details.DetailsViewModel
+import com.example.dogetime.presentation.details.MyCimaSeasons
 import com.example.dogetime.presentation.details.ShowSeasons
 import com.example.dogetime.presentation.home.Home
 import com.example.dogetime.presentation.home.HomeViewModel
@@ -122,11 +122,8 @@ fun NavGraph(
         composable(Route.MyCimaSeasons.route) {
             val id = it.arguments?.getString("id")
             if (id != null) {
-                @Composable
-                fun MyCimaSeasons() {
-                    Text(text = "Feature unavailable yet ...")
-                }
-                MyCimaSeasons()
+                MyCimaSeasons(viewModel = detailsViewModel, navController = navController)
+
             }
         }
 
