@@ -54,6 +54,8 @@ fun PlayerControls(
     source: Source?,
     sources: List<Source>,
     changeSource: (Source) -> Unit,
+    selectedSubtitle: Subtitle?,
+    selectSubtitle: (Subtitle) -> Unit,
     title: String,
     back: () -> Unit
 ) {
@@ -63,6 +65,7 @@ fun PlayerControls(
     var visible by remember {
         mutableStateOf(false)
     }
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -261,9 +264,13 @@ fun PlayerControls(
                     LazyColumn {
                         subtitles.map {
                             item {
-                                ListItem(headlineContent = {
-                                    Text(text = it.label)
-                                })
+                                ListItem(
+                                    modifier = Modifier.clickable {
+                                        selectSubtitle(it)
+                                    },
+                                    headlineContent = {
+                                        Text(text = it.label)
+                                    })
                             }
                         }
                     }

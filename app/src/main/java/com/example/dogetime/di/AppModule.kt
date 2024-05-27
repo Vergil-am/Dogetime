@@ -3,7 +3,7 @@ package com.example.dogetime.di
 import android.app.Application
 import androidx.room.Room
 import com.example.dogetime.data.local.dao.WatchListDAO
-import com.example.dogetime.data.local.database.ListDatabase
+import com.example.dogetime.data.local.database.Database
 import com.example.dogetime.data.remote.Anime4upAPI
 import com.example.dogetime.data.remote.AnimeCatAPI
 import com.example.dogetime.data.remote.MyCimaAPI
@@ -62,10 +62,10 @@ object AppModule {
     // Room Database
     @Provides
     @Singleton
-    fun provideDatabase(application: Application): ListDatabase {
+    fun provideDatabase(application: Application): Database {
         return Room.databaseBuilder(
             application,
-            ListDatabase::class.java,
+            Database::class.java,
             "watchlist_database"
         )
             .fallbackToDestructiveMigration()
@@ -74,7 +74,7 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideWatchListDao(db: ListDatabase): WatchListDAO {
+    fun provideWatchListDao(db: Database): WatchListDAO {
         return db.watchListDao()
     }
 

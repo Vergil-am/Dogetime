@@ -31,6 +31,7 @@ import androidx.media3.datasource.DefaultHttpDataSource
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.exoplayer.source.DefaultMediaSourceFactory
 import androidx.media3.ui.PlayerView
+import androidx.media3.ui.SubtitleView
 
 
 @OptIn(UnstableApi::class)
@@ -54,11 +55,20 @@ fun MediaPlayer(
     }
     val lifecycleOwner = LocalContext.current as LifecycleOwner
 
-    LaunchedEffect(key1 = state.source) {
+    LaunchedEffect(key1 = state.source, key2 = state.selectedSubtitle) {
         val currentPosition = state.currentTime
+
+
+        val subtitle = if (state.selectedSubtitle != null) {
+            SubtitleConfiguration.Builder(Uri.parse(state.selectedSubtitle.file)).build()
+        } else {
+            null
+        }
         val mediaItem = MediaItem.Builder()
             .setUri(source?.source?.url)
+            .setSubtitleConfigurations(if (subtitle != null) listOf(subtitle) else emptyList())
             .build()
+
         player?.setMediaItem(mediaItem)
         player?.seekTo(currentPosition)
     }
@@ -89,6 +99,10 @@ fun MediaPlayer(
             lifecycleOwner.lifecycle.removeObserver(observer)
             player?.release()
         }
+    }
+
+    LaunchedEffect(key1 = state.selectedSubtitle) {
+
     }
 
     Box(
@@ -162,9 +176,16 @@ fun MediaPlayer(
                     )
                 },
                 title = "Text",
-                back = back
+                back = back,
+                selectedSubtitle = state.selectedSubtitle,
+                selectSubtitle = { viewmodel.selectSubtitle(it) }
             )
         }
+        AndroidView(factory =  {context ->
+            SubtitleView(context).apply {
+            }
+
+        })
     }
 }
 

@@ -35,7 +35,7 @@ class PlayerViewModel : ViewModel() {
     fun selectSubtitle(
         subtitle: Subtitle
     ) {
-
+        _state.value = _state.value.copy(selectedSubtitle = subtitle)
     }
 
 }
