@@ -42,6 +42,7 @@ fun MediaPlayer(
     back: () -> Unit
 ) {
     val state = viewmodel.state.collectAsState().value
+
     val source = state.source
     windowCompat.hide(WindowInsetsCompat.Type.systemBars())
     windowCompat.systemBarsBehavior =
@@ -57,8 +58,6 @@ fun MediaPlayer(
 
     LaunchedEffect(key1 = state.source, key2 = state.selectedSubtitle) {
         val currentPosition = state.currentTime
-
-
         val subtitle = if (state.selectedSubtitle != null) {
             SubtitleConfiguration.Builder(Uri.parse(state.selectedSubtitle.file)).build()
         } else {
@@ -96,13 +95,10 @@ fun MediaPlayer(
 
         player?.addListener(listener)
         onDispose {
+            viewmodel.addToHistory()
             lifecycleOwner.lifecycle.removeObserver(observer)
             player?.release()
         }
-    }
-
-    LaunchedEffect(key1 = state.selectedSubtitle) {
-
     }
 
     Box(
@@ -175,13 +171,13 @@ fun MediaPlayer(
                         )
                     )
                 },
-                title = "Text",
+                title = state.media?.title ?: "",
                 back = back,
                 selectedSubtitle = state.selectedSubtitle,
                 selectSubtitle = { viewmodel.selectSubtitle(it) }
             )
         }
-        AndroidView(factory =  {context ->
+        AndroidView(factory = { context ->
             SubtitleView(context).apply {
             }
 

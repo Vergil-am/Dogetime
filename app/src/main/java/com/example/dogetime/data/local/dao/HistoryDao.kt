@@ -21,7 +21,7 @@ interface HistoryDao {
     suspend fun getEpisodesBySerie(pid: String): List<HistoryEpisode>
 
     @Query("SELECT * FROM episode WHERE id = :id")
-    suspend fun getEpisodeById(id: String)
+    suspend fun getEpisodeById(id: String): HistoryEpisode
 
     @Upsert
     suspend fun addEpisode(episode: HistoryEpisode)

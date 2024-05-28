@@ -10,7 +10,7 @@ import com.example.dogetime.data.local.entities.WatchListMedia
 
 @Database(
     entities = [WatchListMedia::class, HistoryMedia::class, HistoryEpisode::class],
-    version = 3,
+    version = 4,
     exportSchema = false
 )
 abstract class Database : RoomDatabase() {

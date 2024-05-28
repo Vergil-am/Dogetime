@@ -9,6 +9,7 @@ import androidx.core.view.WindowInsetsControllerCompat
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.dogetime.data.local.entities.HistoryMedia
 import com.example.dogetime.presentation.browse.Browse
 import com.example.dogetime.presentation.browse.BrowseViewModel
 import com.example.dogetime.presentation.details.AnimeEpisodes
@@ -164,6 +165,20 @@ fun NavGraph(
                     subtitles = detailsState.subtitles
                 )
             )
+            val media = detailsState.media
+            if (media != null) {
+                playerViewModel.selectMedia(
+                    HistoryMedia(
+                        id = media.id,
+                        title = media.title,
+                        type = media.type,
+                        poster = media.poster,
+                        duration = null,
+                        progress = null
+                    )
+                )
+            }
+
             val type = detailsState.media?.type
             when (type) {
                 "movie" -> playerViewModel.setSources(detailsState.movieSources)

@@ -99,7 +99,7 @@ fun PlayerControls(
                         )
                     }
                     Text(
-                        text = "Title", style = MaterialTheme.typography.headlineLarge,
+                        text = title , style = MaterialTheme.typography.headlineLarge,
                         color = Color.White
                     )
                 }
