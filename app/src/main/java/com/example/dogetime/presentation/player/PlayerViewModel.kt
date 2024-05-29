@@ -1,8 +1,8 @@
 package com.example.dogetime.presentation.player
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.dogetime.data.local.dao.HistoryDao
 import com.example.dogetime.data.local.entities.HistoryMedia
 import com.example.dogetime.domain.model.Source
 import com.example.dogetime.util.extractors.vidplay.models.Subtitle
@@ -12,7 +12,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class PlayerViewModel @Inject constructor(
-    private val history: HistoryDao
+//    private val history: HistoryDao
 ) : ViewModel() {
     private val _state = MutableStateFlow(PlayerState())
     val state = _state.asStateFlow()
@@ -40,7 +40,7 @@ class PlayerViewModel @Inject constructor(
     }
 
     fun selectSubtitle(
-        subtitle: Subtitle
+        subtitle: Subtitle?
     ) {
         _state.value = _state.value.copy(selectedSubtitle = subtitle)
     }
@@ -56,10 +56,11 @@ class PlayerViewModel @Inject constructor(
             progress = state.value.currentTime,
             duration = state.value.totalDuration,
         )
+        Log.e("Media", media.toString())
         viewModelScope.launch {
-            if (media != null) {
-                history.addToHistory(media)
-            }
+//            if (media != null) {
+//                history.addToHistory(media)
+//            }
         }
     }
 

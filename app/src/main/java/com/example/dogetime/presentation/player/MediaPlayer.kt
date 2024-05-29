@@ -22,6 +22,7 @@ import androidx.core.view.WindowInsetsControllerCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
+import androidx.media3.common.C
 import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaItem.SubtitleConfiguration
 import androidx.media3.common.MimeTypes
@@ -31,7 +32,6 @@ import androidx.media3.datasource.DefaultHttpDataSource
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.exoplayer.source.DefaultMediaSourceFactory
 import androidx.media3.ui.PlayerView
-import androidx.media3.ui.SubtitleView
 
 
 @OptIn(UnstableApi::class)
@@ -42,7 +42,6 @@ fun MediaPlayer(
     back: () -> Unit
 ) {
     val state = viewmodel.state.collectAsState().value
-
     val source = state.source
     windowCompat.hide(WindowInsetsCompat.Type.systemBars())
     windowCompat.systemBarsBehavior =
@@ -58,19 +57,27 @@ fun MediaPlayer(
 
     LaunchedEffect(key1 = state.source, key2 = state.selectedSubtitle) {
         val currentPosition = state.currentTime
-        val subtitle = if (state.selectedSubtitle != null) {
-            SubtitleConfiguration.Builder(Uri.parse(state.selectedSubtitle.file)).build()
-        } else {
-            null
-        }
+
         val mediaItem = MediaItem.Builder()
             .setUri(source?.source?.url)
-            .setSubtitleConfigurations(if (subtitle != null) listOf(subtitle) else emptyList())
+            .setSubtitleConfigurations(
+                if (state.selectedSubtitle != null) {
+                    listOf(
+                        SubtitleConfiguration.Builder(Uri.parse(state.selectedSubtitle.file))
+                            .setMimeType(MimeTypes.TEXT_VTT)
+                            .setSelectionFlags(C.SELECTION_FLAG_DEFAULT)
+                            .build()
+                    )
+                } else {
+                    emptyList()
+                }
+            )
             .build()
 
         player?.setMediaItem(mediaItem)
         player?.seekTo(currentPosition)
     }
+
 
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
@@ -107,6 +114,7 @@ fun MediaPlayer(
     ) {
         AndroidView(
             factory = { context ->
+
                 PlayerView(context).apply {
                     setBackgroundColor(Color.Black.toArgb())
                     val dataSourceFactory = DefaultHttpDataSource.Factory()
@@ -145,7 +153,8 @@ fun MediaPlayer(
                 }
             },
             modifier = Modifier.fillMaxSize(),
-        )
+
+            )
         if (player != null) {
             PlayerControls(
                 isPlaying = state.isPlaying,
@@ -177,11 +186,6 @@ fun MediaPlayer(
                 selectSubtitle = { viewmodel.selectSubtitle(it) }
             )
         }
-        AndroidView(factory = { context ->
-            SubtitleView(context).apply {
-            }
-
-        })
     }
 }
 

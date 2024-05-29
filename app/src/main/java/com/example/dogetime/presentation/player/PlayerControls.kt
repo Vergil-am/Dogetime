@@ -55,7 +55,7 @@ fun PlayerControls(
     sources: List<Source>,
     changeSource: (Source) -> Unit,
     selectedSubtitle: Subtitle?,
-    selectSubtitle: (Subtitle) -> Unit,
+    selectSubtitle: (Subtitle?) -> Unit,
     title: String,
     back: () -> Unit
 ) {
@@ -266,11 +266,24 @@ fun PlayerControls(
                             item {
                                 ListItem(
                                     modifier = Modifier.clickable {
-                                        selectSubtitle(it)
+                                        if (selectedSubtitle == it) {
+                                            selectSubtitle(null)
+                                        } else {
+                                            selectSubtitle(it)
+                                        }
                                     },
                                     headlineContent = {
                                         Text(text = it.label)
-                                    })
+                                    },
+                                    trailingContent = {
+                                        if (selectedSubtitle == it) {
+                                            Icon(
+                                                imageVector = Icons.Filled.Check,
+                                                contentDescription = ""
+                                            )
+                                        }
+                                    }
+                                )
                             }
                         }
                     }
@@ -295,6 +308,7 @@ fun PlayerControls(
                                     },
                                     trailingContent = {
                                         if (source?.url == it.url) {
+
                                             Icon(
                                                 imageVector = Icons.Filled.Check,
                                                 contentDescription = ""

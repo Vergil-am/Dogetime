@@ -166,6 +166,9 @@ fun NavGraph(
                 )
             )
             val media = detailsState.media
+            playerViewModel.updateDuration(0L, 0L)
+            playerViewModel.selectSubtitle(null)
+//            playerViewModel.setSource(null)
             if (media != null) {
                 playerViewModel.selectMedia(
                     HistoryMedia(
