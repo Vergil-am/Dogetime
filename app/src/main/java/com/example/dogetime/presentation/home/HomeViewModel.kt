@@ -26,7 +26,8 @@ class HomeViewModel @Inject constructor(
     private val anime4up: Anime4upUseCase,
     private val gogoanime: GogoAnimeUseCase,
     private val animeCat: AnimeCatUseCase,
-    private val mycima: MyCimaUseCase
+    private val mycima: MyCimaUseCase,
+//    private val history: HistoryUseCase
 ) : ViewModel() {
     private val _state = MutableStateFlow(HomeState())
     val state = _state.asStateFlow()
@@ -161,6 +162,12 @@ class HomeViewModel @Inject constructor(
             }.launchIn(viewModelScope)
         }
     }
+
+//    private fun getHistory() {
+//        history.getHistory().onEach {
+//            Log.e("History", it.toString())
+//        }
+//    }
 }
 
 

@@ -34,7 +34,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
-import com.example.dogetime.data.local.entities.WatchListMedia
 import com.example.dogetime.presentation.details.DetailsViewModel
 import com.example.dogetime.presentation.navgraph.Route
 import com.example.dogetime.util.Constants
@@ -71,17 +70,17 @@ fun Episodes(
                             episode = episode.episode_number,
                             season = season
                         )
-                        viewModel.addToWatchList(
-                            WatchListMedia(
-                                id = id.toString(),
-                                list = "watching",
-                                season = season,
-                                episode = episode.episode_number,
-                                poster = state.media?.poster ?: "",
-                                title = state.media?.title ?: "",
-                                type = "show"
-                            )
-                        )
+//                        viewModel.addToWatchList(
+//                            WatchListMedia(
+//                                id = id.toString(),
+//                                list = "watching",
+//                                season = season,
+//                                episode = episode.episode_number,
+//                                poster = state.media?.poster ?: "",
+//                                title = state.media?.title ?: "",
+//                                type = "show"
+//                            )
+//                        )
                         opened = true
                         selected = SelectedEpisode(
                             season = season, episode = episode.episode_number

@@ -124,7 +124,6 @@ fun NavGraph(
             val id = it.arguments?.getString("id")
             if (id != null) {
                 MyCimaSeasons(viewModel = detailsViewModel, navController = navController)
-
             }
         }
 

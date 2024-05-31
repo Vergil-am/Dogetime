@@ -37,7 +37,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
-import com.example.dogetime.data.local.entities.WatchListMedia
 import com.example.dogetime.presentation.components.Source
 import com.example.dogetime.presentation.components.WatchedIndicator
 import com.example.dogetime.presentation.navgraph.Route
@@ -61,19 +60,19 @@ fun AnimeEpisodes(
                     onClick = {
                         selected = episode.episodeNumber.toIntOrNull() ?: 0
                         val media = state.media
-                        if (media != null) {
-                            viewModel.addToWatchList(
-                                WatchListMedia(
-                                    id = media.id,
-                                    title = media.title,
-                                    poster = media.poster,
-                                    type = media.type,
-                                    list = "watching",
-                                    season = null,
-                                    episode = episode.episodeNumber.toIntOrNull()
-                                )
-                            )
-                        }
+//                        if (media != null) {
+//                            viewModel.addToWatchList(
+//                                WatchListMedia(
+//                                    id = media.id,
+//                                    title = media.title,
+//                                    poster = media.poster,
+//                                    type = media.type,
+//                                    list = "watching",
+//                                    season = null,
+//                                    episode = episode.episodeNumber.toIntOrNull()
+//                                )
+//                            )
+//                        }
                         viewModel.getLinks(episode.slug)
                         opened = true
                     },

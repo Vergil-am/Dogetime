@@ -2,6 +2,7 @@ package com.example.dogetime.di
 
 import android.app.Application
 import androidx.room.Room
+import com.example.dogetime.data.local.dao.HistoryDao
 import com.example.dogetime.data.local.dao.WatchListDAO
 import com.example.dogetime.data.local.database.Database
 import com.example.dogetime.data.remote.Anime4upAPI
@@ -14,6 +15,7 @@ import com.example.dogetime.data.repository.Anime4upRepoImplementation
 import com.example.dogetime.data.repository.AnimeCatRepoImplementation
 import com.example.dogetime.data.repository.MyCimaRepoImplementation
 import com.example.dogetime.data.repository.GogoAnimeRepoImplementation
+import com.example.dogetime.data.repository.HistoryRepoImplementation
 import com.example.dogetime.data.repository.MovieRepoImplementation
 import com.example.dogetime.data.repository.WatchListRepositoryImpl
 import com.example.dogetime.data.repository.WitanimeRepoImplementation
@@ -21,6 +23,7 @@ import com.example.dogetime.domain.repository.Anime4upRepository
 import com.example.dogetime.domain.repository.AnimeCatRepository
 import com.example.dogetime.domain.repository.MyCimaRepository
 import com.example.dogetime.domain.repository.GogoAnimeRepository
+import com.example.dogetime.domain.repository.HistoryRepository
 import com.example.dogetime.domain.repository.MovieRepository
 import com.example.dogetime.domain.repository.WatchListRepository
 import com.example.dogetime.domain.repository.WitanimeRepository
@@ -72,6 +75,7 @@ object AppModule {
             .build()
     }
 
+    // Watchlist
     @Provides
     @Singleton
     fun provideWatchListDao(db: Database): WatchListDAO {
@@ -82,6 +86,19 @@ object AppModule {
     @Singleton
     fun provideWatchListRepo(dao: WatchListDAO): WatchListRepository {
         return WatchListRepositoryImpl(dao)
+    }
+
+    // History
+    @Provides
+    @Singleton
+    fun provideHistoryDao(db: Database): HistoryDao {
+        return db.historyDao()
+    }
+
+    @Provides
+    @Singleton
+    fun provideHistoryRepo(dao: HistoryDao): HistoryRepository {
+        return HistoryRepoImplementation(dao)
     }
 
     // anime4up

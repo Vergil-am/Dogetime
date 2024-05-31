@@ -1,6 +1,5 @@
 package com.example.dogetime.presentation.player
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.dogetime.data.local.entities.HistoryMedia
@@ -12,7 +11,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class PlayerViewModel @Inject constructor(
-//    private val history: HistoryDao
+//    private val history: HistoryUseCase
 ) : ViewModel() {
     private val _state = MutableStateFlow(PlayerState())
     val state = _state.asStateFlow()
@@ -56,7 +55,6 @@ class PlayerViewModel @Inject constructor(
             progress = state.value.currentTime,
             duration = state.value.totalDuration,
         )
-        Log.e("Media", media.toString())
         viewModelScope.launch {
 //            if (media != null) {
 //                history.addToHistory(media)
