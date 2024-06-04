@@ -1,12 +1,14 @@
 package com.example.dogetime.presentation.home
 
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.dogetime.domain.model.MovieHome
 import com.example.dogetime.domain.use_case.anime4up.Anime4upUseCase
 import com.example.dogetime.domain.use_case.animecat.AnimeCatUseCase
 import com.example.dogetime.domain.use_case.goganime.GogoAnimeUseCase
+import com.example.dogetime.domain.use_case.history.HistoryUseCase
 import com.example.dogetime.domain.use_case.movies.get_movies.GetMoviesUseCase
 import com.example.dogetime.domain.use_case.mycima.MyCimaUseCase
 import com.example.dogetime.domain.use_case.watchlist.WatchListUseCase
@@ -27,7 +29,7 @@ class HomeViewModel @Inject constructor(
     private val gogoanime: GogoAnimeUseCase,
     private val animeCat: AnimeCatUseCase,
     private val mycima: MyCimaUseCase,
-//    private val history: HistoryUseCase
+    private val history: HistoryUseCase
 ) : ViewModel() {
     private val _state = MutableStateFlow(HomeState())
     val state = _state.asStateFlow()
@@ -39,7 +41,7 @@ class HomeViewModel @Inject constructor(
         goganimeLatestEpisodes()
         animeCatLatestEpisodes()
         getMyCimaLatest()
-
+        getHistory()
     }
 
     private fun getMovies() {
@@ -139,35 +141,62 @@ class HomeViewModel @Inject constructor(
     private fun getMyCimaLatest() {
         viewModelScope.launch {
             mycima.getLatest().onEach {
-                when (it) {
-                    is Resource.Loading -> _state.value =
-                        _state.value.copy(cimalek = MovieState(isLoading = true))
 
-                    is Resource.Error -> _state.value =
-                        _state.value.copy(
-                            cimalek = MovieState(
-                                error = it.message,
-                                isLoading = false
-                            )
-                        )
-
-                    is Resource.Success -> _state.value =
-                        _state.value.copy(
-                            cimalek = MovieState(
-                                isLoading = false,
-                                data = it.data
-                            )
-                        )
-                }
             }.launchIn(viewModelScope)
         }
+        mycima.getLatestMovies().onEach {
+
+            when (it) {
+                is Resource.Loading -> _state.value =
+                    _state.value.copy(myCimaMovies =  MovieState(isLoading = true))
+
+                is Resource.Error -> _state.value =
+                    _state.value.copy(
+                        myCimaMovies = MovieState(
+                            error = it.message,
+                            isLoading = false
+                        )
+                    )
+
+                is Resource.Success -> _state.value =
+                    _state.value.copy(
+                        myCimaMovies = MovieState(
+                            isLoading = false,
+                            data = it.data
+                        )
+                    )
+            }
+        }.launchIn(viewModelScope)
+        mycima.getLatestEpisodes().onEach {
+
+            when (it) {
+                is Resource.Loading -> _state.value =
+                    _state.value.copy(myCimaShows = MovieState(isLoading = true))
+
+                is Resource.Error -> _state.value =
+                    _state.value.copy(
+                        myCimaShows = MovieState(
+                            error = it.message,
+                            isLoading = false
+                        )
+                    )
+
+                is Resource.Success -> _state.value =
+                    _state.value.copy(
+                        myCimaShows = MovieState(
+                            isLoading = false,
+                            data = it.data
+                        )
+                    )
+            }
+        }.launchIn(viewModelScope)
     }
 
-//    private fun getHistory() {
-//        history.getHistory().onEach {
-//            Log.e("History", it.toString())
-//        }
-//    }
+    private fun getHistory() {
+        history.getHistory().onEach {
+            Log.e("History", it.toString())
+        }.launchIn(viewModelScope)
+    }
 }
 
 

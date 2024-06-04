@@ -43,7 +43,7 @@ fun Home(
             true -> Text(text = "Loading ...")
             false -> state.movies.data?.let {
                 Text(
-                    text = "Trending movies",
+                    text = "Trending movies multi subs",
                     style = MaterialTheme.typography.titleMedium,
                     textAlign = TextAlign.Center,
                     modifier = Modifier
@@ -62,7 +62,7 @@ fun Home(
             true -> Text(text = "Loading ...")
             false -> state.shows.data?.let {
                 Text(
-                    text = "Trending series",
+                    text = "Trending series multi subs",
                     style = MaterialTheme.typography.titleMedium,
                     textAlign = TextAlign.Center,
                     modifier = Modifier
@@ -73,11 +73,25 @@ fun Home(
             }
         }
 
-        when (state.cimalek.isLoading) {
+        when (state.myCimaMovies.isLoading) {
             true -> Text(text = "Loading ...")
-            false -> state.cimalek.data?.let {
+            false -> state.myCimaMovies.data?.let {
                 Text(
-                    text = "Arab movies and series",
+                    text = "اخر الافلام العربية والمترجمة",
+                    style = MaterialTheme.typography.titleMedium,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(10.dp)
+                )
+                MovieRow(data = it, navController = navController)
+            }
+        }
+        when (state.myCimaShows.isLoading) {
+            true -> Text(text = "Loading ...")
+            false -> state.myCimaShows.data?.let {
+                Text(
+                    text = "اخر الحلقات العربية والمترجمة",
                     style = MaterialTheme.typography.titleMedium,
                     textAlign = TextAlign.Center,
                     modifier = Modifier
@@ -92,7 +106,7 @@ fun Home(
             true -> Text(text = "Loading ... ")
             false -> state.animeAR.data?.let {
                 Text(
-                    text = "Latest anime updates - AR",
+                    text = "اخر حلقات الانمي العربية",
                     style = MaterialTheme.typography.titleMedium,
                     textAlign = TextAlign.Center,
                     modifier = Modifier
@@ -106,7 +120,7 @@ fun Home(
             true -> Text(text = "Loading ... ")
             false -> state.animeEN.data?.let {
                 Text(
-                    text = "Latest anime updates - EN",
+                    text = "Latest anime episodes english ",
                     style = MaterialTheme.typography.titleMedium,
                     textAlign = TextAlign.Center,
                     modifier = Modifier
@@ -120,7 +134,7 @@ fun Home(
             true -> Text(text = "Loading ... ")
             false -> state.animeFR.data?.let {
                 Text(
-                    text = "Latest anime updates - FR",
+                    text = "Derniers épisodes d'anime français",
                     style = MaterialTheme.typography.titleMedium,
                     textAlign = TextAlign.Center,
                     modifier = Modifier

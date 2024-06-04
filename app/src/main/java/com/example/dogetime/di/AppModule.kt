@@ -30,8 +30,8 @@ import com.example.dogetime.domain.repository.WitanimeRepository
 import com.example.dogetime.util.Constants.ANIME4UP_URL
 import com.example.dogetime.util.Constants.ANIMECAT_URL
 import com.example.dogetime.util.Constants.BASE_URL
-import com.example.dogetime.util.Constants.CIMALEK_URL
 import com.example.dogetime.util.Constants.GOGOANIME_URL
+import com.example.dogetime.util.Constants.WE_CIMA_URL
 import com.example.dogetime.util.Constants.WITANIME_URL
 import dagger.Module
 import dagger.Provides
@@ -169,12 +169,12 @@ object AppModule {
         return AnimeCatRepoImplementation(api)
     }
 
-    // Cima lek
+    // WeCima
     @Provides
     @Singleton
     fun provideMyCimaAPi(): MyCimaAPI {
         return Retrofit.Builder()
-            .baseUrl(CIMALEK_URL)
+            .baseUrl(WE_CIMA_URL)
             .addConverterFactory(ScalarsConverterFactory.create())
             .build()
             .create(MyCimaAPI::class.java)

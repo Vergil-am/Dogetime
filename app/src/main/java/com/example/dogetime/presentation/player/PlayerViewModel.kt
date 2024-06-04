@@ -1,17 +1,18 @@
 package com.example.dogetime.presentation.player
 
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import com.example.dogetime.data.local.entities.HistoryMedia
 import com.example.dogetime.domain.model.Source
+import com.example.dogetime.domain.use_case.history.HistoryUseCase
 import com.example.dogetime.util.extractors.vidplay.models.Subtitle
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+@HiltViewModel
 class PlayerViewModel @Inject constructor(
-//    private val history: HistoryUseCase
+    private val history: HistoryUseCase
 ) : ViewModel() {
     private val _state = MutableStateFlow(PlayerState())
     val state = _state.asStateFlow()
@@ -51,15 +52,7 @@ class PlayerViewModel @Inject constructor(
     }
 
     fun addToHistory() {
-        val media = state.value.media?.copy(
-            progress = state.value.currentTime,
-            duration = state.value.totalDuration,
-        )
-        viewModelScope.launch {
-//            if (media != null) {
-//                history.addToHistory(media)
-//            }
-        }
+
     }
 
 }

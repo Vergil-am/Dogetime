@@ -1,5 +1,6 @@
 package com.example.dogetime.presentation.player
 
+import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -27,6 +28,7 @@ import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -64,6 +66,14 @@ fun PlayerControls(
     }
     var visible by remember {
         mutableStateOf(false)
+    }
+
+    DisposableEffect(key1 = currentPosition) {
+
+        onDispose {
+            Log.e("currentPosition", currentPosition.toString())
+            Log.e("totalDuration", totalDuration.toString())
+        }
     }
 
     Box(

@@ -1,5 +1,6 @@
 package com.example.dogetime.domain.use_case.mycima
 
+import android.util.Log
 import com.example.dogetime.domain.model.Details
 import com.example.dogetime.domain.model.MovieHome
 import com.example.dogetime.domain.model.MyCimaEpisode
@@ -12,13 +13,12 @@ import com.example.dogetime.util.extractors.Mycima
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import org.jsoup.Jsoup
+import org.jsoup.select.Elements
 import javax.inject.Inject
 
 class MyCimaUseCase @Inject constructor(
     private val repo: MyCimaRepository
 ) {
-
-
     fun getLatest(): Flow<Resource<List<MovieHome>>> = flow {
 
         emit(Resource.Loading())
@@ -49,6 +49,58 @@ class MyCimaUseCase @Inject constructor(
                 )
             }
             emit(Resource.Success(movies))
+        } catch (e: Exception) {
+            e.printStackTrace()
+            emit(Resource.Error("My cima error ${e.message}"))
+        }
+
+    }
+
+    fun getLatestMovies(): Flow<Resource<List<MovieHome>>> = flow {
+
+        emit(Resource.Loading())
+        try {
+            val res = repo.getLatestMovies()
+            if (res.code() != 200) {
+                throw Exception("My cima error code ${res.code()}")
+            }
+
+            val doc = Jsoup.parse(res.body()!!)
+
+            val container = doc.select("div.Grid--WecimaPosts").select("div.GridItem")
+
+            val movies = movieListExtractor(container, "mycima - movie")
+
+
+            Log.e("Movies", movies.toString())
+
+            emit(Resource.Success(movies))
+        } catch (e: Exception) {
+            e.printStackTrace()
+            emit(Resource.Error("My cima error ${e.message}"))
+        }
+
+    }
+
+    fun getLatestEpisodes(): Flow<Resource<List<MovieHome>>> = flow {
+
+        emit(Resource.Loading())
+        try {
+            val res = repo.getLatestEpisodes()
+            if (res.code() != 200) {
+                throw Exception("My cima error code ${res.code()}")
+            }
+
+            Log.e("Response", res.toString())
+            val doc = Jsoup.parse(res.body()!!)
+            val container = doc.select("div.Grid--WecimaPosts").select("div.GridItem")
+
+
+            val episodes = movieListExtractor(container, "mycima - show")
+
+            Log.e("EPisdoes", episodes.toString())
+
+            emit(Resource.Success(episodes))
         } catch (e: Exception) {
             e.printStackTrace()
             emit(Resource.Error("My cima error ${e.message}"))
@@ -241,5 +293,24 @@ class MyCimaUseCase @Inject constructor(
         } catch (e: Exception) {
             e.printStackTrace()
         }
+    }
+
+
+    private fun movieListExtractor(container: Elements, type: String): List<MovieHome> {
+        val movies = mutableListOf<MovieHome>()
+        container.map {
+            val poster = it.select("span").attr("data-lazy-style").substringAfter("url(")
+                .substringBefore(")")
+            movies.add(
+                MovieHome(
+                    id = it.select("a").attr("href").substringAfter("/watch/")
+                        .substringBefore("/"),
+                    title = it.select("a").attr("title"),
+                    poster = poster,
+                    type = type
+                )
+            )
+        }
+        return movies
     }
 }

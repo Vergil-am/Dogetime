@@ -20,7 +20,9 @@ object Constants {
 
 
     const val ANIMECAT_URL = "https://animecat.net/"
+
     const val CIMALEK_URL = "https://shahid4u.watch/"
+    const val WE_CIMA_URL = "https://wecima.show/"
 
     val labelPriority = mapOf(
         "FHD" to 0,

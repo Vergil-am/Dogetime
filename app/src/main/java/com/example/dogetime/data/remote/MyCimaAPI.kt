@@ -11,6 +11,13 @@ interface MyCimaAPI {
     @GET("/")
     suspend fun getLatest(): Response<String>
 
+
+    @GET("/seriestv")
+    suspend fun getLatestEpisodes(): Response<String>
+
+    @GET("/movies")
+    suspend fun getLatestMovies() : Response<String>
+
     @GET("{id}")
     suspend fun getDetails(
         @Path("id") id: String

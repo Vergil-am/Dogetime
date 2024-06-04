@@ -112,6 +112,7 @@ fun MediaPlayer(
         modifier = Modifier
             .fillMaxSize()
     ) {
+
         AndroidView(
             factory = { context ->
 
