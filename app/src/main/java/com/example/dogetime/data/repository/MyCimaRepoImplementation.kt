@@ -20,8 +20,12 @@ class MyCimaRepoImplementation @Inject constructor(
         return api.getLatestEpisodes()
     }
 
-    override suspend fun getDetails(id: String): Response<String> {
-        return api.getDetails(id)
+    override suspend fun getMovieDetails(id: String): Response<String> {
+        return api.getMovieDetails(id)
+    }
+
+    override suspend fun getShowDetails(id: String): Response<String> {
+        return api.getShowDetails(id)
     }
 
     override suspend fun getSources(url: String): Response<String> {

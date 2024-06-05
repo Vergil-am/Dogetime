@@ -37,7 +37,7 @@ class AnimeCatUseCase @Inject constructor(
                     MovieHome(
                         id = it.select("a.title").attr("href").split("/")[3],
                         title = it.select("div.limit").text(),
-                        poster = it.select("img").attr("src"),
+                        poster = it.select("img")[1].attr("src"),
                         type = "animeFR"
                     )
                 )

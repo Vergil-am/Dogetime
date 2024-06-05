@@ -1,7 +1,9 @@
 package com.example.dogetime.data.remote
 
+import com.example.dogetime.util.Constants
 import retrofit2.Response
 import retrofit2.http.GET
+import retrofit2.http.Header
 import retrofit2.http.Path
 import retrofit2.http.Url
 
@@ -16,10 +18,16 @@ interface MyCimaAPI {
     suspend fun getLatestEpisodes(): Response<String>
 
     @GET("/movies")
-    suspend fun getLatestMovies() : Response<String>
+    suspend fun getLatestMovies(): Response<String>
 
-    @GET("{id}")
-    suspend fun getDetails(
+    @GET("watch/{id}")
+    suspend fun getMovieDetails(
+        @Path("id") id: String,
+        @Header("Referer") referer: String = Constants.WE_CIMA_URL
+    ): Response<String>
+
+    @GET("series/{id}")
+    suspend fun getShowDetails(
         @Path("id") id: String
     ): Response<String>
 

@@ -7,7 +7,8 @@ interface MyCimaRepository {
     suspend fun getLatestMovies(): Response<String>
 
     suspend fun getLatestEpisodes(): Response<String>
-    suspend fun getDetails(id: String): Response<String>
+    suspend fun getMovieDetails(id: String): Response<String>
+    suspend fun getShowDetails(id: String): Response<String>
 
     suspend fun getSources(url: String): Response<String>
     suspend fun getSeasons(url: String): Response<String>

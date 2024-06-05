@@ -91,14 +91,12 @@ class MyCimaUseCase @Inject constructor(
                 throw Exception("My cima error code ${res.code()}")
             }
 
-            Log.e("Response", res.toString())
             val doc = Jsoup.parse(res.body()!!)
             val container = doc.select("div.Grid--WecimaPosts").select("div.GridItem")
 
 
             val episodes = movieListExtractor(container, "mycima - show")
 
-            Log.e("EPisdoes", episodes.toString())
 
             emit(Resource.Success(episodes))
         } catch (e: Exception) {
@@ -108,28 +106,69 @@ class MyCimaUseCase @Inject constructor(
 
     }
 
-    fun getDetails(id: String): Flow<Resource<Details>> = flow {
+//    fun getDetails(id: String): Flow<Resource<Details>> = flow {
+//        emit(Resource.Loading())
+//        try {
+//            val res = repo.getDetails(id)
+//            if (res.code() != 200) {
+//                throw Exception("My cima error ${res.code()}")
+//            }
+//            val doc = Jsoup.parse(res.body()!!)
+//            val mediaDetails = doc.select("div.media-details")
+//            val title = mediaDetails.select("div.title").text()
+//            val poster = mediaDetails.select("a.poster-image").attr("style").substringAfter("url(")
+//                .substringBefore(")")
+//            val details = Details(
+//                id = id,
+//                title = title,
+//                backdrop = poster,
+//                poster = poster,
+//                genres = emptyList(),
+//                overview = mediaDetails.select("div.post-story").select("p").text(),
+//                releaseDate = "",
+//                status = "",
+//                type = if (title.contains("فيلم")) "mycima - movie" else "mycima - show",
+//                episodes = null,
+//                tagline = "",
+//                homepage = "",
+//                lastAirDate = null,
+//                imdbId = "",
+//                rating = 7.1,
+//                runtime = 45,
+//                seasons = null,
+//            )
+//            emit(Resource.Success(details))
+//        } catch (e: Exception) {
+//            e.printStackTrace()
+//            emit(Resource.Error("My cima error ${e.message}"))
+//        }
+//    }
+
+    fun getMovieDetails(id: String): Flow<Resource<Details>> = flow {
         emit(Resource.Loading())
         try {
-            val res = repo.getDetails(id)
+            val res = repo.getMovieDetails(id)
             if (res.code() != 200) {
-                throw Exception("My cima error ${res.code()}")
+                throw Exception("My cima details error code ${res.code()}")
             }
+            Log.e("res", res.toString())
             val doc = Jsoup.parse(res.body()!!)
-            val mediaDetails = doc.select("div.media-details")
-            val title = mediaDetails.select("div.title").text()
-            val poster = mediaDetails.select("a.poster-image").attr("style").substringAfter("url(")
-                .substringBefore(")")
+
+            val infoContainer = doc.select("div.Single-begin")
+            val description = doc.select("div.StoryMovieContent").text()
+            val poster = doc.select("wecima.separated--top").attr("data-lazy-style").substringAfter("url(").substringBefore(")")
+
+            Log.e("Poster", poster)
             val details = Details(
                 id = id,
-                title = title,
+                title = infoContainer.select("div.Title--Content--Single-begin").select("h1").text(),
                 backdrop = poster,
                 poster = poster,
                 genres = emptyList(),
-                overview = mediaDetails.select("div.post-story").select("p").text(),
+                overview = description,
                 releaseDate = "",
                 status = "",
-                type = if (title.contains("فيلم")) "mycima - movie" else "mycima - show",
+                type = "mycima - movie",
                 episodes = null,
                 tagline = "",
                 homepage = "",
@@ -139,11 +178,18 @@ class MyCimaUseCase @Inject constructor(
                 runtime = 45,
                 seasons = null,
             )
+
             emit(Resource.Success(details))
+
         } catch (e: Exception) {
             e.printStackTrace()
-            emit(Resource.Error("My cima error ${e.message}"))
+            emit(Resource.Error(e.message.toString()))
         }
+
+    }
+
+    fun getShowDetails(id: String) {
+
     }
 
 

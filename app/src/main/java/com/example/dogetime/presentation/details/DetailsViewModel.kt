@@ -13,7 +13,6 @@ import com.example.dogetime.domain.use_case.movies.get_movie.GetMovieUseCase
 import com.example.dogetime.domain.use_case.mycima.MyCimaUseCase
 import com.example.dogetime.domain.use_case.watchlist.WatchListUseCase
 import com.example.dogetime.domain.use_case.witanime.WitanimeUseCase
-import com.example.dogetime.util.Constants
 import com.example.dogetime.util.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -44,8 +43,8 @@ class DetailsViewModel @Inject constructor(
             "animeAR" -> getAnimeAR(id)
             "animeEN" -> getAnimeEN(id)
             "animeFR" -> getAnimeFR(id)
-            "mycima - movie" -> getMyCimaDetails(id)
-            "mycima - show" -> getMyCimaDetails(id)
+            "mycima - movie" -> getMyCimaDetails(id, type)
+            "mycima - show" -> getMyCimaDetails(id, type)
         }
     }
 
@@ -141,6 +140,7 @@ class DetailsViewModel @Inject constructor(
 
     private fun getAnimeFR(slug: String) {
         animeCat.getAnimeDetails(slug).onEach {
+
             when (it) {
                 is Resource.Loading -> _state.value = _state.value.copy(isLoading = true)
                 is Resource.Success -> {
@@ -214,44 +214,59 @@ class DetailsViewModel @Inject constructor(
         )
     }
 
-    private fun getMyCimaDetails(id: String) {
-        viewModelScope.launch {
-            myCima.getDetails(id).onEach {
-                when (it) {
-                    is Resource.Loading -> {
-                        _state.value = _state.value.copy(
-                            isLoading = true, media = null, movieSources = emptyList()
-                        )
-                    }
+    private fun getMyCimaDetails(id: String, type: String) {
+        myCima.getMovieDetails(id).onEach {
 
-                    is Resource.Success -> {
-                        _state.value = _state.value.copy(isLoading = false, media = it.data)
-                        if (it.data?.type == "mycima - movie") {
-                            myCima.getSources("${Constants.CIMALEK_URL}/$id/see")
-                                .onEach { sources ->
-                                    _state.value = _state.value.copy(movieSources = sources)
-                                }.launchIn(viewModelScope)
-                        } else {
-                            if (it.data != null) {
-                                myCima.getSeasons(it.data.id, it.data.poster).onEach { seasons ->
-                                    when (seasons) {
-                                        is Resource.Success -> {
-                                            _state.value =
-                                                _state.value.copy(myCimaSeasons = seasons.data)
-                                        }
-
-                                        else -> {}
-                                    }
-                                }.launchIn(viewModelScope)
-                            }
-                        }
-                    }
-
-                    is Resource.Error -> _state.value =
-                        _state.value.copy(isLoading = false, media = null)
+            when (it) {
+                is Resource.Loading -> _state.value = _state.value.copy(isLoading = true)
+                is Resource.Success -> {
+                    _state.value = _state.value.copy(
+                        media = it.data,
+                        isLoading = false
+                    )
                 }
-            }.launchIn(viewModelScope)
-        }
+
+                is Resource.Error -> {
+//                    TODO()
+                }
+            }
+        }.launchIn(viewModelScope)
+//
+//            myCima.getDetails(id).onEach {
+//                when (it) {
+//                    is Resource.Loading -> {
+//                        _state.value = _state.value.copy(
+//                            isLoading = true, media = null, movieSources = emptyList()
+//                        )
+//                    }
+//
+//                    is Resource.Success -> {
+//                        _state.value = _state.value.copy(isLoading = false, media = it.data)
+//                        if (it.data?.type == "mycima - movie") {
+//                            myCima.getSources("${Constants.CIMALEK_URL}/$id/see")
+//                                .onEach { sources ->
+//                                    _state.value = _state.value.copy(movieSources = sources)
+//                                }.launchIn(viewModelScope)
+//                        } else {
+//                            if (it.data != null) {
+//                                myCima.getSeasons(it.data.id, it.data.poster).onEach { seasons ->
+//                                    when (seasons) {
+//                                        is Resource.Success -> {
+//                                            _state.value =
+//                                                _state.value.copy(myCimaSeasons = seasons.data)
+//                                        }
+//
+//                                        else -> {}
+//                                    }
+//                                }.launchIn(viewModelScope)
+//                            }
+//                        }
+//                    }
+//
+//                    is Resource.Error -> _state.value =
+//                        _state.value.copy(isLoading = false, media = null)
+//                }
+//            }.launchIn(viewModelScope)
     }
 
     fun getMyCimaEpisodeSources(url: String) {
