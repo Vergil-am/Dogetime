@@ -46,7 +46,7 @@ data class SelectedEpisode(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Episodes(
-    season: Int, viewModel: DetailsViewModel, id: Int, navController: NavController
+    season: Int, viewModel: DetailsViewModel, id: String, navController: NavController
 ) {
     val state by viewModel.state.collectAsState()
 

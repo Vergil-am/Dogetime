@@ -31,7 +31,7 @@ import com.example.dogetime.presentation.components.Episodes
 fun ShowSeasons(
     viewModel: DetailsViewModel,
     navController: NavController,
-    id: Int
+    id: String
 ) {
 
     val seasons = viewModel.state.collectAsState().value.media?.seasons

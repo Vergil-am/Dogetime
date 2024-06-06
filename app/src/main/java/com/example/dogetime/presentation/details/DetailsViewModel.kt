@@ -194,7 +194,7 @@ class DetailsViewModel @Inject constructor(
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
-    fun getVidsrc(id: Int?, type: String, episode: Int?, season: Int?) {
+    fun getVidsrc(id: String?, type: String, episode: Int?, season: Int?) {
         _state.value = _state.value.copy(
             movieSources = emptyList(), subtitles = emptyList()
         )

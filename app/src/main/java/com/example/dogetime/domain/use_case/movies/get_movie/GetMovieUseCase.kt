@@ -132,7 +132,7 @@ class GetMovieUseCase @Inject constructor(
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
-    fun getSources(id: Int?, type: String, episode: Int?, season: Int?): Flow<VidsrctoReturnType> =
+    fun getSources(id: String?, type: String, episode: Int?, season: Int?): Flow<VidsrctoReturnType> =
         flow {
             val sources = mutableListOf<Source>()
             val subtitles = mutableListOf<Subtitle>()

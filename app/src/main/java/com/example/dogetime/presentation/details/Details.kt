@@ -49,7 +49,7 @@ fun Details(
         viewModel.getMedia(type = type, id = id)
         if (type == "movie") {
             viewModel.getVidsrc(
-                id = id.toIntOrNull(), type = type, episode = null, season = null
+                id = id, type = type, episode = null, season = null
             )
         }
     }
@@ -81,8 +81,9 @@ fun Details(
                             opened = true
                         }
 
-                        "mycima - show" -> navController.navigate("mycima - show/seasons/$id")
+//                        "mycima - show" -> navController.navigate("mycima - show/seasons/$id")
 
+                        "mycima - show" -> navController.navigate("show/seasons/$id")
                         "show" -> navController.navigate("show/seasons/$id")
                         "animeAR" -> navController.navigate("anime/episodes/$id")
                         "animeFR" -> navController.navigate("anime/episodes/$id")

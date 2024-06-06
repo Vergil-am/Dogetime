@@ -115,7 +115,7 @@ fun NavGraph(
             val id = it.arguments?.getString("id")
             if (id != null) {
                 ShowSeasons(
-                    viewModel = detailsViewModel, navController = navController, id = id.toInt()
+                    viewModel = detailsViewModel, navController = navController, id = id
                 )
             }
         }
