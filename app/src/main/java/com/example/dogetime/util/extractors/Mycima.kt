@@ -45,7 +45,7 @@ class Mycima {
                 label = label ?: "unknown",
                 quality = label ?: "unknown",
                 source = source,
-                header = null
+                header = header
             )
 
         } catch (e: Exception) {

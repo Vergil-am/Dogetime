@@ -1,10 +1,10 @@
 package com.example.dogetime.domain.use_case.mycima
 
-import android.util.Log
+import com.example.dogetime.data.remote.dto.SeasonDTO
 import com.example.dogetime.domain.model.Details
+import com.example.dogetime.domain.model.Episode
 import com.example.dogetime.domain.model.MovieHome
 import com.example.dogetime.domain.model.MyCimaEpisode
-import com.example.dogetime.domain.model.MyCimaSeason
 import com.example.dogetime.domain.model.Source
 import com.example.dogetime.domain.repository.MyCimaRepository
 import com.example.dogetime.util.Constants
@@ -13,6 +13,7 @@ import com.example.dogetime.util.extractors.Mycima
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import org.jsoup.Jsoup
+import org.jsoup.nodes.Document
 import org.jsoup.select.Elements
 import javax.inject.Inject
 
@@ -72,7 +73,6 @@ class MyCimaUseCase @Inject constructor(
             val movies = movieListExtractor(container, "mycima - movie")
 
 
-            Log.e("Movies", movies.toString())
 
             emit(Resource.Success(movies))
         } catch (e: Exception) {
@@ -106,69 +106,33 @@ class MyCimaUseCase @Inject constructor(
 
     }
 
-//    fun getDetails(id: String): Flow<Resource<Details>> = flow {
-//        emit(Resource.Loading())
-//        try {
-//            val res = repo.getDetails(id)
-//            if (res.code() != 200) {
-//                throw Exception("My cima error ${res.code()}")
-//            }
-//            val doc = Jsoup.parse(res.body()!!)
-//            val mediaDetails = doc.select("div.media-details")
-//            val title = mediaDetails.select("div.title").text()
-//            val poster = mediaDetails.select("a.poster-image").attr("style").substringAfter("url(")
-//                .substringBefore(")")
-//            val details = Details(
-//                id = id,
-//                title = title,
-//                backdrop = poster,
-//                poster = poster,
-//                genres = emptyList(),
-//                overview = mediaDetails.select("div.post-story").select("p").text(),
-//                releaseDate = "",
-//                status = "",
-//                type = if (title.contains("فيلم")) "mycima - movie" else "mycima - show",
-//                episodes = null,
-//                tagline = "",
-//                homepage = "",
-//                lastAirDate = null,
-//                imdbId = "",
-//                rating = 7.1,
-//                runtime = 45,
-//                seasons = null,
-//            )
-//            emit(Resource.Success(details))
-//        } catch (e: Exception) {
-//            e.printStackTrace()
-//            emit(Resource.Error("My cima error ${e.message}"))
-//        }
-//    }
 
-    fun getMovieDetails(id: String): Flow<Resource<Details>> = flow {
+    fun getMovieDetails(id: String, type: String): Flow<Resource<MyCimaDetails>> = flow {
         emit(Resource.Loading())
         try {
             val res = repo.getMovieDetails(id)
             if (res.code() != 200) {
                 throw Exception("My cima details error code ${res.code()}")
             }
-            Log.e("res", res.toString())
-            val doc = Jsoup.parse(res.body()!!)
 
+            val doc = Jsoup.parse(res.body()!!)
             val infoContainer = doc.select("div.Single-begin")
             val description = doc.select("div.StoryMovieContent").text()
-            val poster = doc.select("wecima.separated--top").attr("data-lazy-style").substringAfter("url(").substringBefore(")")
-
-            Log.e("Poster", poster)
+            val poster =
+                doc.select("wecima.separated--top").attr("data-lazy-style").substringAfter("url(")
+                    .substringBefore(")")
+            val seasons = getSeasons(doc, poster)
             val details = Details(
                 id = id,
-                title = infoContainer.select("div.Title--Content--Single-begin").select("h1").text(),
+                title = infoContainer.select("div.Title--Content--Single-begin").select("h1")
+                    .text(),
                 backdrop = poster,
                 poster = poster,
                 genres = emptyList(),
                 overview = description,
                 releaseDate = "",
                 status = "",
-                type = "mycima - movie",
+                type = type,
                 episodes = null,
                 tagline = "",
                 homepage = "",
@@ -176,10 +140,12 @@ class MyCimaUseCase @Inject constructor(
                 imdbId = "",
                 rating = 7.1,
                 runtime = 45,
-                seasons = null,
+                seasons = seasons,
             )
 
-            emit(Resource.Success(details))
+            val sources = extractSources(doc.select("singlesections"))
+
+            emit(Resource.Success(MyCimaDetails(details = details, sources = sources)))
 
         } catch (e: Exception) {
             e.printStackTrace()
@@ -188,65 +154,94 @@ class MyCimaUseCase @Inject constructor(
 
     }
 
-    fun getShowDetails(id: String) {
 
-    }
-
-
-    suspend fun getSeasons(id: String, poster: String): Flow<Resource<List<MyCimaSeason>>> = flow {
-        emit(Resource.Loading())
+    private fun getSeasons(
+        doc: Document, poster: String
+    ): List<SeasonDTO> {
         try {
-            val seriesId =
-                id.substringAfter("مسلسل-").substringBefore("-حلقة").substringBefore("-موسم")
-            val url = "https://t4cce4ma.shop/series/$seriesId"
-            val res = repo.getSeasons(url)
-            if (res.code() != 200) {
-                throw Exception("My cima seasons error code ${res.code()}")
-            }
-
-            val doc = Jsoup.parse(res.body()!!)
             val seasonsContainer = doc.select("div.List--Seasons--Episodes").select("a")
 
             val episodesContainer = doc.select("div.Episodes--Seasons--Episodes").select("a")
 
             var seasons = seasonsContainer.map {
-                MyCimaSeason(
-                    title = it.text(),
-                    seasonNumber = it.text().substringAfter(" ").toInt(),
-                    episodes = getEpisodes(it.attr("href"), poster)
+
+                SeasonDTO(
+                    _id = it.text(),
+                    air_date = "",
+                    episodes = episodesContainer.map { episode ->
+                        Episode(
+                            air_date = null,
+                            crew = emptyList(),
+                            episode_number = episode.text().substringAfter(" ").toInt(),
+                            episode_type = "",
+                            guest_stars = emptyList(),
+                            name = episode.text(),
+                            overview = "",
+                            production_code = "",
+                            season_number = it.text().substringAfter(" ").toInt(),
+                            id = 0,
+                            runtime = null,
+                            show_id = 0,
+                            still_path = poster,
+                            vote_average = 0.0,
+                            vote_count = 0
+
+                        )
+                    },
+                    id = 1,
+                    name = it.text(),
+                    overview = "",
+                    poster_path = poster,
+                    season_number = it.text().substringAfter(" ").toInt(),
+                    vote_average = 0.0
                 )
             }
 
             if (seasons.isEmpty()) {
                 seasons = listOf(
-                    MyCimaSeason(title = "موسم 1",
-                        seasonNumber = 1,
-                        episodes = episodesContainer.map {
-                            MyCimaEpisode(
-                                url = it.select("a").attr("href"),
-                                title = it.text(),
-                                number = it.text().substringAfter(" ").toInt(),
-                                poster = poster
+                    SeasonDTO(
+                        _id = "موسم 1",
+                        air_date = "",
+                        episodes = episodesContainer.map { episode ->
+                            Episode(
+                                air_date = null,
+                                crew = emptyList(),
+                                episode_number = episode.text().substringAfter(" ").toInt(),
+                                episode_type = "",
+                                guest_stars = emptyList(),
+                                name = episode.text(),
+                                overview = "",
+                                production_code = "",
+                                season_number = 1,
+                                id = 0,
+                                runtime = null,
+                                show_id = 0,
+                                still_path = poster,
+                                vote_average = 0.0,
+                                vote_count = 0
+
                             )
-                        })
+                        },
+                        id = 1,
+                        name = "موسم 1",
+                        overview = "",
+                        poster_path = poster,
+                        season_number = 1,
+                        vote_average = 0.0
+                    )
                 )
             }
-
-
-
-
-            emit(Resource.Success(seasons))
+            return seasons
 
         } catch (e: Exception) {
             e.printStackTrace()
-            emit(Resource.Error("My cima seasons error ${e.message}"))
+            return emptyList()
         }
 
     }
 
     private suspend fun getEpisodes(url: String, poster: String): List<MyCimaEpisode> {
         try {
-
             val res = repo.getSeasons(url)
             if (res.code() != 200) {
                 throw Exception("My cima episodes error code ${res.code()}")
@@ -266,6 +261,36 @@ class MyCimaUseCase @Inject constructor(
             e.printStackTrace()
             return emptyList()
         }
+    }
+
+    private suspend fun extractSources(container: Elements): List<Source> {
+        val sources = mutableListOf<Source>()
+        val downloadContainer = container.select("div.Download--Wecima--Single").select("li")
+        downloadContainer.map {
+            sources.add(
+                Source(
+                    url = it.select("a").attr("href"),
+                    source = it.select("quality").text(),
+                    quality = it.select("resolution").text().split(" ")[0],
+                    label = it.select("resolution").text().split(" ")[1],
+                    header = Constants.WE_CIMA_URL
+                )
+            )
+        }
+
+        val watchContainer = container.select("div.WatchServers").select("li")
+
+        watchContainer.map {
+            val url = it.select("btn").attr("data-url")
+            val source = it.text()
+            Mycima().extractSource(url = url, header = Constants.WE_CIMA_URL, source = source)
+                ?.let { it1 ->
+                    sources.add(
+                        it1
+                    )
+                }
+        }
+        return sources
     }
 
     fun getSources(url: String): Flow<List<Source>> = flow {
@@ -310,9 +335,7 @@ class MyCimaUseCase @Inject constructor(
 
             sourcesContainer.map {
                 Mycima().extractSource(
-                    url = it.attr("data-url"),
-                    source = it.text(),
-                    header = "https://t4cce4ma.shop/"
+                    url = it.attr("data-url"), source = it.text(), header = "https://t4cce4ma.shop/"
                 )?.let { it1 ->
                     sources.add(
                         it1
@@ -349,8 +372,7 @@ class MyCimaUseCase @Inject constructor(
                 .substringBefore(")")
             movies.add(
                 MovieHome(
-                    id = it.select("a").attr("href").substringAfter("/watch/")
-                        .substringBefore("/"),
+                    id = it.select("a").attr("href").substringAfter("/watch/").substringBefore("/"),
                     title = it.select("a").attr("title"),
                     poster = poster,
                     type = type
@@ -359,4 +381,5 @@ class MyCimaUseCase @Inject constructor(
         }
         return movies
     }
+
 }
