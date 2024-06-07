@@ -6,7 +6,7 @@ data class Episode(
     val episode_number: Int,
     val episode_type: String,
     val guest_stars: List<GuestStar>,
-    val id: Int,
+    val id: String,
     val name: String?,
     val overview: String,
     val production_code: String,

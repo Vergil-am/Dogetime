@@ -233,8 +233,8 @@ class DetailsViewModel @Inject constructor(
 
     }
 
-    fun getMyCimaEpisodeSources(url: String) {
-        myCima.getEpisodeSources(url).onEach {
+    fun getMyCimaEpisodeSources(id: String) {
+        myCima.getEpisodeSources(id).onEach {
             _state.value = _state.value.copy(movieSources = it)
         }.launchIn(viewModelScope)
     }

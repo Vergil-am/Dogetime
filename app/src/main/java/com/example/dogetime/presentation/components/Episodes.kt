@@ -64,12 +64,19 @@ fun Episodes(
             state.media?.seasons?.get(season)?.episodes?.forEach { episode ->
                 Card(
                     onClick = {
-                        viewModel.getVidsrc(
-                            id = id,
-                            type = "show",
-                            episode = episode.episode_number,
-                            season = season
-                        )
+                        if (state.media?.type == "show") {
+                            viewModel.getVidsrc(
+                                id = id,
+                                type = "show",
+                                episode = episode.episode_number,
+                                season = season
+                            )
+                        } else if (state.media?.type == "mycima - show") {
+                            viewModel.getMyCimaEpisodeSources(
+                                id = episode.id
+                            )
+                        }
+
 //                        viewModel.addToWatchList(
 //                            WatchListMedia(
 //                                id = id.toString(),
@@ -168,10 +175,11 @@ fun Episodes(
                         style = MaterialTheme.typography.titleLarge
                     )
                     if (state.movieSources.isEmpty()) {
-                        Text(text = "Sorry no sources available",
+                        Text(
+                            text = "Sorry no sources available",
                             textAlign = TextAlign.Center,
                             modifier = Modifier.fillMaxWidth()
-                            )
+                        )
                     } else {
                         state.movieSources.forEach {
                             Source(source = it,

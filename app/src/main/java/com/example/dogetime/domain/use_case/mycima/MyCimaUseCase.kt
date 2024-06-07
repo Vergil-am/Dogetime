@@ -1,10 +1,10 @@
 package com.example.dogetime.domain.use_case.mycima
 
+import android.util.Log
 import com.example.dogetime.data.remote.dto.SeasonDTO
 import com.example.dogetime.domain.model.Details
 import com.example.dogetime.domain.model.Episode
 import com.example.dogetime.domain.model.MovieHome
-import com.example.dogetime.domain.model.MyCimaEpisode
 import com.example.dogetime.domain.model.Source
 import com.example.dogetime.domain.repository.MyCimaRepository
 import com.example.dogetime.util.Constants
@@ -111,6 +111,7 @@ class MyCimaUseCase @Inject constructor(
         emit(Resource.Loading())
         try {
             val res = repo.getMovieDetails(id)
+            Log.e("res", res.toString())
             if (res.code() != 200) {
                 throw Exception("My cima details error code ${res.code()}")
             }
@@ -155,7 +156,7 @@ class MyCimaUseCase @Inject constructor(
     }
 
 
-    private fun getSeasons(
+    private suspend fun getSeasons(
         doc: Document, poster: String
     ): List<SeasonDTO> {
         try {
@@ -164,30 +165,10 @@ class MyCimaUseCase @Inject constructor(
             val episodesContainer = doc.select("div.Episodes--Seasons--Episodes").select("a")
 
             var seasons = seasonsContainer.map {
-
                 SeasonDTO(
                     _id = it.text(),
                     air_date = "",
-                    episodes = episodesContainer.map { episode ->
-                        Episode(
-                            air_date = null,
-                            crew = emptyList(),
-                            episode_number = episode.text().substringAfter(" ").toInt(),
-                            episode_type = "",
-                            guest_stars = emptyList(),
-                            name = episode.text(),
-                            overview = "",
-                            production_code = "",
-                            season_number = it.text().substringAfter(" ").toInt(),
-                            id = 0,
-                            runtime = null,
-                            show_id = 0,
-                            still_path = poster,
-                            vote_average = 0.0,
-                            vote_count = 0
-
-                        )
-                    },
+                    episodes = getEpisodes(it.select("a").attr("href"), poster),
                     id = 1,
                     name = it.text(),
                     overview = "",
@@ -213,7 +194,8 @@ class MyCimaUseCase @Inject constructor(
                                 overview = "",
                                 production_code = "",
                                 season_number = 1,
-                                id = 0,
+                                id = episode.select("a").attr("href").substringAfter("/watch/")
+                                    .substringBefore("/"),
                                 runtime = null,
                                 show_id = 0,
                                 still_path = poster,
@@ -231,6 +213,7 @@ class MyCimaUseCase @Inject constructor(
                     )
                 )
             }
+            Log.e("Seasons", seasons.toString())
             return seasons
 
         } catch (e: Exception) {
@@ -240,7 +223,7 @@ class MyCimaUseCase @Inject constructor(
 
     }
 
-    private suspend fun getEpisodes(url: String, poster: String): List<MyCimaEpisode> {
+    private suspend fun getEpisodes(url: String, poster: String): List<Episode> {
         try {
             val res = repo.getSeasons(url)
             if (res.code() != 200) {
@@ -249,11 +232,24 @@ class MyCimaUseCase @Inject constructor(
             val doc = Jsoup.parse(res.body()!!)
             val episodesContainer = doc.select("div.Episodes--Seasons--Episodes").select("a")
             val episodes = episodesContainer.map {
-                MyCimaEpisode(
-                    url = it.select("a").attr("href"),
-                    title = it.text(),
-                    number = it.text().substringAfter(" ").toInt(),
-                    poster = poster
+                Episode(
+                    air_date = null,
+                    crew = emptyList(),
+                    episode_number = it.text().substringAfter(" ").toInt(),
+                    episode_type = "",
+                    guest_stars = emptyList(),
+                    name = it.text(),
+                    overview = "",
+                    production_code = "",
+                    season_number = it.text().substringAfter(" ").toInt(),
+                    id = it.select("a").attr("href").substringAfter("/watch/")
+                        .substringBefore("/"),
+                    runtime = null,
+                    show_id = 0,
+                    still_path = poster,
+                    vote_average = 0.0,
+                    vote_count = 0
+
                 )
             }
             return episodes
@@ -321,43 +317,14 @@ class MyCimaUseCase @Inject constructor(
         }
     }
 
-    fun getEpisodeSources(url: String): Flow<List<Source>> = flow {
+    fun getEpisodeSources(id: String): Flow<List<Source>> = flow {
         try {
-            val res = repo.getSources(url)
+            val res = repo.getMovieDetails(id)
             if (res.code() != 200) {
                 throw Exception("Get mycima episode sources error code ${res.code()}")
             }
-
             val doc = Jsoup.parse(res.body()!!)
-            val sourcesContainer = doc.select("ul.WatchServersList").select("li").select("btn")
-
-            val sources = mutableListOf<Source>()
-
-            sourcesContainer.map {
-                Mycima().extractSource(
-                    url = it.attr("data-url"), source = it.text(), header = "https://t4cce4ma.shop/"
-                )?.let { it1 ->
-                    sources.add(
-                        it1
-                    )
-                }
-            }
-
-            val downloadContainer =
-                doc.select("ul.List--Download--Wecima--Single").select("li").select("a")
-
-            downloadContainer.map {
-                sources.add(
-                    Source(
-                        url = it.attr("href"),
-                        source = it.select("quality").text(),
-                        quality = it.select("resolution").text().substringBefore(" "),
-                        label = it.select("resolution").text().substringAfter(" "),
-                        header = "https://t4cce4ma.shop/"
-                    )
-                )
-            }
-
+            val sources = extractSources(doc.select("singlesections"))
             emit(sources)
         } catch (e: Exception) {
             e.printStackTrace()
