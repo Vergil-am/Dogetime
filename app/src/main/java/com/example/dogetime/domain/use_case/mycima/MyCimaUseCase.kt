@@ -2,6 +2,7 @@ package com.example.dogetime.domain.use_case.mycima
 
 import android.util.Log
 import com.example.dogetime.data.remote.dto.SeasonDTO
+import com.example.dogetime.data.remote.dto.mycima.MycimaSearchDTO
 import com.example.dogetime.domain.model.Details
 import com.example.dogetime.domain.model.Episode
 import com.example.dogetime.domain.model.MovieHome
@@ -10,6 +11,7 @@ import com.example.dogetime.domain.repository.MyCimaRepository
 import com.example.dogetime.util.Constants
 import com.example.dogetime.util.Resource
 import com.example.dogetime.util.extractors.Mycima
+import com.google.gson.Gson
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import org.jsoup.Jsoup
@@ -83,7 +85,6 @@ class MyCimaUseCase @Inject constructor(
     }
 
     fun getLatestEpisodes(): Flow<Resource<List<MovieHome>>> = flow {
-
         emit(Resource.Loading())
         try {
             val res = repo.getLatestEpisodes()
@@ -161,9 +162,7 @@ class MyCimaUseCase @Inject constructor(
     ): List<SeasonDTO> {
         try {
             val seasonsContainer = doc.select("div.List--Seasons--Episodes").select("a")
-
             val episodesContainer = doc.select("div.Episodes--Seasons--Episodes").select("a")
-
             var seasons = seasonsContainer.map {
                 SeasonDTO(
                     _id = it.text(),
@@ -213,7 +212,6 @@ class MyCimaUseCase @Inject constructor(
                     )
                 )
             }
-            Log.e("Seasons", seasons.toString())
             return seasons
 
         } catch (e: Exception) {
@@ -347,6 +345,27 @@ class MyCimaUseCase @Inject constructor(
             )
         }
         return movies
+    }
+
+
+    fun search(query: String): Flow<Resource<List<MovieHome>>> = flow {
+        Log.e("Query", query)
+        emit(Resource.Loading())
+        try {
+            val res = repo.search(query)
+            if (res.code() != 200) {
+                throw Exception("My cima search error ${res.code()}")
+            }
+            val gson = Gson()
+            val json = gson.fromJson(res.body()!!, MycimaSearchDTO::class.java)
+
+            val doc = Jsoup.parse(json.output)
+            val container = doc.select("div.GridItem")
+            Log.e("Container", container.toString())
+        } catch (e: Exception) {
+            e.printStackTrace()
+            emit(Resource.Error("My cima search error ${e.message}"))
+        }
     }
 
 }

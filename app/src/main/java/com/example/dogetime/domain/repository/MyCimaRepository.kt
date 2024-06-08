@@ -12,4 +12,6 @@ interface MyCimaRepository {
 
     suspend fun getSources(url: String): Response<String>
     suspend fun getSeasons(url: String): Response<String>
+
+    suspend fun search(query: String): Response<String>
 }

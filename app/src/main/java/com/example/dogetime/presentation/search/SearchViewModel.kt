@@ -6,6 +6,7 @@ import com.example.dogetime.domain.use_case.anime4up.Anime4upUseCase
 import com.example.dogetime.domain.use_case.animecat.AnimeCatUseCase
 import com.example.dogetime.domain.use_case.goganime.GogoAnimeUseCase
 import com.example.dogetime.domain.use_case.movies.search.Search
+import com.example.dogetime.domain.use_case.mycima.MyCimaUseCase
 import com.example.dogetime.util.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -19,7 +20,8 @@ class SearchViewModel @Inject constructor(
     private val search: Search,
     private val anime4up: Anime4upUseCase,
     private val animeCat: AnimeCatUseCase,
-    private val gogoAnime: GogoAnimeUseCase
+    private val gogoAnime: GogoAnimeUseCase,
+    private val mycima: MyCimaUseCase
 
 ) : ViewModel() {
     private val _state = MutableStateFlow(SearchState())
@@ -59,6 +61,8 @@ class SearchViewModel @Inject constructor(
                 else -> {}
             }
         }.launchIn(viewModelScope)
+
+        mycima.search(query).onEach { }.launchIn(viewModelScope)
 
     }
 

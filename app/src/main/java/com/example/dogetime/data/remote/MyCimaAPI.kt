@@ -40,4 +40,10 @@ interface MyCimaAPI {
     suspend fun getSeasons(
         @Url url: String
     ): Response<String>
+
+
+    @GET("AjaxCenter/Searching/{query}")
+    suspend fun search(
+        @Path("query") query: String
+    ): Response<String>
 }

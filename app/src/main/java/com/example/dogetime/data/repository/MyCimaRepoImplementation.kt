@@ -36,5 +36,9 @@ class MyCimaRepoImplementation @Inject constructor(
         return api.getSeasons(url)
     }
 
+    override suspend fun search(query: String): Response<String> {
+        return api.search(query)
+    }
+
 
 }
