@@ -349,7 +349,6 @@ class MyCimaUseCase @Inject constructor(
 
 
     fun search(query: String): Flow<Resource<List<MovieHome>>> = flow {
-        Log.e("Query", query)
         emit(Resource.Loading())
         try {
             val res = repo.search(query)
@@ -361,7 +360,15 @@ class MyCimaUseCase @Inject constructor(
 
             val doc = Jsoup.parse(json.output)
             val container = doc.select("div.GridItem")
-            Log.e("Container", container.toString())
+            val movies = container.map {
+                MovieHome(
+                    id = it.select("a").attr("href").substringAfter("/watch/").substringBefore("/"),
+                    title = it.select("strong").text(),
+                    poster = it.select("span.BG--GridItem").attr("data-lazy-style").substringAfter("url(").substringBefore(")"),
+                    type = ""
+                )
+            }
+            emit(Resource.Success(movies))
         } catch (e: Exception) {
             e.printStackTrace()
             emit(Resource.Error("My cima search error ${e.message}"))

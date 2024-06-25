@@ -62,7 +62,13 @@ class SearchViewModel @Inject constructor(
             }
         }.launchIn(viewModelScope)
 
-        mycima.search(query).onEach { }.launchIn(viewModelScope)
+        mycima.search(query).onEach {
+            when (it) {
+                is Resource.Success ->
+                    _state.value = _state.value.copy(mycima = it.data)
+                else -> {}
+            }
+        }.launchIn(viewModelScope)
 
     }
 

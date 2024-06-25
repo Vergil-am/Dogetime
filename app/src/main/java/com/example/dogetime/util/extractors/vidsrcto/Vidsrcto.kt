@@ -81,6 +81,7 @@ class Vidsrcto {
                     decodedLink.contains("vidplay") ||
                             decodedLink.contains("55a0716b8c") ||
                             decodedLink.contains("e69975b881") ||
+                            decodedLink.contains("vid2v11") ||
                             decodedLink.contains("vid30c")
                     -> {
                         coroutineScope {
