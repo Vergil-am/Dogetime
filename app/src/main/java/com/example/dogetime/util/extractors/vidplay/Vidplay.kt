@@ -1,6 +1,7 @@
 package com.example.dogetime.util.extractors.vidplay
 
 import android.util.Base64
+import android.util.Log
 import com.example.dogetime.domain.model.Source
 import com.example.dogetime.util.extractors.vidplay.models.GithubKeysDTO
 import com.example.dogetime.util.extractors.vidplay.models.VidplayFile
@@ -102,6 +103,7 @@ class Vidplay {
 
     private suspend fun getFile(url: String, referer: String): List<Source> {
         val res = vidplayAPI.getVideo(url, referer = url)
+        Log.e("Response", res.body().toString())
         val json = Gson().fromJson(res.body(), VidplayFile::class.java)
         val fileUrl = json.result.sources[0].file
         val file = vidplayAPI.getVideo(fileUrl, referer).body() ?: throw Exception("file not found")

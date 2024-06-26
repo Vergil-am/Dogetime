@@ -361,11 +361,12 @@ class MyCimaUseCase @Inject constructor(
             val doc = Jsoup.parse(json.output)
             val container = doc.select("div.GridItem")
             val movies = container.map {
+                val type = if(it.select("a").attr("title").contains("فيلم")) {"mycima - movie"} else {"mycima - show"}
                 MovieHome(
                     id = it.select("a").attr("href").substringAfter("/watch/").substringBefore("/"),
                     title = it.select("strong").text(),
                     poster = it.select("span.BG--GridItem").attr("data-lazy-style").substringAfter("url(").substringBefore(")"),
-                    type = ""
+                    type = type
                 )
             }
             emit(Resource.Success(movies))
