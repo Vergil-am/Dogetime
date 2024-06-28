@@ -7,6 +7,7 @@ import com.example.dogetime.domain.model.MovieHome
 import com.example.dogetime.domain.model.OkanimeEpisode
 import com.example.dogetime.domain.model.Source
 import com.example.dogetime.domain.repository.AnimeCatRepository
+import com.example.dogetime.util.Constants
 import com.example.dogetime.util.Resource
 import com.example.dogetime.util.extractors.FuseVideo
 import com.example.dogetime.util.extractors.StreamTape
@@ -37,7 +38,7 @@ class AnimeCatUseCase @Inject constructor(
                     MovieHome(
                         id = it.select("a.title").attr("href").split("/")[3],
                         title = it.select("div.limit").text(),
-                        poster = it.select("img")[1].attr("src"),
+                        poster = "${Constants.ANIMECAT_URL}${it.select("img")[1].attr("src")}",
                         type = "animeFR"
                     )
                 )
@@ -64,7 +65,7 @@ class AnimeCatUseCase @Inject constructor(
                 MovieHome(
                     id = it.url.split("/").reversed()[0],
                     title = it.title,
-                    poster = it.url_image,
+                    poster = "${Constants.ANIMECAT_URL}${it.url_image}",
                     type = "animeFR"
                 )
             }

@@ -15,7 +15,7 @@ object Constants {
 
     //    const val ANIWAVE_URL = "https://aniwave.to/"
 //    const val GOGOANIME_URL = "https://gogoanime.dev/"
-    const val GOGOANIME_URL = "https://anitaku.so"
+    const val GOGOANIME_URL = "https://anitaku.pe"
     const val GOGOANIME_AJAX_URL = "https://ajax.gogocdn.net/ajax/"
 
 
