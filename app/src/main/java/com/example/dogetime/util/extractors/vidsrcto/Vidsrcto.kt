@@ -75,8 +75,6 @@ class Vidsrcto {
                         Utils().decodeData(data = newLink, key = key), Charsets.UTF_8
                     )
                 )
-                Log.
-                e("Decoded link", decodedLink)
                 when {
                     decodedLink.contains("vidplay") ||
                             decodedLink.contains("55a0716b8c") ||
@@ -94,7 +92,7 @@ class Vidsrcto {
                         }
                     }
 
-                    decodedLink.contains("filemoon") || decodedLink.contains("keraproxy") ->
+                    decodedLink.contains("filemoon") || decodedLink.contains("kerapoxy") ->
                         coroutineScope {
                             async {
                                 Filemoon().resolveSource(decodedLink)
@@ -126,7 +124,9 @@ class Vidsrcto {
             val matchResult = pattern.find(urlData) ?: throw Exception("Subtitle data not found")
 
             val subtitlesUrlFormatted = URLDecoder.decode(matchResult.groupValues[1], "UTF-8")
+            Log.e("Subtitle url", subtitlesUrlFormatted)
             val res = api.getSubtitles(subtitlesUrlFormatted)
+            Log.e("subtitles", res.body().toString())
             if (res.code() != 200) {
                 throw Exception("Subtitles not found")
             }
