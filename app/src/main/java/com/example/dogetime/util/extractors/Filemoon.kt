@@ -1,6 +1,5 @@
 package com.example.dogetime.util.extractors
 
-import android.util.Log
 import com.example.dogetime.domain.model.Source
 import dev.datlag.jsunpacker.JsUnpacker
 import org.jsoup.Jsoup
@@ -24,7 +23,7 @@ class Filemoon {
         .addConverterFactory(ScalarsConverterFactory.create()).build()
         .create(FilemoonAPI::class.java)
 
-    suspend fun resolveSource(url: String): Source? {
+    suspend fun resolveSource(url: String): List<Source> {
         try {
             val res = filemoonAPI.getFilemoon(url)
             if (res.code() != 200) {
@@ -39,17 +38,16 @@ class Filemoon {
                 ?.substringBefore("\"}", "")?.takeIf(String::isNotBlank)
                 ?: throw Exception("could not get filemoon file")
 
-            Log.e("File url", fileUrl)
-            return Source(
-                source = "Filemoon",
-                url = fileUrl,
-                quality = "1080p",
-                label = "FHD",
-                header = null
-            )
+            return listOf( Source(
+                    source = "Filemoon",
+                    url = fileUrl,
+                    quality = "1080p",
+                    label = "FHD",
+                    header = "https://filemoon.sx"
+                ))
         } catch (e: Exception) {
             e.printStackTrace()
-            return null
+            return emptyList()
         }
     }
 }

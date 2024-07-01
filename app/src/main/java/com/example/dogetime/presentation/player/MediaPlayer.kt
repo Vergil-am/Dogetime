@@ -1,6 +1,7 @@
 package com.example.dogetime.presentation.player
 
 import android.net.Uri
+import android.util.Log
 import androidx.annotation.OptIn
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -139,6 +140,7 @@ fun MediaPlayer(
                             .build()
                     }
 
+                    Log.e("Source url", source?.source?.url.toString())
                     val mediaItem = MediaItem.Builder()
                         .setUri(source?.source?.url)
                         .setSubtitleConfigurations(

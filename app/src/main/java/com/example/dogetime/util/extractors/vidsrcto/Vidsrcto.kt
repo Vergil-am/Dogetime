@@ -95,8 +95,7 @@ class Vidsrcto {
                     decodedLink.contains("filemoon") || decodedLink.contains("kerapoxy") ->
                         coroutineScope {
                             async {
-                                Filemoon().resolveSource(decodedLink)
-                                    ?.let { it1 -> result.add(it1) }
+                                result.addAll(Filemoon().resolveSource(decodedLink))
                             }
                         }
 
@@ -104,6 +103,7 @@ class Vidsrcto {
                     else -> {}
                 }
             }
+            Log.e("Sources", result.toString())
             return VidsrctoReturnType(
                 sources = result,
                 subtitles = subtitles
