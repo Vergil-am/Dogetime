@@ -40,6 +40,8 @@ import com.multiplatform.webview.web.rememberWebViewNavigator
 import com.multiplatform.webview.web.rememberWebViewState
 import dev.dogetime.core.CapturedStream
 import dev.dogetime.core.ExternalPlayer
+import dev.dogetime.core.Torrents
+import dev.dogetime.data.TorrentioApi
 import dev.dogetime.core.WebEngineGate
 import dev.dogetime.domain.VideoSource
 import dev.dogetime.domain.WatchTarget
@@ -52,17 +54,49 @@ private const val MESSAGE_DURATION_MS = 4_000L
 
 /**
  * Watches [target]: the user picks a [VideoSource] first, then that source's page is played with
- * [SourcePlayer], which can go back to the source menu if that source doesn't work.
+ * [SourcePlayer], which can go back to the source menu if that source doesn't work. Torrents are
+ * picked from [torrentio]'s list for [target] and played with [MagnetPlayer].
  */
 @Composable
 fun WatchScreen(
     target: WatchTarget,
     title: String,
+    torrentio: TorrentioApi,
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
     backdropUrl: String? = null,
 ) {
     var source by remember(target) { mutableStateOf<VideoSource?>(null) }
+    var browsingTorrents by remember(target) { mutableStateOf(false) }
+    var torrent by remember(target) { mutableStateOf<TorrentPick?>(null) }
+    val pickedTorrent = torrent
+    if (pickedTorrent != null) {
+        key(pickedTorrent) {
+            MagnetPlayer(
+                pick = pickedTorrent,
+                title = title,
+                onBack = onBack,
+                // Back to the torrent list.
+                onChangeSource = { torrent = null },
+                modifier = modifier,
+                backdropUrl = backdropUrl,
+            )
+        }
+        return
+    }
+    if (browsingTorrents) {
+        TorrentPicker(
+            target = target,
+            torrentio = torrentio,
+            title = title,
+            backdropUrl = backdropUrl,
+            onBack = onBack,
+            onChangeSource = { browsingTorrents = false },
+            onPick = { torrent = TorrentPick(it.magnet, it.fileName, it.fileIndex) },
+            modifier = modifier,
+        )
+        return
+    }
     val chosen = source
     if (chosen == null) {
         SourcePicker(
@@ -70,6 +104,12 @@ fun WatchScreen(
             backdropUrl = backdropUrl,
             onBack = onBack,
             onPick = { source = it },
+            // Torrentio looks titles up by IMDb id, which a few TMDB titles don't have.
+            onPickTorrents = if (Torrents.isSupported && target.imdbId != null) {
+                { browsingTorrents = true }
+            } else {
+                null
+            },
             modifier = modifier,
         )
         return
@@ -87,13 +127,14 @@ fun WatchScreen(
     }
 }
 
-/** The menu of [VideoSource]s, over the title's backdrop. */
+/** The menu of [VideoSource]s and torrents, over the title's backdrop. */
 @Composable
 private fun SourcePicker(
     title: String,
     backdropUrl: String?,
     onBack: () -> Unit,
     onPick: (VideoSource) -> Unit,
+    onPickTorrents: (() -> Unit)?,
     modifier: Modifier = Modifier,
 ) {
     Box(modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
@@ -111,6 +152,14 @@ private fun SourcePicker(
                         modifier = Modifier.widthIn(max = 320.dp).fillMaxWidth(),
                     ) {
                         Text(source.label)
+                    }
+                }
+                onPickTorrents?.let {
+                    Button(
+                        onClick = it,
+                        modifier = Modifier.widthIn(max = 320.dp).fillMaxWidth(),
+                    ) {
+                        Text("Torrent")
                     }
                 }
             }
@@ -215,7 +264,7 @@ private fun SourcePlayer(
  * [onChangeSource], there is also a button back to the source menu.
  */
 @Composable
-private fun WatchPage(
+internal fun WatchPage(
     title: String,
     pageShown: Boolean,
     onBack: () -> Unit,
@@ -260,7 +309,7 @@ private fun WatchPage(
 
 /** The title's backdrop, blurred and darkened, behind the loading screen. */
 @Composable
-private fun BlurredBackdrop(url: String, modifier: Modifier = Modifier) {
+internal fun BlurredBackdrop(url: String, modifier: Modifier = Modifier) {
     val background = MaterialTheme.colorScheme.background
     Box(modifier) {
         AsyncImage(
@@ -300,7 +349,7 @@ private fun LoadingScreen(onShowPage: () -> Unit, modifier: Modifier = Modifier)
 }
 
 @Composable
-private fun MessageChip(text: String, modifier: Modifier = Modifier) {
+internal fun MessageChip(text: String, modifier: Modifier = Modifier) {
     Text(
         text = text,
         style = MaterialTheme.typography.bodyMedium,

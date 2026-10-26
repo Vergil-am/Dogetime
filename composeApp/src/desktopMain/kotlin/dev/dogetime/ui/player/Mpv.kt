@@ -64,6 +64,9 @@ internal object Mpv {
 
     const val RENDER_UPDATE_FRAME = 1L
 
+    // dlopen() mode on Linux: lazy binding, and without RTLD_GLOBAL (0x100) the library is local.
+    private const val RTLD_LAZY = 1
+
     /** libmpv, or the reason it couldn't be loaded. */
     val library: Result<MpvLibrary> by lazy {
         runCatching {
@@ -72,7 +75,7 @@ internal object Mpv {
             var lastError: Throwable? = null
             for (name in names) {
                 try {
-                    return@runCatching Native.load(name, MpvLibrary::class.java)
+                    return@runCatching Native.load(name, MpvLibrary::class.java, loadOptions())
                 } catch (e: UnsatisfiedLinkError) {
                     lastError = e
                 }
@@ -80,6 +83,20 @@ internal object Mpv {
             throw lastError ?: UnsatisfiedLinkError("libmpv not found")
         }
     }
+
+    /**
+     * On Linux, JNA loads libraries with RTLD_GLOBAL, which would make the system OpenSSL that
+     * libmpv links (through ffmpeg) take precedence for every library loaded after it. libtorrent
+     * bundles its own OpenSSL and exports its functions, so its calls would then be split between
+     * the two copies, crashing it. RTLD_LAZY alone keeps libmpv's dependencies to itself.
+     * macOS keeps each library's symbols apart already, and Windows has no such flags.
+     */
+    private fun loadOptions(): Map<String, Any> =
+        if (System.getProperty("os.name").startsWith("Linux")) {
+            mapOf(Library.OPTION_OPEN_FLAGS to RTLD_LAZY)
+        } else {
+            emptyMap()
+        }
 
     /**
      * mpv refuses to start unless numbers are formatted the C way, and the JVM adopts the

@@ -14,6 +14,7 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.window.WindowPlacement
 import androidx.compose.ui.window.WindowState
 import dev.dogetime.core.CapturedStream
+import dev.dogetime.ui.watch.isHlsPlaylist
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.roundToInt
@@ -30,7 +31,8 @@ actual fun rememberVideoPlayerController(stream: CapturedStream, title: String):
         onDispose { controller.release() }
     }
     LaunchedEffect(controller) {
-        controller.setAvailableQualities(fetchHlsQualities(stream))
+        // Only HLS lists qualities. Reading any other stream here would download the whole video.
+        if (isHlsPlaylist(stream.url)) controller.setAvailableQualities(fetchHlsQualities(stream))
     }
     return controller
 }

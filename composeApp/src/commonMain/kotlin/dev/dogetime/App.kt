@@ -209,6 +209,7 @@ fun App() {
                         is Destination.Watch -> WatchScreen(
                             target = current.target,
                             title = current.title,
+                            torrentio = container.torrentio,
                             backdropUrl = current.backdropUrl,
                             onBack = { navigator.back() },
                             modifier = modifier,

@@ -51,6 +51,14 @@ data class TmdbDetails(
     val credits: TmdbCredits? = null,
     val recommendations: TmdbPage? = null,
     val similar: TmdbPage? = null,
+    /** Only movies have this at the top level; TV shows have it in [externalIds]. */
+    @SerialName("imdb_id") val imdbId: String? = null,
+    @SerialName("external_ids") val externalIds: TmdbExternalIds? = null,
+)
+
+@Serializable
+data class TmdbExternalIds(
+    @SerialName("imdb_id") val imdbId: String? = null,
 )
 
 @Serializable

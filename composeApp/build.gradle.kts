@@ -61,6 +61,13 @@ kotlin {
 
     jvm("desktop")
 
+    // Android and desktop both run on the JVM, so the torrent player (libtorrent4j) is shared there.
+    val jvmMain = sourceSets.create("jvmMain") {
+        dependsOn(sourceSets.getByName("commonMain"))
+    }
+    sourceSets.getByName("androidMain").dependsOn(jvmMain)
+    sourceSets.getByName("desktopMain").dependsOn(jvmMain)
+
     // Registering the task (not just its folder) makes every task that reads these sources run it first.
     sourceSets.getByName("commonMain").kotlin.srcDir(generateSecrets)
 
@@ -82,7 +89,14 @@ kotlin {
             implementation(libs.room.runtime)
             implementation(libs.sqlite.bundled)
         }
+        jvmMain.dependencies {
+            implementation(libs.libtorrent4j)
+            implementation(libs.ktor.server.cio)
+        }
         getByName("androidMain").dependencies {
+            implementation(libs.libtorrent4j.android.arm64)
+            implementation(libs.libtorrent4j.android.arm)
+            implementation(libs.libtorrent4j.android.x64)
             implementation(libs.androidx.activity.compose)
             implementation(libs.androidx.webkit)
             implementation(libs.media3.exoplayer)
@@ -94,6 +108,15 @@ kotlin {
             implementation(compose.desktop.currentOs)
             implementation(libs.kotlinx.coroutines.swing)
             implementation(libs.jna)
+            // libtorrent's native library for the OS this is built on, like compose.desktop.currentOs.
+            val osName = System.getProperty("os.name")
+            implementation(
+                when {
+                    osName.startsWith("Windows") -> libs.libtorrent4j.windows
+                    osName.contains("Mac") -> libs.libtorrent4j.macos
+                    else -> libs.libtorrent4j.linux
+                },
+            )
             implementation(libs.ktor.client.okhttp)
         }
         iosMain.dependencies {
@@ -109,6 +132,8 @@ compose.desktop {
         // The desktop WebView (KCEF/JCEF) reaches into AWT internals to embed Chromium.
         jvmArgs("--add-opens", "java.desktop/sun.awt=ALL-UNNAMED")
         jvmArgs("--add-opens", "java.desktop/java.awt.peer=ALL-UNNAMED")
+        // libtorrent4j and JNA (mpv) load native libraries, which newer JDKs warn about and will block.
+        jvmArgs("--enable-native-access=ALL-UNNAMED")
         val osName = System.getProperty("os.name")
         if (osName.contains("Linux")) {
             jvmArgs("--add-opens", "java.desktop/sun.awt.X11=ALL-UNNAMED")

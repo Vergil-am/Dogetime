@@ -39,6 +39,8 @@ data class MediaDetails(
     val recommendations: List<MediaItem>,
     /** Titles with matching genres and keywords, without those already in [recommendations]. */
     val similar: List<MediaItem>,
+    /** The title's IMDb id ("tt…"), which torrent sources look titles up by. */
+    val imdbId: String? = null,
 )
 
 /** A TV season with at least one episode. */

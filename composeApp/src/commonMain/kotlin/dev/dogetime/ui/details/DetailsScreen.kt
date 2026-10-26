@@ -81,6 +81,7 @@ import dev.dogetime.domain.MediaItem
 import dev.dogetime.domain.MediaType
 import dev.dogetime.domain.Season
 import dev.dogetime.domain.WatchTarget
+import dev.dogetime.domain.withImdbId
 import dev.dogetime.ui.components.ErrorBox
 import dev.dogetime.ui.components.MediaPoster
 import dev.dogetime.ui.components.MediaRow
@@ -117,7 +118,7 @@ fun DetailsScreen(
                 episodes = episodes,
                 onSeasonSelected = viewModel::selectSeason,
                 // The watch screen shows the title's backdrop while the video loads.
-                onWatch = { target, title -> onWatch(target, title, current.data.item.backdropUrl) },
+                onWatch = { target, title -> onWatch(target.withImdbId(current.data.imdbId), title, current.data.item.backdropUrl) },
                 isFavorite = isFavorite,
                 onToggleFavorite = viewModel::toggleFavorite,
                 onOpen = onOpen,

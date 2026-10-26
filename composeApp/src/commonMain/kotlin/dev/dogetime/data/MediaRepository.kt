@@ -103,6 +103,7 @@ private fun TmdbDetails.toDomain(type: MediaType): MediaDetails {
         },
         recommendations = recommended,
         similar = similar.toRelatedItems(type).filter { it.id !in recommendedIds },
+        imdbId = (imdbId ?: externalIds?.imdbId)?.takeIf { it.isNotBlank() },
     )
 }
 

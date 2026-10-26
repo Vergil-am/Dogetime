@@ -30,16 +30,18 @@ import androidx.media3.common.util.UnstableApi
 import androidx.media3.datasource.DefaultHttpDataSource
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.exoplayer.hls.HlsMediaSource
+import androidx.media3.exoplayer.source.ProgressiveMediaSource
 import androidx.media3.ui.AspectRatioFrameLayout
 import androidx.media3.ui.PlayerView
 import dev.dogetime.core.CapturedStream
+import dev.dogetime.ui.watch.isHlsPlaylist
 import kotlinx.coroutines.delay
 
 private const val POSITION_UPDATE_MS = 250L
 
 actual val playerUsesMouse: Boolean = false
 
-/** Plays HLS streams with ExoPlayer, sending the headers the stream's server expects. */
+/** Plays HLS streams and single video files with ExoPlayer, sending the headers the stream's server expects. */
 @OptIn(UnstableApi::class)
 internal class ExoVideoPlayerController(context: Context, stream: CapturedStream) : VideoPlayerController() {
 
@@ -50,11 +52,17 @@ internal class ExoVideoPlayerController(context: Context, stream: CapturedStream
             .setAllowCrossProtocolRedirects(true)
             .setDefaultRequestProperties(stream.headers.filterKeys { it != "User-Agent" })
         stream.headers["User-Agent"]?.let { dataSource.setUserAgent(it) }
-        val mediaItem = MediaItem.Builder()
-            .setUri(stream.url)
-            .setMimeType(MimeTypes.APPLICATION_M3U8)
-            .build()
-        player.setMediaSource(HlsMediaSource.Factory(dataSource).createMediaSource(mediaItem))
+        // Web sources are HLS. Torrents are served as a single file (MP4, MKV, …).
+        val source = if (isHlsPlaylist(stream.url)) {
+            val mediaItem = MediaItem.Builder()
+                .setUri(stream.url)
+                .setMimeType(MimeTypes.APPLICATION_M3U8)
+                .build()
+            HlsMediaSource.Factory(dataSource).createMediaSource(mediaItem)
+        } else {
+            ProgressiveMediaSource.Factory(dataSource).createMediaSource(MediaItem.fromUri(stream.url))
+        }
+        player.setMediaSource(source)
         player.addListener(object : Player.Listener {
             override fun onEvents(player: Player, events: Player.Events) = updateState()
 
