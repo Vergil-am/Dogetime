@@ -324,6 +324,17 @@ private fun handleKey(
         Key.M -> controller.setVolumeMuted(!controller.isMuted)
         Key.F -> fullscreen?.toggle?.invoke() ?: return false
         Key.A -> onCycleFit()
+        Key.S, Key.C -> {
+            if (controller.subtitleTracks.isNotEmpty()) {
+                val currentIndex = controller.subtitleTracks.indexOf(controller.selectedSubtitleTrack)
+                val next = if (currentIndex == controller.subtitleTracks.lastIndex) {
+                    null
+                } else {
+                    controller.subtitleTracks[currentIndex + 1]
+                }
+                controller.selectSubtitleTrack(next)
+            }
+        }
         Key.Escape -> if (fullscreen?.isFullscreen == true) fullscreen.toggle() else onBack()
         else -> return false
     }
@@ -365,6 +376,18 @@ private fun TopBar(
                 optionLabel = { it?.label ?: "Auto" },
                 isSelected = { it == selected },
                 onSelect = controller::selectQuality,
+                onOpenChange = onMenuOpenChange,
+            )
+        }
+        if (controller.subtitleTracks.isNotEmpty()) {
+            val selected = controller.selectedSubtitleTrack
+            PillMenu(
+                icon = PlayerIcons.Subtitles,
+                label = selected?.label ?: "Subtitles Off",
+                options = listOf<SubtitleTrack?>(null) + controller.subtitleTracks,
+                optionLabel = { it?.label ?: "Off" },
+                isSelected = { it == selected },
+                onSelect = controller::selectSubtitleTrack,
                 onOpenChange = onMenuOpenChange,
             )
         }

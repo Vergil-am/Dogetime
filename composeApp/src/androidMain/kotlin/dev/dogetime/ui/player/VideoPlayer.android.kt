@@ -4,9 +4,12 @@ import android.app.Activity
 import android.content.Context
 import android.content.ContextWrapper
 import android.content.pm.ActivityInfo
-import android.graphics.Color
+import android.os.Handler
+import android.os.Looper
+import android.view.Surface
+import android.view.SurfaceHolder
+import android.view.SurfaceView
 import android.view.ViewGroup
-import androidx.annotation.OptIn
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -18,173 +21,357 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
-import androidx.media3.common.C
-import androidx.media3.common.MediaItem
-import androidx.media3.common.MimeTypes
-import androidx.media3.common.PlaybackException
-import androidx.media3.common.PlaybackParameters
-import androidx.media3.common.Player
-import androidx.media3.common.TrackSelectionOverride
-import androidx.media3.common.Tracks
-import androidx.media3.common.util.UnstableApi
-import androidx.media3.datasource.DefaultHttpDataSource
-import androidx.media3.exoplayer.ExoPlayer
-import androidx.media3.exoplayer.hls.HlsMediaSource
-import androidx.media3.exoplayer.source.ProgressiveMediaSource
-import androidx.media3.ui.AspectRatioFrameLayout
-import androidx.media3.ui.PlayerView
 import dev.dogetime.core.CapturedStream
 import dev.dogetime.ui.watch.isHlsPlaylist
-import kotlinx.coroutines.delay
-
-private const val POSITION_UPDATE_MS = 250L
+import `is`.xyz.mpv.MPV
+import `is`.xyz.mpv.MPVNode
 
 actual val playerUsesMouse: Boolean = false
 
-/** Plays HLS streams and single video files with ExoPlayer, sending the headers the stream's server expects. */
-@OptIn(UnstableApi::class)
-internal class ExoVideoPlayerController(context: Context, stream: CapturedStream) : VideoPlayerController() {
+private val mainHandler = Handler(Looper.getMainLooper())
+private fun onUi(block: () -> Unit) {
+    if (Looper.myLooper() == Looper.getMainLooper()) {
+        block()
+    } else {
+        mainHandler.post(block)
+    }
+}
 
-    val player: ExoPlayer = ExoPlayer.Builder(context).build()
+/**
+ * Plays streams with libmpv on Android, matching the desktop player's format support.
+ */
+internal class MpvAndroidPlayerController(
+    private val context: Context,
+    private val stream: CapturedStream,
+    title: String,
+) : VideoPlayerController(), MPV.EventObserver {
+
+    val mpv = MPV()
+    private var surfaceAttached = false
+    private var fileLoaded = false
+
+    private var started = false
+    private var pausedForCache = false
+    private var seeking = false
 
     init {
-        val dataSource = DefaultHttpDataSource.Factory()
-            .setAllowCrossProtocolRedirects(true)
-            .setDefaultRequestProperties(stream.headers.filterKeys { it != "User-Agent" })
-        stream.headers["User-Agent"]?.let { dataSource.setUserAgent(it) }
-        // Web sources are HLS. Torrents are served as a single file (MP4, MKV, …).
-        val source = if (isHlsPlaylist(stream.url)) {
-            val mediaItem = MediaItem.Builder()
-                .setUri(stream.url)
-                .setMimeType(MimeTypes.APPLICATION_M3U8)
-                .build()
-            HlsMediaSource.Factory(dataSource).createMediaSource(mediaItem)
-        } else {
-            ProgressiveMediaSource.Factory(dataSource).createMediaSource(MediaItem.fromUri(stream.url))
-        }
-        player.setMediaSource(source)
-        player.addListener(object : Player.Listener {
-            override fun onEvents(player: Player, events: Player.Events) = updateState()
+        try {
+            `is`.xyz.mpv.Utils.copyAssets(context.applicationContext)
 
-            override fun onTracksChanged(tracks: Tracks) = updateQualities(tracks)
-
-            override fun onPlayerError(playbackError: PlaybackException) {
-                error = "The stream couldn't be played (${playbackError.errorCodeName})."
-                isBuffering = false
+            val fontsConf = java.io.File(context.filesDir, "fonts.conf")
+            if (!fontsConf.exists()) {
+                fontsConf.writeText(
+                    """
+                    <?xml version="1.0"?>
+                    <!DOCTYPE fontconfig SYSTEM "fonts.dtd">
+                    <fontconfig>
+                        <dir>/system/fonts</dir>
+                        <dir>/system/font</dir>
+                        <dir>/data/fonts</dir>
+                        <dir>${context.filesDir.path}</dir>
+                    </fontconfig>
+                    """.trimIndent()
+                )
             }
-        })
-        player.playWhenReady = true
-        player.prepare()
-        isPlaying = true
-    }
 
-    fun updateState() {
-        isPlaying = player.playWhenReady
-        isBuffering = error == null && (player.playbackState == Player.STATE_BUFFERING || player.playbackState == Player.STATE_IDLE)
-        isEnded = player.playbackState == Player.STATE_ENDED
-        positionMs = player.currentPosition
-        bufferedMs = player.bufferedPosition
-        durationMs = player.duration.takeIf { it != C.TIME_UNSET } ?: 0L
-        speed = player.playbackParameters.speed
-        isMuted = player.volume == 0f
-        videoHeight = player.videoSize.height
-    }
+            mpv.create(context.applicationContext)
+            mpv.setOptionString("config", "yes")
+            mpv.setOptionString("config-dir", context.filesDir.path)
+            mpv.setOptionString("gpu-shader-cache-dir", context.cacheDir.path)
+            mpv.setOptionString("icc-cache-dir", context.cacheDir.path)
 
-    /** ExoPlayer's video tracks for each quality key, used to pin a quality. */
-    private var trackOverrides = emptyMap<String, TrackSelectionOverride>()
+            mpv.setOptionString("vo", "gpu")
+            mpv.setOptionString("gpu-context", "android")
+            mpv.setOptionString("hwdec", "mediacodec-copy")
+            mpv.setOptionString("keep-open", "yes")
+            mpv.setOptionString("ytdl", "no")
+            mpv.setOptionString("force-media-title", title)
 
-    /** Lists the stream's video variants as qualities: one per height, best bitrate first. */
-    private fun updateQualities(tracks: Tracks) {
-        val overrides = mutableMapOf<String, TrackSelectionOverride>()
-        val available = mutableListOf<VideoQuality>()
-        tracks.groups.forEachIndexed { groupIndex, group ->
-            if (group.type != C.TRACK_TYPE_VIDEO) return@forEachIndexed
-            for (trackIndex in 0 until group.length) {
-                if (!group.isTrackSupported(trackIndex)) continue
-                val format = group.getTrackFormat(trackIndex)
-                val key = "$groupIndex:$trackIndex"
-                overrides[key] = TrackSelectionOverride(group.mediaTrackGroup, trackIndex)
-                available += VideoQuality(height = format.height.coerceAtLeast(0), bitrate = format.bitrate.toLong(), key = key)
+            // Subtitle font & rendering configuration
+            mpv.setOptionString("sub-fonts-dir", context.filesDir.path)
+            mpv.setOptionString("sub-font", "Droid Sans Fallback")
+            mpv.setOptionString("sub-visibility", "yes")
+            mpv.setOptionString("sub-ass", "yes")
+            mpv.setOptionString("sub-auto", "fuzzy")
+
+            stream.headers["User-Agent"]?.let { mpv.setOptionString("user-agent", it) }
+            stream.headers["Referer"]?.let { mpv.setOptionString("referrer", it) }
+            val extraHeaders = stream.headers
+                .filterKeys { k -> k != "User-Agent" && k != "Referer" }
+                .entries.joinToString(",") { (k, v) -> "$k: $v" }
+            if (extraHeaders.isNotEmpty()) {
+                mpv.setOptionString("http-header-fields", extraHeaders)
             }
+
+            mpv.init()
+            mpv.setOptionString("force-window", "no")
+
+            mpv.addObserver(this)
+            mpv.observeProperty("pause", MPV.mpvFormat.MPV_FORMAT_FLAG)
+            mpv.observeProperty("time-pos", MPV.mpvFormat.MPV_FORMAT_DOUBLE)
+            mpv.observeProperty("duration", MPV.mpvFormat.MPV_FORMAT_DOUBLE)
+            mpv.observeProperty("paused-for-cache", MPV.mpvFormat.MPV_FORMAT_FLAG)
+            mpv.observeProperty("seeking", MPV.mpvFormat.MPV_FORMAT_FLAG)
+            mpv.observeProperty("demuxer-cache-time", MPV.mpvFormat.MPV_FORMAT_DOUBLE)
+            mpv.observeProperty("speed", MPV.mpvFormat.MPV_FORMAT_DOUBLE)
+            mpv.observeProperty("mute", MPV.mpvFormat.MPV_FORMAT_FLAG)
+            mpv.observeProperty("eof-reached", MPV.mpvFormat.MPV_FORMAT_FLAG)
+            mpv.observeProperty("height", MPV.mpvFormat.MPV_FORMAT_INT64)
+            mpv.observeProperty("sid", MPV.mpvFormat.MPV_FORMAT_STRING)
+            mpv.observeProperty("track-list", MPV.mpvFormat.MPV_FORMAT_NONE)
+
+            isPlaying = true
+        } catch (e: Exception) {
+            error = e.message ?: "mpv failed to start."
+            isBuffering = false
         }
-        trackOverrides = overrides
-        qualities = available.bestPerHeight()
     }
 
-    override fun selectQuality(quality: VideoQuality?) {
-        val override = quality?.let { trackOverrides[it.key] }
-        val parameters = player.trackSelectionParameters.buildUpon()
-        if (override == null) {
-            parameters.clearOverridesOfType(C.TRACK_TYPE_VIDEO)
-        } else {
-            parameters.setOverrideForType(override)
+    private var destroyed = false
+
+    fun attachSurface(surface: Surface) {
+        if (destroyed) return
+        try {
+            mpv.attachSurface(surface)
+            mpv.setOptionString("force-window", "yes")
+            mpv.setPropertyString("vo", "gpu")
+            surfaceAttached = true
+            if (!fileLoaded) {
+                mpv.command("loadfile", stream.url)
+                fileLoaded = true
+            }
+        } catch (e: Exception) {
+            error = e.message ?: "Failed to attach surface."
         }
-        player.trackSelectionParameters = parameters.build()
-        selectedQuality = if (override == null) null else quality
     }
+
+    fun detachSurface() {
+        if (destroyed || !surfaceAttached) return
+        surfaceAttached = false
+        try {
+            mpv.detachSurface()
+        } catch (_: Exception) {}
+    }
+
+    fun setFit(fit: VideoFit) {
+        try {
+            when (fit) {
+                VideoFit.Fit -> {
+                    mpv.setPropertyDouble("panscan", 0.0)
+                    mpv.setPropertyString("video-aspect-override", "-1")
+                }
+                VideoFit.Fill -> {
+                    mpv.setPropertyDouble("panscan", 1.0)
+                    mpv.setPropertyString("video-aspect-override", "-1")
+                }
+                VideoFit.Stretch -> {
+                    mpv.setPropertyDouble("panscan", 0.0)
+                }
+            }
+        } catch (_: Exception) {}
+    }
+
+    fun release() {
+        if (destroyed) return
+        try {
+            mpv.command("stop")
+            detachSurface()
+            destroyed = true
+            mpv.removeObserver(this)
+            
+            // Destroy asynchronously to avoid libmpv mutex races with network threads
+            val instance = mpv
+            Thread {
+                try {
+                    Thread.sleep(300)
+                    instance.destroy()
+                } catch (_: Exception) {}
+            }.start()
+        } catch (_: Exception) {}
+    }
+
+    // ── VideoPlayerController ─────────────────────────────────────────────
 
     override fun play() {
-        if (player.playbackState == Player.STATE_ENDED) player.seekTo(0)
-        player.play()
+        if (isEnded) mpv.command("seek", "0", "absolute")
+        mpv.setPropertyBoolean("pause", false)
     }
 
-    override fun pause() = player.pause()
+    override fun pause() {
+        mpv.setPropertyBoolean("pause", true)
+    }
 
     override fun seekTo(positionMs: Long) {
-        player.seekTo(positionMs)
+        mpv.command("seek", (positionMs / 1000.0).toString(), "absolute")
         this.positionMs = positionMs
     }
 
     override fun setPlaybackSpeed(speed: Float) {
-        player.playbackParameters = PlaybackParameters(speed)
+        mpv.setPropertyDouble("speed", speed.toDouble())
     }
 
     override fun setVolumeMuted(muted: Boolean) {
-        player.volume = if (muted) 0f else 1f
+        mpv.setPropertyBoolean("mute", muted)
         isMuted = muted
+    }
+
+    override fun selectQuality(quality: VideoQuality?) {
+        val target = quality?.key ?: return
+        mpv.command("loadfile", target, "replace", "-1", "start=${positionMs / 1000.0}")
+        selectedQuality = quality
+    }
+
+    override fun selectSubtitleTrack(track: SubtitleTrack?) {
+        try {
+            if (track == null) {
+                mpv.command("set", "sid", "no")
+            } else {
+                mpv.command("set", "sid", track.id.toString())
+                mpv.command("set", "sub-visibility", "yes")
+            }
+            selectedSubtitleTrack = track
+        } catch (_: Exception) {}
+    }
+
+    private fun updateTracks() {
+        try {
+            val count = mpv.getPropertyInt("track-list/count") ?: 0
+            val tracks = mutableListOf<SubtitleTrack>()
+            var currentSid: Int? = mpv.getPropertyInt("sid")
+            for (i in 0 until count) {
+                val type = mpv.getPropertyString("track-list/$i/type")
+                if (type == "sub") {
+                    val id = mpv.getPropertyInt("track-list/$i/id") ?: (i + 1)
+                    val title = mpv.getPropertyString("track-list/$i/title").orEmpty()
+                    val lang = mpv.getPropertyString("track-list/$i/lang")
+                    val selected = mpv.getPropertyBoolean("track-list/$i/selected") ?: false
+                    if (selected) {
+                        currentSid = id
+                    }
+                    tracks += SubtitleTrack(id = id, title = title, language = lang)
+                }
+            }
+            subtitleTracks = tracks
+            selectedSubtitleTrack = tracks.find { it.id == currentSid }
+        } catch (_: Exception) {}
+    }
+
+    // ── MPV.EventObserver ─────────────────────────────────────────────────
+
+    override fun eventProperty(property: String) {
+        if (property == "track-list") {
+            onUi { updateTracks() }
+        }
+    }
+
+    override fun eventProperty(property: String, value: Boolean) {
+        onUi {
+            when (property) {
+                "pause" -> isPlaying = !value
+                "paused-for-cache" -> { pausedForCache = value; updateBuffering() }
+                "seeking" -> { seeking = value; updateBuffering() }
+                "mute" -> isMuted = value
+                "eof-reached" -> isEnded = value
+            }
+        }
+    }
+
+    override fun eventProperty(property: String, value: Long) {
+        onUi {
+            when (property) {
+                "height" -> videoHeight = value.toInt()
+            }
+        }
+    }
+
+    override fun eventProperty(property: String, value: Double) {
+        onUi {
+            when (property) {
+                "time-pos" -> positionMs = (value * 1000).toLong()
+                "duration" -> durationMs = (value * 1000).toLong()
+                "demuxer-cache-time" -> bufferedMs = (value * 1000).toLong()
+                "speed" -> speed = value.toFloat()
+            }
+        }
+    }
+
+    override fun eventProperty(property: String, value: String) {
+        onUi {
+            if (property == "sid") {
+                val currentSid = value.toIntOrNull()
+                selectedSubtitleTrack = subtitleTracks.find { it.id == currentSid }
+            }
+        }
+    }
+
+    override fun eventProperty(property: String, value: MPVNode) {}
+
+    override fun event(eventId: Int, data: MPVNode) {
+        onUi {
+            when (eventId) {
+                MPV.mpvEvent.MPV_EVENT_FILE_LOADED -> {
+                    started = true
+                    updateTracks()
+                    updateBuffering()
+                }
+                MPV.mpvEvent.MPV_EVENT_PLAYBACK_RESTART -> {
+                    updateTracks()
+                    updateBuffering()
+                }
+                MPV.mpvEvent.MPV_EVENT_END_FILE -> isEnded = true
+            }
+        }
+    }
+
+    private fun updateBuffering() {
+        if (error == null) isBuffering = !started || pausedForCache || seeking
     }
 }
 
 @Composable
 actual fun rememberVideoPlayerController(stream: CapturedStream, title: String): VideoPlayerController {
     val context = LocalContext.current
-    val controller = remember(stream) { ExoVideoPlayerController(context.applicationContext, stream) }
-    DisposableEffect(controller) {
-        onDispose { controller.player.release() }
+    val controller = remember(stream) {
+        MpvAndroidPlayerController(context.applicationContext, stream, title)
     }
-    // ExoPlayer has no position callback, so the position is read while playing.
+    DisposableEffect(controller) {
+        onDispose { controller.release() }
+    }
     LaunchedEffect(controller) {
-        while (true) {
-            controller.updateState()
-            delay(POSITION_UPDATE_MS)
+        if (isHlsPlaylist(stream.url)) {
+            val list = fetchHlsQualities(stream)
+            controller.setAvailableQualities(list)
         }
     }
     return controller
 }
 
-@OptIn(UnstableApi::class)
 @Composable
 actual fun VideoSurface(controller: VideoPlayerController, fit: VideoFit, modifier: Modifier) {
-    val exo = controller as ExoVideoPlayerController
+    val mpvController = controller as MpvAndroidPlayerController
+    LaunchedEffect(fit) {
+        mpvController.setFit(fit)
+    }
     AndroidView(
         factory = { context ->
-            PlayerView(context).apply {
-                useController = false
-                setShutterBackgroundColor(Color.BLACK)
-                setBackgroundColor(Color.BLACK)
-                layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
-                player = exo.player
+            SurfaceView(context).apply {
+                layoutParams = ViewGroup.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                )
+                holder.addCallback(object : SurfaceHolder.Callback {
+                    override fun surfaceCreated(holder: SurfaceHolder) {
+                        mpvController.attachSurface(holder.surface)
+                    }
+
+                    override fun surfaceChanged(holder: SurfaceHolder, format: Int, width: Int, height: Int) {}
+
+                    override fun surfaceDestroyed(holder: SurfaceHolder) {
+                        mpvController.detachSurface()
+                    }
+                })
             }
         },
-        update = { view ->
-            view.player = exo.player
-            view.resizeMode = when (fit) {
-                VideoFit.Fit -> AspectRatioFrameLayout.RESIZE_MODE_FIT
-                VideoFit.Fill -> AspectRatioFrameLayout.RESIZE_MODE_ZOOM
-                VideoFit.Stretch -> AspectRatioFrameLayout.RESIZE_MODE_FILL
-            }
-        },
-        onRelease = { view -> view.player = null },
         modifier = modifier,
     )
 }

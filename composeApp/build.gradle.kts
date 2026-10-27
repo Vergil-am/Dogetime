@@ -99,9 +99,7 @@ kotlin {
             implementation(libs.libtorrent4j.android.x64)
             implementation(libs.androidx.activity.compose)
             implementation(libs.androidx.webkit)
-            implementation(libs.media3.exoplayer)
-            implementation(libs.media3.exoplayer.hls)
-            implementation(libs.media3.ui)
+            implementation(libs.mpv.android)
             implementation(libs.ktor.client.okhttp)
         }
         getByName("desktopMain").dependencies {

@@ -32,6 +32,23 @@ data class VideoQuality(val height: Int, val bitrate: Long, val key: String) {
 }
 
 /**
+ * A subtitle track embedded in the media file or provided by the stream.
+ */
+data class SubtitleTrack(
+    val id: Int,
+    val title: String = "",
+    val language: String? = null,
+) {
+    val label: String
+        get() = when {
+            title.isNotBlank() && !language.isNullOrBlank() -> "$title (${language.uppercase()})"
+            title.isNotBlank() -> title
+            !language.isNullOrBlank() -> language.uppercase()
+            else -> "Track $id"
+        }
+}
+
+/**
  * Playback of one stream by the platform's player (ExoPlayer, AVPlayer or libmpv).
  * Its state is Compose state, so the controls update on their own.
  */
@@ -70,8 +87,21 @@ abstract class VideoPlayerController {
     var selectedQuality by mutableStateOf<VideoQuality?>(null)
         protected set
 
+    /** Called with the qualities read from the master playlist (HLS or equivalent). */
+    fun setAvailableQualities(available: List<VideoQuality>) {
+        qualities = available
+    }
+
     /** Height of the video currently playing, or 0 if unknown. */
     var videoHeight by mutableIntStateOf(0)
+        protected set
+
+    /** Subtitle tracks available in the stream, or empty if none. */
+    var subtitleTracks by mutableStateOf<List<SubtitleTrack>>(emptyList())
+        protected set
+
+    /** Currently selected subtitle track, or null if subtitles are off. */
+    var selectedSubtitleTrack by mutableStateOf<SubtitleTrack?>(null)
         protected set
 
     abstract fun play()
@@ -82,6 +112,11 @@ abstract class VideoPlayerController {
 
     /** Plays [quality], or picks automatically when it is null. */
     abstract fun selectQuality(quality: VideoQuality?)
+
+    /** Selects [track], or turns subtitles off when it is null. */
+    open fun selectSubtitleTrack(track: SubtitleTrack?) {
+        selectedSubtitleTrack = track
+    }
 
     fun togglePlay() = if (isPlaying && !isEnded) pause() else play()
 

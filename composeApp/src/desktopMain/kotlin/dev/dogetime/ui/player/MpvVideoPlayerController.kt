@@ -39,6 +39,7 @@ private const val PROP_EOF = 9L
 private const val PROP_DWIDTH = 10L
 private const val PROP_DHEIGHT = 11L
 private const val PROP_HEIGHT = 12L
+private const val PROP_TRACK_LIST = 13L
 
 /**
  * Plays a stream with libmpv. mpv decodes (with hardware decoding when available) and renders
@@ -141,6 +142,7 @@ internal class MpvVideoPlayerController(stream: CapturedStream, title: String) :
             PROP_DWIDTH to ("dwidth" to Mpv.FORMAT_INT64),
             PROP_DHEIGHT to ("dheight" to Mpv.FORMAT_INT64),
             PROP_HEIGHT to ("height" to Mpv.FORMAT_INT64),
+            PROP_TRACK_LIST to ("track-list" to Mpv.FORMAT_NONE),
         ).forEach { (id, property) -> lib.mpv_observe_property(h, id, property.first, property.second) }
 
         eventThread = thread(name = "mpv-events", isDaemon = true) { eventLoop(lib, h) }
@@ -201,9 +203,41 @@ internal class MpvVideoPlayerController(stream: CapturedStream, title: String) :
         command("loadfile", url, "replace", "-1", "start=${positionMs / 1000.0}")
     }
 
-    /** Called with the qualities read from the master playlist. */
-    fun setAvailableQualities(available: List<VideoQuality>) {
-        qualities = available
+    override fun selectSubtitleTrack(track: SubtitleTrack?) {
+        if (track == null) {
+            command("set", "sid", "no")
+        } else {
+            command("set", "sid", track.id.toString())
+        }
+        selectedSubtitleTrack = track
+    }
+
+    private fun getPropertyString(lib: MpvLibrary, h: Pointer, name: String): String? {
+        val ptr = lib.mpv_get_property_string(h, name) ?: return null
+        return try {
+            ptr.getString(0)
+        } finally {
+            lib.mpv_free(ptr)
+        }
+    }
+
+    private fun updateTracks(lib: MpvLibrary, h: Pointer) {
+        val count = getPropertyString(lib, h, "track-list/count")?.toIntOrNull() ?: 0
+        val tracks = mutableListOf<SubtitleTrack>()
+        val currentSid = getPropertyString(lib, h, "sid")?.toIntOrNull()
+        for (i in 0 until count) {
+            val type = getPropertyString(lib, h, "track-list/$i/type")
+            if (type == "sub") {
+                val id = getPropertyString(lib, h, "track-list/$i/id")?.toIntOrNull() ?: (i + 1)
+                val title = getPropertyString(lib, h, "track-list/$i/title").orEmpty()
+                val lang = getPropertyString(lib, h, "track-list/$i/lang")
+                tracks += SubtitleTrack(id = id, title = title, language = lang)
+            }
+        }
+        onUi {
+            subtitleTracks = tracks
+            selectedSubtitleTrack = tracks.find { it.id == currentSid }
+        }
     }
 
     /** Runs [block] with the newest frame, if any, while mpv can't replace it. */
@@ -218,9 +252,13 @@ internal class MpvVideoPlayerController(stream: CapturedStream, title: String) :
             val event = lib.mpv_wait_event(h, 1.0)
             when (event.getInt(0)) {
                 Mpv.EVENT_SHUTDOWN -> return
-                Mpv.EVENT_PLAYBACK_RESTART -> onUi {
-                    started = true
-                    updateBuffering()
+                Mpv.EVENT_FILE_LOADED -> updateTracks(lib, h)
+                Mpv.EVENT_PLAYBACK_RESTART -> {
+                    updateTracks(lib, h)
+                    onUi {
+                        started = true
+                        updateBuffering()
+                    }
                 }
                 Mpv.EVENT_END_FILE -> {
                     val data = event.getPointer(16) ?: continue
@@ -243,6 +281,12 @@ internal class MpvVideoPlayerController(stream: CapturedStream, title: String) :
 
     /** Reads an `mpv_event_property` value and applies it on the UI thread. */
     private fun onPropertyChange(id: Long, format: Int, data: Pointer?) {
+        if (id == PROP_TRACK_LIST) {
+            val lib = mpv
+            val h = handle
+            if (lib != null && h != null) updateTracks(lib, h)
+            return
+        }
         val flag = data != null && format == Mpv.FORMAT_FLAG && data.getInt(0) != 0
         val double = if (data != null && format == Mpv.FORMAT_DOUBLE) data.getDouble(0) else null
         val long = if (data != null && format == Mpv.FORMAT_INT64) data.getLong(0) else null

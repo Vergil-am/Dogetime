@@ -20,6 +20,8 @@ internal interface MpvLibrary : Library {
     fun mpv_error_string(error: Int): String
     fun mpv_set_option_string(handle: Pointer, name: String, value: String): Int
     fun mpv_set_property_string(handle: Pointer, name: String, value: String): Int
+    fun mpv_get_property_string(handle: Pointer, name: String): Pointer?
+    fun mpv_free(data: Pointer)
     fun mpv_command(handle: Pointer, args: Array<String>): Int
     fun mpv_observe_property(handle: Pointer, userData: Long, name: String, format: Int): Int
     fun mpv_wait_event(handle: Pointer, timeout: Double): Pointer
