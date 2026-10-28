@@ -41,6 +41,8 @@ data class MediaDetails(
     val similar: List<MediaItem>,
     /** The title's IMDb id ("tt…"), which torrent sources look titles up by. */
     val imdbId: String? = null,
+    /** URL of a transparent logo for the title (from TMDB images API). */
+    val logoUrl: String? = null,
 )
 
 /** A TV season with at least one episode. */

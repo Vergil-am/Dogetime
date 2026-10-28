@@ -54,6 +54,7 @@ data class TmdbDetails(
     /** Only movies have this at the top level; TV shows have it in [externalIds]. */
     @SerialName("imdb_id") val imdbId: String? = null,
     @SerialName("external_ids") val externalIds: TmdbExternalIds? = null,
+    val images: TmdbImages? = null,
 )
 
 @Serializable
@@ -106,4 +107,16 @@ data class TmdbEpisode(
     @SerialName("still_path") val stillPath: String? = null,
     @SerialName("vote_average") val voteAverage: Double = 0.0,
     val runtime: Int? = null,
+)
+
+@Serializable
+data class TmdbImages(
+    val logos: List<TmdbImageEntry> = emptyList(),
+)
+
+@Serializable
+data class TmdbImageEntry(
+    @SerialName("file_path") val filePath: String? = null,
+    @SerialName("iso_639_1") val language: String? = null,
+    val width: Int = 0,
 )

@@ -35,7 +35,8 @@ class TmdbApi(private val client: HttpClient) {
 
     suspend fun details(type: MediaType, id: Int): TmdbDetails =
         fetch("${type.apiName}/$id") {
-            parameter("append_to_response", "credits,recommendations,similar,external_ids")
+            parameter("append_to_response", "credits,recommendations,similar,external_ids,images")
+            parameter("include_image_language", "en,null")
         }
 
     suspend fun season(tvId: Int, seasonNumber: Int): TmdbSeasonDetails =

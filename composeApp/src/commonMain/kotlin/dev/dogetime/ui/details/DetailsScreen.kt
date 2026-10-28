@@ -1,11 +1,14 @@
 package dev.dogetime.ui.details
 
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -28,15 +31,16 @@ import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -44,11 +48,13 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
@@ -61,7 +67,10 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import dev.chrisbanes.haze.ExperimentalHazeApi
@@ -83,8 +92,10 @@ import dev.dogetime.domain.Season
 import dev.dogetime.domain.WatchTarget
 import dev.dogetime.domain.withImdbId
 import dev.dogetime.ui.components.ErrorBox
+import dev.dogetime.ui.components.GenrePill
 import dev.dogetime.ui.components.MediaPoster
 import dev.dogetime.ui.components.MediaRow
+import dev.dogetime.ui.components.RatingRing
 import dev.dogetime.ui.components.dragToScroll
 import dev.dogetime.ui.components.oneDecimal
 import dev.dogetime.ui.components.ratingText
@@ -160,11 +171,75 @@ private val BackArrow = ImageVector.Builder(
     lineTo(11f, 18f)
 }.build()
 
+private val HeartOutline = ImageVector.Builder(
+    name = "HeartOutline",
+    defaultWidth = 24.dp,
+    defaultHeight = 24.dp,
+    viewportWidth = 24f,
+    viewportHeight = 24f,
+).path(
+    stroke = SolidColor(Color.White),
+    strokeLineWidth = 2f,
+    strokeLineCap = StrokeCap.Round,
+    strokeLineJoin = StrokeJoin.Round,
+) {
+    // Heart path
+    moveTo(12f, 21f)
+    curveTo(12f, 21f, 3f, 15f, 3f, 9.5f)
+    curveTo(3f, 7f, 5f, 5f, 7.5f, 5f)
+    curveTo(9.5f, 5f, 11f, 6.5f, 12f, 7.5f)
+    curveTo(13f, 6.5f, 14.5f, 5f, 16.5f, 5f)
+    curveTo(19f, 5f, 21f, 7f, 21f, 9.5f)
+    curveTo(21f, 15f, 12f, 21f, 12f, 21f)
+    close()
+}.build()
+
+private val HeartFilled = ImageVector.Builder(
+    name = "HeartFilled",
+    defaultWidth = 24.dp,
+    defaultHeight = 24.dp,
+    viewportWidth = 24f,
+    viewportHeight = 24f,
+).path(
+    fill = SolidColor(Color.White),
+    stroke = SolidColor(Color.White),
+    strokeLineWidth = 1.5f,
+    strokeLineCap = StrokeCap.Round,
+    strokeLineJoin = StrokeJoin.Round,
+) {
+    moveTo(12f, 21f)
+    curveTo(12f, 21f, 3f, 15f, 3f, 9.5f)
+    curveTo(3f, 7f, 5f, 5f, 7.5f, 5f)
+    curveTo(9.5f, 5f, 11f, 6.5f, 12f, 7.5f)
+    curveTo(13f, 6.5f, 14.5f, 5f, 16.5f, 5f)
+    curveTo(19f, 5f, 21f, 7f, 21f, 9.5f)
+    curveTo(21f, 15f, 12f, 21f, 12f, 21f)
+    close()
+}.build()
+
+private val PlayIcon = ImageVector.Builder(
+    name = "Play",
+    defaultWidth = 20.dp,
+    defaultHeight = 20.dp,
+    viewportWidth = 24f,
+    viewportHeight = 24f,
+).path(
+    fill = SolidColor(Color.White),
+) {
+    moveTo(6f, 4f)
+    lineTo(20f, 12f)
+    lineTo(6f, 20f)
+    close()
+}.build()
+
 /** Width from which the episodes move next to the details instead of below them. */
 private val TwoPaneMinWidth = 840.dp
 
 /** Landscape phones get the side-by-side layout from this width. */
 private val TwoPaneLandscapeMinWidth = 600.dp
+
+/** Material 3 medium breakpoint — at or above this the window is "medium width". */
+private val MediumWidthBreakpoint = 600.dp
 
 @Composable
 private fun DetailsContent(
@@ -178,11 +253,15 @@ private fun DetailsContent(
 ) {
     BoxWithConstraints {
         val wide = maxWidth >= TwoPaneMinWidth || (maxWidth > maxHeight && maxWidth >= TwoPaneLandscapeMinWidth)
+        // Backdrop height: full screen on medium+ width, 70% in portrait/narrow.
+        val isMediumOrWider = maxWidth >= MediumWidthBreakpoint
+        val heroHeight = if (isMediumOrWider) maxHeight else maxHeight * 0.7f
+
         if (wide && details.seasons.isNotEmpty()) {
-            WideDetails(details, episodes, onSeasonSelected, onWatch, isFavorite, onToggleFavorite, onOpen)
+            WideDetails(details, episodes, onSeasonSelected, onWatch, isFavorite, onToggleFavorite, onOpen, heroHeight)
         } else {
             LazyColumn(contentPadding = PaddingValues(bottom = 24.dp)) {
-                detailsSection(details, onWatch, isFavorite, onToggleFavorite)
+                detailsSection(details, onWatch, isFavorite, onToggleFavorite, heroHeight = heroHeight)
                 episodesSection(details, episodes, onSeasonSelected, onWatch)
                 castSection(details)
                 relatedSection(details, onOpen)
@@ -214,10 +293,11 @@ private fun WideDetails(
     isFavorite: Boolean,
     onToggleFavorite: () -> Unit,
     onOpen: (MediaItem) -> Unit,
+    heroHeight: Dp,
 ) {
     val hazeState = rememberHazeState()
     val detailsListState = rememberLazyListState()
-    var heroHeight by remember { mutableIntStateOf(0) }
+    var heroContentHeightPx by remember { mutableIntStateOf(0) }
     val density = LocalDensity.current
 
     Box(Modifier.fillMaxSize()) {
@@ -233,13 +313,13 @@ private fun WideDetails(
                     title = details.item.title,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(with(density) { heroHeight.toDp() })
+                        .height(with(density) { heroContentHeightPx.toDp() })
                         .graphicsLayer {
                             // Scrolls away with the hero above it.
                             translationY = if (detailsListState.firstVisibleItemIndex == 0) {
                                 -detailsListState.firstVisibleItemScrollOffset.toFloat()
                             } else {
-                                -heroHeight.toFloat()
+                                -heroContentHeightPx.toFloat()
                             }
                         },
                 )
@@ -258,7 +338,8 @@ private fun WideDetails(
                     isFavorite = isFavorite,
                     onToggleFavorite = onToggleFavorite,
                     drawBackdrop = false,
-                    onHeroHeightChanged = { heroHeight = it },
+                    onHeroHeightChanged = { heroContentHeightPx = it },
+                    heroHeight = heroHeight,
                 )
                 castSection(details)
                 relatedSection(details, onOpen)
@@ -295,9 +376,10 @@ private fun Backdrop(url: String, title: String, modifier: Modifier = Modifier) 
                 .matchParentSize()
                 .background(
                     Brush.verticalGradient(
-                        0f to background.copy(alpha = 0.35f),
-                        0.3f to Color.Transparent,
-                        0.65f to background.copy(alpha = 0.75f),
+                        0f to background.copy(alpha = 0.25f),
+                        0.25f to Color.Transparent,
+                        0.55f to background.copy(alpha = 0.6f),
+                        0.8f to background.copy(alpha = 0.9f),
                         1f to background,
                     ),
                 ),
@@ -308,8 +390,10 @@ private fun Backdrop(url: String, title: String, modifier: Modifier = Modifier) 
 /**
  * Backdrop with poster and title, the action buttons, genres and the overview. With
  * [drawBackdrop] false the hero leaves the backdrop to the caller, and reports its height
- * through [onHeroHeightChanged] so the caller can size it.
+ * through [onHeroHeightChanged] so the caller can size it. [heroHeight] controls the
+ * backdrop height — on medium+ screens it fills the screen, on narrow/portrait it's 70%.
  */
+@OptIn(ExperimentalLayoutApi::class)
 private fun LazyListScope.detailsSection(
     details: MediaDetails,
     onWatch: (target: WatchTarget, title: String) -> Unit,
@@ -317,13 +401,15 @@ private fun LazyListScope.detailsSection(
     onToggleFavorite: () -> Unit,
     drawBackdrop: Boolean = true,
     onHeroHeightChanged: (Int) -> Unit = {},
+    heroHeight: Dp = 400.dp,
 ) {
     val media = details.item
     item {
-        // Hero: the backdrop fills everything from the top of the screen down to the buttons.
+        // Hero: the backdrop fills from the top down to the buttons.
         Box(
             modifier = Modifier
                 .fillMaxWidth()
+                .height(heroHeight)
                 .onSizeChanged { onHeroHeightChanged(it.height) },
         ) {
             if (drawBackdrop) {
@@ -332,9 +418,9 @@ private fun LazyListScope.detailsSection(
 
             Column(
                 modifier = Modifier
+                    .align(Alignment.BottomStart)
                     .statusBarsPadding()
-                    // Room for the back arrow, plus some open backdrop when there is one.
-                    .padding(top = if (media.backdropUrl != null) 160.dp else 56.dp),
+                    .padding(bottom = 16.dp),
             ) {
                 Row(
                     modifier = Modifier.padding(16.dp),
@@ -345,14 +431,29 @@ private fun LazyListScope.detailsSection(
                         url = media.posterUrl,
                         title = media.title,
                         modifier = Modifier
-                            .width(120.dp)
-                            .aspectRatio(2f / 3f),
+                            .width(130.dp)
+                            .aspectRatio(2f / 3f)
+                            .shadow(12.dp, RoundedCornerShape(12.dp)),
                     )
                     Column(modifier = Modifier.weight(1f)) {
-                        Text(
-                            text = media.title,
-                            style = MaterialTheme.typography.headlineSmall,
-                        )
+                        // Logo image or text title.
+                        if (details.logoUrl != null) {
+                            AsyncImage(
+                                model = details.logoUrl,
+                                contentDescription = media.title,
+                                contentScale = ContentScale.FillWidth,
+                                modifier = Modifier
+                                    .fillMaxWidth(0.85f)
+                                    .padding(bottom = 4.dp),
+                            )
+                        } else {
+                            Text(
+                                text = media.title,
+                                style = MaterialTheme.typography.headlineSmall,
+                                fontWeight = FontWeight.Bold,
+                            )
+                        }
+
                         val meta = listOfNotNull(media.year, details.runtime, details.status).joinToString(" · ")
                         if (meta.isNotEmpty()) {
                             Spacer(Modifier.height(4.dp))
@@ -362,49 +463,91 @@ private fun LazyListScope.detailsSection(
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                             )
                         }
-                        media.ratingText()?.let { rating ->
-                            Spacer(Modifier.height(8.dp))
-                            Text(
-                                text = "$rating (${details.voteCount} votes)",
-                                style = MaterialTheme.typography.bodyMedium,
-                            )
+
+                        // Rating ring instead of text.
+                        if (media.rating > 0) {
+                            Spacer(Modifier.height(10.dp))
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(10.dp),
+                            ) {
+                                RatingRing(rating = media.rating, size = 44.dp, strokeWidth = 3.5.dp)
+                                Column {
+                                    Text(
+                                        text = "${oneDecimal(media.rating)} / 10",
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        fontWeight = FontWeight.SemiBold,
+                                    )
+                                    Text(
+                                        text = "${details.voteCount} votes",
+                                        style = MaterialTheme.typography.labelSmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    )
+                                }
+                            }
                         }
+
                         details.tagline?.let { tagline ->
                             Spacer(Modifier.height(8.dp))
                             Text(
                                 text = tagline,
                                 style = MaterialTheme.typography.bodyMedium,
                                 fontStyle = FontStyle.Italic,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
                             )
                         }
                     }
                 }
 
+                // Action buttons — pill-shaped.
                 Row(
                     modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 16.dp),
                     horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    verticalAlignment = Alignment.CenterVertically,
                 ) {
                     if (media.type == MediaType.Movie) {
-                        Button(onClick = { onWatch(WatchTarget.Movie(media.id), media.title) }) {
-                            Text("▶ Watch now")
+                        Button(
+                            onClick = { onWatch(WatchTarget.Movie(media.id), media.title) },
+                            shape = RoundedCornerShape(50),
+                            contentPadding = PaddingValues(horizontal = 28.dp, vertical = 12.dp),
+                        ) {
+                            Icon(PlayIcon, contentDescription = null, modifier = Modifier.size(18.dp))
+                            Spacer(Modifier.width(8.dp))
+                            Text("Watch Now", fontWeight = FontWeight.SemiBold)
                         }
                     }
-                    OutlinedButton(onClick = onToggleFavorite) {
-                        Text(if (isFavorite) "♥ Favorited" else "♡ Favorite")
+                    // Heart icon button — circular.
+                    IconButton(
+                        onClick = onToggleFavorite,
+                        colors = IconButtonDefaults.iconButtonColors(
+                            containerColor = Mocha.Surface0.copy(alpha = 0.7f),
+                            contentColor = if (isFavorite) Mocha.Red else Mocha.Text,
+                        ),
+                        modifier = Modifier.size(44.dp),
+                    ) {
+                        Icon(
+                            if (isFavorite) HeartFilled else HeartOutline,
+                            contentDescription = if (isFavorite) "Remove from favorites" else "Add to favorites",
+                            modifier = Modifier.size(22.dp),
+                        )
                     }
                 }
             }
         }
     }
 
+    // Genre pills.
     if (details.genres.isNotEmpty()) {
         item {
-            Text(
-                text = details.genres.joinToString("  •  "),
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.primary,
+            FlowRow(
                 modifier = Modifier.padding(horizontal = 16.dp),
-            )
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                details.genres.forEach { genre ->
+                    GenrePill(genre)
+                }
+            }
         }
     }
 
@@ -418,13 +561,42 @@ private fun LazyListScope.detailsSection(
         }
     }
 
+    // Overview with expand/collapse.
     item {
         SectionTitle("Overview")
-        Text(
+        ExpandableOverview(
             text = media.overview.ifBlank { "No overview available." },
-            style = MaterialTheme.typography.bodyLarge,
             modifier = Modifier.padding(horizontal = 16.dp),
         )
+    }
+}
+
+/** Shows a 3-line overview with a "Read more" / "Show less" toggle for long text. */
+@Composable
+private fun ExpandableOverview(text: String, modifier: Modifier = Modifier) {
+    var expanded by remember { mutableStateOf(false) }
+    var hasOverflow by remember { mutableStateOf(false) }
+
+    Column(modifier = modifier.animateContentSize()) {
+        Text(
+            text = text,
+            style = MaterialTheme.typography.bodyLarge,
+            maxLines = if (expanded) Int.MAX_VALUE else 3,
+            overflow = TextOverflow.Ellipsis,
+            onTextLayout = { result ->
+                if (!expanded) hasOverflow = result.hasVisualOverflow
+            },
+        )
+        if (hasOverflow || expanded) {
+            Text(
+                text = if (expanded) "Show less" else "Read more",
+                style = MaterialTheme.typography.labelLarge,
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier
+                    .padding(top = 4.dp)
+                    .clickable { expanded = !expanded },
+            )
+        }
     }
 }
 
@@ -464,7 +636,7 @@ private fun LazyListScope.castSection(details: MediaDetails) {
                 state = castRowState,
                 modifier = Modifier.dragToScroll(castRowState),
                 contentPadding = PaddingValues(horizontal = 16.dp),
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                horizontalArrangement = Arrangement.spacedBy(16.dp),
             ) {
                 items(details.cast, key = { it.name + it.character }) { member ->
                     CastCard(member)
@@ -562,17 +734,35 @@ private fun EpisodeRow(episode: Episode, onWatch: () -> Unit) {
             .padding(8.dp),
         horizontalArrangement = Arrangement.spacedBy(12.dp),
     ) {
-        MediaPoster(
-            url = episode.stillUrl,
-            title = episode.name,
-            modifier = Modifier
-                .width(140.dp)
-                .aspectRatio(16f / 9f),
-        )
+        // Thumbnail with play overlay.
+        Box {
+            MediaPoster(
+                url = episode.stillUrl,
+                title = episode.name,
+                modifier = Modifier
+                    .width(140.dp)
+                    .aspectRatio(16f / 9f),
+            )
+            Box(
+                modifier = Modifier
+                    .align(Alignment.Center)
+                    .size(32.dp)
+                    .background(Mocha.Crust.copy(alpha = 0.6f), CircleShape),
+                contentAlignment = Alignment.Center,
+            ) {
+                Icon(
+                    PlayIcon,
+                    contentDescription = "Play",
+                    tint = Mocha.Text,
+                    modifier = Modifier.size(14.dp),
+                )
+            }
+        }
         Column(modifier = Modifier.weight(1f)) {
             Text(
                 text = "${episode.number}. ${episode.name}",
                 style = MaterialTheme.typography.titleSmall,
+                fontWeight = FontWeight.Medium,
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis,
             )
@@ -597,12 +787,6 @@ private fun EpisodeRow(episode: Episode, onWatch: () -> Unit) {
                     overflow = TextOverflow.Ellipsis,
                 )
             }
-            Text(
-                text = "▶ Watch",
-                style = MaterialTheme.typography.labelLarge,
-                color = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.padding(top = 8.dp),
-            )
         }
     }
 }
@@ -612,24 +796,48 @@ private fun SectionTitle(title: String) {
     Text(
         text = title,
         style = MaterialTheme.typography.titleLarge,
+        fontWeight = FontWeight.SemiBold,
         modifier = Modifier.padding(start = 16.dp, top = 24.dp, end = 16.dp, bottom = 8.dp),
     )
 }
 
+/** Cast member with a circular photo instead of a square poster. */
 @Composable
 private fun CastCard(member: CastMember) {
-    Column(modifier = Modifier.width(96.dp)) {
-        MediaPoster(
-            url = member.photoUrl,
-            title = member.name,
-            modifier = Modifier.size(96.dp),
-        )
-        Spacer(Modifier.height(6.dp))
+    Column(
+        modifier = Modifier.width(100.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        Box(
+            modifier = Modifier
+                .size(88.dp)
+                .clip(CircleShape)
+                .background(MaterialTheme.colorScheme.surfaceVariant),
+            contentAlignment = Alignment.Center,
+        ) {
+            if (member.photoUrl != null) {
+                AsyncImage(
+                    model = member.photoUrl,
+                    contentDescription = member.name,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier.fillMaxSize(),
+                )
+            } else {
+                Text(
+                    text = member.name.take(1),
+                    style = MaterialTheme.typography.titleLarge,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+        }
+        Spacer(Modifier.height(8.dp))
         Text(
             text = member.name,
-            style = MaterialTheme.typography.labelLarge,
+            style = MaterialTheme.typography.labelMedium,
+            fontWeight = FontWeight.Medium,
             maxLines = 2,
             overflow = TextOverflow.Ellipsis,
+            textAlign = TextAlign.Center,
         )
         if (member.character.isNotBlank()) {
             Text(
@@ -638,6 +846,7 @@ private fun CastCard(member: CastMember) {
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
+                textAlign = TextAlign.Center,
             )
         }
     }

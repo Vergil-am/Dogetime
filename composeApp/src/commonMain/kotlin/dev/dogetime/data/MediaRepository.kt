@@ -39,6 +39,7 @@ private const val POSTER_SIZE = "w342"
 private const val BACKDROP_SIZE = "w780"
 private const val PROFILE_SIZE = "w185"
 private const val STILL_SIZE = "w300"
+private const val LOGO_SIZE = "w500"
 
 private fun TmdbPage.toPage(transform: (TmdbMedia) -> MediaItem?): Page<MediaItem> =
     Page(
@@ -72,6 +73,11 @@ private fun TmdbDetails.toDomain(type: MediaType): MediaDetails {
     val isTv = type == MediaType.Tv
     val recommended = recommendations.toRelatedItems(type)
     val recommendedIds = recommended.mapTo(HashSet()) { it.id }
+    val logoUrl = images?.logos
+        ?.filter { it.language == "en" || it.language == null }
+        ?.maxByOrNull { it.width }
+        ?.filePath
+        ?.toImageUrl(LOGO_SIZE)
     return MediaDetails(
         item = item,
         tagline = tagline?.takeIf { it.isNotBlank() },
@@ -104,6 +110,7 @@ private fun TmdbDetails.toDomain(type: MediaType): MediaDetails {
         recommendations = recommended,
         similar = similar.toRelatedItems(type).filter { it.id !in recommendedIds },
         imdbId = (imdbId ?: externalIds?.imdbId)?.takeIf { it.isNotBlank() },
+        logoUrl = logoUrl,
     )
 }
 
