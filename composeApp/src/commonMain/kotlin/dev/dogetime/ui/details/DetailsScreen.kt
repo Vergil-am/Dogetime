@@ -261,7 +261,7 @@ private fun DetailsContent(
             WideDetails(details, episodes, onSeasonSelected, onWatch, isFavorite, onToggleFavorite, onOpen, heroHeight)
         } else {
             LazyColumn(contentPadding = PaddingValues(bottom = 24.dp)) {
-                detailsSection(details, onWatch, isFavorite, onToggleFavorite, heroHeight = heroHeight)
+                detailsSection(details, onWatch, isFavorite, onToggleFavorite, heroHeight = heroHeight, includeOverviewInHero = isMediumOrWider)
                 episodesSection(details, episodes, onSeasonSelected, onWatch)
                 castSection(details)
                 relatedSection(details, onOpen)
@@ -340,6 +340,7 @@ private fun WideDetails(
                     drawBackdrop = false,
                     onHeroHeightChanged = { heroContentHeightPx = it },
                     heroHeight = heroHeight,
+                    includeOverviewInHero = true,
                 )
                 castSection(details)
                 relatedSection(details, onOpen)
@@ -392,6 +393,8 @@ private fun Backdrop(url: String, title: String, modifier: Modifier = Modifier) 
  * [drawBackdrop] false the hero leaves the backdrop to the caller, and reports its height
  * through [onHeroHeightChanged] so the caller can size it. [heroHeight] controls the
  * backdrop height — on medium+ screens it fills the screen, on narrow/portrait it's 70%.
+ * When [includeOverviewInHero] is true the genres, season info, and overview are rendered
+ * inside the hero backdrop instead of as separate items below it.
  */
 @OptIn(ExperimentalLayoutApi::class)
 private fun LazyListScope.detailsSection(
@@ -402,6 +405,7 @@ private fun LazyListScope.detailsSection(
     drawBackdrop: Boolean = true,
     onHeroHeightChanged: (Int) -> Unit = {},
     heroHeight: Dp = 400.dp,
+    includeOverviewInHero: Boolean = false,
 ) {
     val media = details.item
     item {
@@ -532,42 +536,79 @@ private fun LazyListScope.detailsSection(
                         )
                     }
                 }
-            }
-        }
-    }
 
-    // Genre pills.
-    if (details.genres.isNotEmpty()) {
-        item {
-            FlowRow(
-                modifier = Modifier.padding(horizontal = 16.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-            ) {
-                details.genres.forEach { genre ->
-                    GenrePill(genre)
+                // On medium+ widths, genres + overview sit inside the hero backdrop.
+                if (includeOverviewInHero) {
+                    if (details.genres.isNotEmpty()) {
+                        FlowRow(
+                            modifier = Modifier.padding(horizontal = 16.dp),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            verticalArrangement = Arrangement.spacedBy(8.dp),
+                        ) {
+                            details.genres.forEach { genre ->
+                                GenrePill(genre)
+                            }
+                        }
+                        Spacer(Modifier.height(8.dp))
+                    }
+
+                    if (details.seasonCount != null && details.episodeCount != null) {
+                        Text(
+                            text = "${details.seasonCount} seasons · ${details.episodeCount} episodes",
+                            style = MaterialTheme.typography.bodyMedium,
+                            modifier = Modifier.padding(horizontal = 16.dp),
+                        )
+                        Spacer(Modifier.height(4.dp))
+                    }
+
+                    Text(
+                        text = media.overview.ifBlank { "No overview available." },
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = Mocha.Subtext0,
+                        maxLines = 4,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.padding(horizontal = 16.dp),
+                    )
                 }
             }
         }
     }
 
-    if (details.seasonCount != null && details.episodeCount != null) {
+    // On narrow screens the genres, season info, and overview are separate items below the hero.
+    if (!includeOverviewInHero) {
+        // Genre pills.
+        if (details.genres.isNotEmpty()) {
+            item {
+                FlowRow(
+                    modifier = Modifier.padding(horizontal = 16.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    details.genres.forEach { genre ->
+                        GenrePill(genre)
+                    }
+                }
+            }
+        }
+
+        if (details.seasonCount != null && details.episodeCount != null) {
+            item {
+                Text(
+                    text = "${details.seasonCount} seasons · ${details.episodeCount} episodes",
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+                )
+            }
+        }
+
+        // Overview with expand/collapse.
         item {
-            Text(
-                text = "${details.seasonCount} seasons · ${details.episodeCount} episodes",
-                style = MaterialTheme.typography.bodyMedium,
-                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+            SectionTitle("Overview")
+            ExpandableOverview(
+                text = media.overview.ifBlank { "No overview available." },
+                modifier = Modifier.padding(horizontal = 16.dp),
             )
         }
-    }
-
-    // Overview with expand/collapse.
-    item {
-        SectionTitle("Overview")
-        ExpandableOverview(
-            text = media.overview.ifBlank { "No overview available." },
-            modifier = Modifier.padding(horizontal = 16.dp),
-        )
     }
 }
 
