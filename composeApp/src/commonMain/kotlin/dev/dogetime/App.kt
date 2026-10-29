@@ -212,6 +212,7 @@ fun App() {
                             torrentio = container.torrentio,
                             subdl = container.subdl,
                             openSubtitles = container.openSubtitles,
+                            ytsSubs = container.ytsSubs,
                             backdropUrl = current.backdropUrl,
                             onBack = { navigator.back() },
                             modifier = modifier,

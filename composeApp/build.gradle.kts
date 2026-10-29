@@ -92,6 +92,7 @@ kotlin {
         jvmMain.dependencies {
             implementation(libs.libtorrent4j)
             implementation(libs.ktor.server.cio)
+            implementation(libs.jsoup)
         }
         getByName("androidMain").dependencies {
             implementation(libs.libtorrent4j.android.arm64)

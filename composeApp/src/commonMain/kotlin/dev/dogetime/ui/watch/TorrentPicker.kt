@@ -36,6 +36,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import dev.dogetime.core.UiState
 import dev.dogetime.core.runForUiState
+import dev.dogetime.data.TorrentProvider
 import dev.dogetime.data.TorrentioApi
 import dev.dogetime.domain.TorrentOption
 import dev.dogetime.domain.WatchTarget
@@ -50,7 +51,7 @@ private enum class QualityGroup(val label: String) {
     Unknown("Unknown"),
 }
 
-/** Groups Torrentio's quality labels: "4k HDR" is 4K, "720p" is HD, "480p" is SD, and "DVDRip" or no label is Unknown. */
+/** Groups quality labels: "4k HDR" is 4K, "720p" is HD, "480p" is SD, and "DVDRip" or no label is Unknown. */
 private val TorrentOption.group: QualityGroup
     get() = when (quality.substringBefore(' ').lowercase()) {
         "4k", "2160p" -> QualityGroup.UltraHd
@@ -61,7 +62,7 @@ private val TorrentOption.group: QualityGroup
     }
 
 /**
- * Torrents that [torrentio] lists for [target], best quality first, filtered by [QualityGroup]
+ * Torrents listed for [target], best quality first, filtered by [QualityGroup]
  * (Full HD at first); picking one plays it.
  */
 @Composable
@@ -74,33 +75,36 @@ internal fun TorrentPicker(
     onChangeSource: () -> Unit,
     onPick: (TorrentOption) -> Unit,
     modifier: Modifier = Modifier,
+    initialProvider: TorrentProvider = TorrentProvider.Torrentio,
 ) {
-    var options by remember(target) { mutableStateOf<UiState<List<TorrentOption>>>(UiState.Loading) }
+    var provider by remember(target, initialProvider) { mutableStateOf(initialProvider) }
+    var options by remember(target, provider) { mutableStateOf<UiState<List<TorrentOption>>>(UiState.Loading) }
     // "Try again" bumps this to fetch the list again.
-    var attempt by remember(target) { mutableIntStateOf(0) }
-    var group by remember(target) { mutableStateOf(QualityGroup.FullHd) }
-    LaunchedEffect(target, attempt) {
+    var attempt by remember(target, provider) { mutableIntStateOf(0) }
+    var group by remember(target, provider) { mutableStateOf(QualityGroup.FullHd) }
+    LaunchedEffect(target, attempt, provider) {
         options = UiState.Loading
-        options = runForUiState { torrentio.streams(target) }
+        options = runForUiState { torrentio.streams(target, provider) }
     }
 
     Box(modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
         if (backdropUrl != null) BlurredBackdrop(backdropUrl, Modifier.fillMaxSize())
         WatchPage(title = title, pageShown = false, onBack = onBack, onChangeSource = onChangeSource) {
-            when (val state = options) {
-                UiState.Loading -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    CircularProgressIndicator()
-                }
-                is UiState.Error -> Message(state.message, onRetry = { attempt++ })
-                is UiState.Success -> if (state.data.isEmpty()) {
-                    Message("No torrents found for this title.", onRetry = { attempt++ })
-                } else {
-                    val shown = remember(state.data, group) { state.data.filter { it.group == group } }
-                    Column(Modifier.fillMaxSize()) {
+            Column(Modifier.fillMaxSize()) {
+                ProviderChips(selected = provider, onSelect = { provider = it })
+                when (val state = options) {
+                    UiState.Loading -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        CircularProgressIndicator()
+                    }
+                    is UiState.Error -> Message(state.message, onRetry = { attempt++ })
+                    is UiState.Success -> if (state.data.isEmpty()) {
+                        Message("No torrents found on ${provider.displayName} for this title.", onRetry = { attempt++ })
+                    } else {
+                        val shown = remember(state.data, group) { state.data.filter { it.group == group } }
                         QualityChips(selected = group, onSelect = { group = it })
                         if (shown.isEmpty()) {
                             Text(
-                                text = "No ${group.label} torrents for this title.",
+                                text = "No ${group.label} torrents on ${provider.displayName} for this title.",
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 textAlign = TextAlign.Center,
@@ -120,6 +124,25 @@ internal fun TorrentPicker(
                     }
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun ProviderChips(selected: TorrentProvider, onSelect: (TorrentProvider) -> Unit) {
+    val rowState = rememberLazyListState()
+    LazyRow(
+        state = rowState,
+        modifier = Modifier.fillMaxWidth().dragToScroll(rowState),
+        contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 8.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
+    ) {
+        items(TorrentProvider.entries) { provider ->
+            FilterChip(
+                selected = provider == selected,
+                onClick = { onSelect(provider) },
+                label = { Text(provider.displayName) },
+            )
         }
     }
 }

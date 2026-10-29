@@ -29,6 +29,7 @@ import dev.dogetime.core.TorrentStream
 import dev.dogetime.core.Torrents
 import dev.dogetime.data.OpenSubtitlesApi
 import dev.dogetime.data.SubdlApi
+import dev.dogetime.data.YtsSubsApi
 import dev.dogetime.domain.WatchTarget
 import dev.dogetime.ui.player.VideoPlayerScreen
 import kotlinx.coroutines.CancellationException
@@ -54,6 +55,7 @@ internal fun MagnetPlayer(
     target: WatchTarget? = null,
     subdl: SubdlApi? = null,
     openSubtitles: OpenSubtitlesApi? = null,
+    ytsSubs: YtsSubsApi? = null,
 ) {
     var torrent by remember { mutableStateOf<TorrentStream?>(null) }
     var progress by remember { mutableStateOf(TorrentProgress()) }
@@ -98,6 +100,7 @@ internal fun MagnetPlayer(
                 target = target,
                 subdl = subdl,
                 openSubtitles = openSubtitles,
+                ytsSubs = ytsSubs,
             )
             message?.let { MessageChip(it, Modifier.align(Alignment.BottomCenter).padding(bottom = 96.dp)) }
         }

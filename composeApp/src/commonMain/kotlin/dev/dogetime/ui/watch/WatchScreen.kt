@@ -14,6 +14,10 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
@@ -43,7 +47,9 @@ import dev.dogetime.core.ExternalPlayer
 import dev.dogetime.core.Torrents
 import dev.dogetime.data.OpenSubtitlesApi
 import dev.dogetime.data.SubdlApi
+import dev.dogetime.data.TorrentProvider
 import dev.dogetime.data.TorrentioApi
+import dev.dogetime.data.YtsSubsApi
 import dev.dogetime.core.WebEngineGate
 import dev.dogetime.domain.VideoSource
 import dev.dogetime.domain.WatchTarget
@@ -66,12 +72,14 @@ fun WatchScreen(
     torrentio: TorrentioApi,
     subdl: SubdlApi? = null,
     openSubtitles: OpenSubtitlesApi? = null,
+    ytsSubs: YtsSubsApi? = null,
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
     backdropUrl: String? = null,
 ) {
     var source by remember(target) { mutableStateOf<VideoSource?>(null) }
     var browsingTorrents by remember(target) { mutableStateOf(false) }
+    var torrentProvider by remember(target) { mutableStateOf(TorrentProvider.Torrentio) }
     var torrent by remember(target) { mutableStateOf<TorrentPick?>(null) }
     val pickedTorrent = torrent
     if (pickedTorrent != null) {
@@ -87,6 +95,7 @@ fun WatchScreen(
                 target = target,
                 subdl = subdl,
                 openSubtitles = openSubtitles,
+                ytsSubs = ytsSubs,
             )
         }
         return
@@ -101,6 +110,7 @@ fun WatchScreen(
             onChangeSource = { browsingTorrents = false },
             onPick = { torrent = TorrentPick(it.magnet, it.fileName, it.fileIndex) },
             modifier = modifier,
+            initialProvider = torrentProvider,
         )
         return
     }
@@ -111,9 +121,12 @@ fun WatchScreen(
             backdropUrl = backdropUrl,
             onBack = onBack,
             onPick = { source = it },
-            // Torrentio looks titles up by IMDb id, which a few TMDB titles don't have.
+            // Torrents look titles up by IMDb id, which a few TMDB titles don't have.
             onPickTorrents = if (Torrents.isSupported && target.imdbId != null) {
-                { browsingTorrents = true }
+                { provider ->
+                    torrentProvider = provider
+                    browsingTorrents = true
+                }
             } else {
                 null
             },
@@ -133,6 +146,7 @@ fun WatchScreen(
             target = target,
             subdl = subdl,
             openSubtitles = openSubtitles,
+            ytsSubs = ytsSubs,
         )
     }
 }
@@ -144,14 +158,17 @@ private fun SourcePicker(
     backdropUrl: String?,
     onBack: () -> Unit,
     onPick: (VideoSource) -> Unit,
-    onPickTorrents: (() -> Unit)?,
+    onPickTorrents: ((TorrentProvider) -> Unit)?,
     modifier: Modifier = Modifier,
 ) {
     Box(modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
         if (backdropUrl != null) BlurredBackdrop(backdropUrl, Modifier.fillMaxSize())
         WatchPage(title = title, pageShown = false, onBack = onBack) {
             Column(
-                modifier = Modifier.fillMaxSize().padding(16.dp),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState())
+                    .padding(16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(12.dp, Alignment.CenterVertically),
             ) {
@@ -164,12 +181,16 @@ private fun SourcePicker(
                         Text(source.label)
                     }
                 }
-                onPickTorrents?.let {
-                    Button(
-                        onClick = it,
-                        modifier = Modifier.widthIn(max = 320.dp).fillMaxWidth(),
-                    ) {
-                        Text("Torrent")
+                if (onPickTorrents != null) {
+                    Spacer(Modifier.height(8.dp))
+                    Text("Torrent providers", style = MaterialTheme.typography.titleSmall)
+                    TorrentProvider.entries.forEach { provider ->
+                        Button(
+                            onClick = { onPickTorrents(provider) },
+                            modifier = Modifier.widthIn(max = 320.dp).fillMaxWidth(),
+                        ) {
+                            Text(provider.displayName)
+                        }
                     }
                 }
             }
@@ -178,9 +199,8 @@ private fun SourcePicker(
 }
 
 /**
- * Plays [url]: the embed page runs hidden behind a loading screen while its player is started,
- * and the stream it requests is played in the app's own player. Where streams can't be captured
- * (iOS), the page itself is shown and plays the video.
+ * Loads [url] hidden in an invisible WebView, looking for the stream URL it requests (e.g. An
+ * .m3u8 playlist or .mp4 file). Once found, hands it to [VideoPlayerScreen] to play directly.
  */
 @Composable
 private fun SourcePlayer(
@@ -193,6 +213,7 @@ private fun SourcePlayer(
     target: WatchTarget? = null,
     subdl: SubdlApi? = null,
     openSubtitles: OpenSubtitlesApi? = null,
+    ytsSubs: YtsSubsApi? = null,
 ) {
     val allowedHost = remember(url) { hostOf(url) }
     val webState = rememberWebViewState(url)
@@ -232,6 +253,7 @@ private fun SourcePlayer(
                 target = target,
                 subdl = subdl,
                 openSubtitles = openSubtitles,
+                ytsSubs = ytsSubs,
             )
             message?.let { MessageChip(it, Modifier.align(Alignment.BottomCenter).padding(bottom = 96.dp)) }
         }

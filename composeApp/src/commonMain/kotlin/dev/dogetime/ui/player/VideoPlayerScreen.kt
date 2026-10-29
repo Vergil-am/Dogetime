@@ -80,6 +80,7 @@ import dev.dogetime.core.CapturedStream
 import dev.dogetime.core.extractAndSaveSubtitle
 import dev.dogetime.data.OpenSubtitlesApi
 import dev.dogetime.data.SubdlApi
+import dev.dogetime.data.YtsSubsApi
 import dev.dogetime.domain.Subtitle
 import dev.dogetime.domain.SubtitleGroup
 import dev.dogetime.domain.WatchTarget
@@ -111,6 +112,7 @@ fun VideoPlayerScreen(
     target: WatchTarget? = null,
     subdl: SubdlApi? = null,
     openSubtitles: OpenSubtitlesApi? = null,
+    ytsSubs: YtsSubsApi? = null,
 ) {
     PlayerSystemUiEffect()
     // "Try again" starts a fresh player.
@@ -126,6 +128,7 @@ fun VideoPlayerScreen(
             target = target,
             subdl = subdl,
             openSubtitles = openSubtitles,
+            ytsSubs = ytsSubs,
         )
     }
 }
@@ -144,6 +147,7 @@ private fun PlayerContent(
     target: WatchTarget? = null,
     subdl: SubdlApi? = null,
     openSubtitles: OpenSubtitlesApi? = null,
+    ytsSubs: YtsSubsApi? = null,
 ) {
     val controller = rememberVideoPlayerController(stream, title)
     val fullscreen = rememberFullscreenController()
@@ -176,8 +180,9 @@ private fun PlayerContent(
     var activeSubtitleLanguage by remember { mutableStateOf<String?>(null) }
     var subdlGroups by remember { mutableStateOf<List<SubtitleGroup>>(emptyList()) }
     var openSubtitlesGroups by remember { mutableStateOf<List<SubtitleGroup>>(emptyList()) }
-    val subtitleGroups = remember(subdlGroups, openSubtitlesGroups) {
-        (subdlGroups + openSubtitlesGroups)
+    var ytsSubsGroups by remember { mutableStateOf<List<SubtitleGroup>>(emptyList()) }
+    val subtitleGroups = remember(subdlGroups, openSubtitlesGroups, ytsSubsGroups) {
+        (subdlGroups + openSubtitlesGroups + ytsSubsGroups)
             .groupBy { it.language }
             .map { (lang, groups) ->
                 SubtitleGroup(
@@ -189,8 +194,10 @@ private fun PlayerContent(
     }
     var isLoadingSubdl by remember { mutableStateOf(false) }
     var isLoadingOpenSubtitles by remember { mutableStateOf(false) }
+    var isLoadingYtsSubs by remember { mutableStateOf(false) }
     var hasSearchedSubdl by remember { mutableStateOf(false) }
     var hasSearchedOpenSubtitles by remember { mutableStateOf(false) }
+    var hasSearchedYtsSubs by remember { mutableStateOf(false) }
     var subtitleError by remember { mutableStateOf<String?>(null) }
     var downloadingSubtitleUrl by remember { mutableStateOf<String?>(null) }
     val scope = rememberCoroutineScope()
@@ -233,12 +240,34 @@ private fun PlayerContent(
         }
     }
 
+    fun onSearchYtsSubs() {
+        if (target is WatchTarget.Movie && ytsSubs != null && target.imdbId != null && !isLoadingYtsSubs) {
+            hasSearchedYtsSubs = true
+            scope.launch {
+                isLoadingYtsSubs = true
+                subtitleError = null
+                try {
+                    ytsSubsGroups = ytsSubs.search(target)
+                } catch (e: CancellationException) {
+                    throw e
+                } catch (e: Exception) {
+                    subtitleError = e.message ?: "Failed to find YTS subtitles."
+                } finally {
+                    isLoadingYtsSubs = false
+                }
+            }
+        }
+    }
+
     fun onPickSubtitle(subtitle: Subtitle) {
-        if (openSubtitles == null && subdl == null) return
+        if (openSubtitles == null && subdl == null && ytsSubs == null) return
         scope.launch {
             downloadingSubtitleUrl = subtitle.downloadUrl
             try {
-                val bytes = if (openSubtitles != null && (subtitle.downloadUrl.toLongOrNull() != null || subdl == null)) {
+                val bytes = if (subtitle.downloadUrl.contains("yts-subs.com")) {
+                    ytsSubs?.download(subtitle.downloadUrl)
+                        ?: throw IllegalStateException("YTS Subs provider not available")
+                } else if (openSubtitles != null && (subtitle.downloadUrl.toLongOrNull() != null || subdl == null)) {
                     openSubtitles.download(subtitle.downloadUrl)
                 } else if (subdl != null) {
                     subdl.download(subtitle.downloadUrl)
@@ -384,15 +413,20 @@ private fun PlayerContent(
                     subtitleGroups = subtitleGroups,
                     subdlGroups = subdlGroups,
                     openSubtitlesGroups = openSubtitlesGroups,
+                    ytsSubsGroups = ytsSubsGroups,
                     isLoadingSubdl = isLoadingSubdl,
                     isLoadingOpenSubtitles = isLoadingOpenSubtitles,
+                    isLoadingYtsSubs = isLoadingYtsSubs,
                     hasSearchedSubdl = hasSearchedSubdl,
                     hasSearchedOpenSubtitles = hasSearchedOpenSubtitles,
+                    hasSearchedYtsSubs = hasSearchedYtsSubs,
                     canSearchSubdl = target != null && subdl != null,
                     canSearchOpenSubtitles = target != null && openSubtitles != null,
+                    canSearchYtsSubs = target is WatchTarget.Movie && ytsSubs != null && target.imdbId != null,
                     downloadingSubtitleUrl = downloadingSubtitleUrl,
                     onSearchSubdl = ::onSearchSubdl,
                     onSearchOpenSubtitles = ::onSearchOpenSubtitles,
+                    onSearchYtsSubs = ::onSearchYtsSubs,
                     onPickSubtitle = ::onPickSubtitle,
                     onTurnOffSubtitles = ::onTurnOffSubtitles,
                     onMenuOpenChange = { menuOpen = it; showControls() },
@@ -480,15 +514,20 @@ private fun TopBar(
     subtitleGroups: List<SubtitleGroup>,
     subdlGroups: List<SubtitleGroup>,
     openSubtitlesGroups: List<SubtitleGroup>,
+    ytsSubsGroups: List<SubtitleGroup>,
     isLoadingSubdl: Boolean,
     isLoadingOpenSubtitles: Boolean,
+    isLoadingYtsSubs: Boolean,
     hasSearchedSubdl: Boolean,
     hasSearchedOpenSubtitles: Boolean,
+    hasSearchedYtsSubs: Boolean,
     canSearchSubdl: Boolean,
     canSearchOpenSubtitles: Boolean,
+    canSearchYtsSubs: Boolean,
     downloadingSubtitleUrl: String?,
     onSearchSubdl: () -> Unit,
     onSearchOpenSubtitles: () -> Unit,
+    onSearchYtsSubs: () -> Unit,
     onPickSubtitle: (Subtitle) -> Unit,
     onTurnOffSubtitles: () -> Unit,
     onMenuOpenChange: (Boolean) -> Unit,
@@ -525,8 +564,8 @@ private fun TopBar(
             )
         }
         val hasSubs = controller.subtitleTracks.isNotEmpty() ||
-            canSearchSubdl || canSearchOpenSubtitles ||
-            subtitleGroups.isNotEmpty() || isLoadingSubdl || isLoadingOpenSubtitles
+            canSearchSubdl || canSearchOpenSubtitles || canSearchYtsSubs ||
+            subtitleGroups.isNotEmpty() || isLoadingSubdl || isLoadingOpenSubtitles || isLoadingYtsSubs
         if (hasSubs) {
             SubtitlesMenu(
                 controller = controller,
@@ -534,15 +573,20 @@ private fun TopBar(
                 subtitleGroups = subtitleGroups,
                 subdlGroups = subdlGroups,
                 openSubtitlesGroups = openSubtitlesGroups,
+                ytsSubsGroups = ytsSubsGroups,
                 isLoadingSubdl = isLoadingSubdl,
                 isLoadingOpenSubtitles = isLoadingOpenSubtitles,
+                isLoadingYtsSubs = isLoadingYtsSubs,
                 hasSearchedSubdl = hasSearchedSubdl,
                 hasSearchedOpenSubtitles = hasSearchedOpenSubtitles,
+                hasSearchedYtsSubs = hasSearchedYtsSubs,
                 canSearchSubdl = canSearchSubdl,
                 canSearchOpenSubtitles = canSearchOpenSubtitles,
+                canSearchYtsSubs = canSearchYtsSubs,
                 downloadingSubtitleUrl = downloadingSubtitleUrl,
                 onSearchSubdl = onSearchSubdl,
                 onSearchOpenSubtitles = onSearchOpenSubtitles,
+                onSearchYtsSubs = onSearchYtsSubs,
                 onPickSubtitle = onPickSubtitle,
                 onTurnOffSubtitles = onTurnOffSubtitles,
                 onOpenChange = onMenuOpenChange,
@@ -570,15 +614,20 @@ private fun SubtitlesMenu(
     subtitleGroups: List<SubtitleGroup>,
     subdlGroups: List<SubtitleGroup>,
     openSubtitlesGroups: List<SubtitleGroup>,
+    ytsSubsGroups: List<SubtitleGroup>,
     isLoadingSubdl: Boolean,
     isLoadingOpenSubtitles: Boolean,
+    isLoadingYtsSubs: Boolean,
     hasSearchedSubdl: Boolean,
     hasSearchedOpenSubtitles: Boolean,
+    hasSearchedYtsSubs: Boolean,
     canSearchSubdl: Boolean,
     canSearchOpenSubtitles: Boolean,
+    canSearchYtsSubs: Boolean,
     downloadingSubtitleUrl: String?,
     onSearchSubdl: () -> Unit,
     onSearchOpenSubtitles: () -> Unit,
+    onSearchYtsSubs: () -> Unit,
     onPickSubtitle: (Subtitle) -> Unit,
     onTurnOffSubtitles: () -> Unit,
     onOpenChange: (Boolean) -> Unit,
@@ -695,6 +744,51 @@ private fun SubtitlesMenu(
                             },
                         )
                     }
+                }
+
+                // YTS Subs search action / status
+                if (!hasSearchedYtsSubs && canSearchYtsSubs) {
+                    HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
+                    DropdownMenuItem(
+                        text = {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            ) {
+                                Icon(PlayerIcons.Subtitles, contentDescription = null, modifier = Modifier.size(18.dp))
+                                Text("Search YTS Subs", fontWeight = FontWeight.SemiBold)
+                            }
+                        },
+                        onClick = onSearchYtsSubs,
+                    )
+                } else if (isLoadingYtsSubs) {
+                    HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
+                    DropdownMenuItem(
+                        text = {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(10.dp),
+                            ) {
+                                CircularProgressIndicator(modifier = Modifier.size(16.dp), strokeWidth = 2.dp)
+                                Text("Searching YTS Subs...", style = MaterialTheme.typography.bodyMedium)
+                            }
+                        },
+                        enabled = false,
+                        onClick = {},
+                    )
+                } else if (hasSearchedYtsSubs && ytsSubsGroups.isEmpty()) {
+                    HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
+                    DropdownMenuItem(
+                        text = {
+                            Text(
+                                text = "No YTS subtitles found",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                        },
+                        enabled = false,
+                        onClick = {},
+                    )
                 }
 
                 // SubDL search action / status
