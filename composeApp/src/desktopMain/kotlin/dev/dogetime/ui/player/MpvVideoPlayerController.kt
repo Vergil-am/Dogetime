@@ -113,6 +113,8 @@ internal class MpvVideoPlayerController(stream: CapturedStream, title: String) :
         option("ytdl", "no")
         option("force-media-title", title)
         option("log-file", PlayerLog.mpvLogFile.absolutePath)
+        option("sub-visibility", "yes")
+        option("sub-auto", "fuzzy")
         stream.headers["Referer"]?.let { option("referrer", it) }
         stream.headers["User-Agent"]?.let { option("user-agent", it) }
         check(lib, lib.mpv_initialize(h), "start mpv")
@@ -206,10 +208,25 @@ internal class MpvVideoPlayerController(stream: CapturedStream, title: String) :
     override fun selectSubtitleTrack(track: SubtitleTrack?) {
         if (track == null) {
             command("set", "sid", "no")
+            command("set", "sub-visibility", "no")
         } else {
             command("set", "sid", track.id.toString())
+            command("set", "sub-visibility", "yes")
         }
         selectedSubtitleTrack = track
+    }
+
+    override fun addExternalSubtitle(path: String, title: String, language: String?) {
+        // sub-add <url> [<flags> [<title> [<lang>]]]
+        val args = mutableListOf("sub-add", path, "select", title)
+        language?.let { args += it }
+        command(*args.toTypedArray())
+        command("set", "sub-visibility", "yes")
+        val lib = mpv
+        val h = handle
+        if (lib != null && h != null) {
+            updateTracks(lib, h)
+        }
     }
 
     private fun getPropertyString(lib: MpvLibrary, h: Pointer, name: String): String? {

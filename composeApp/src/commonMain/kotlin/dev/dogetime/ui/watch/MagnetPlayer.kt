@@ -27,6 +27,8 @@ import dev.dogetime.core.ExternalPlayer
 import dev.dogetime.core.TorrentProgress
 import dev.dogetime.core.TorrentStream
 import dev.dogetime.core.Torrents
+import dev.dogetime.data.SubdlApi
+import dev.dogetime.domain.WatchTarget
 import dev.dogetime.ui.player.VideoPlayerScreen
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.delay
@@ -48,6 +50,8 @@ internal fun MagnetPlayer(
     onChangeSource: () -> Unit,
     modifier: Modifier = Modifier,
     backdropUrl: String? = null,
+    target: WatchTarget? = null,
+    subdl: SubdlApi? = null,
 ) {
     var torrent by remember { mutableStateOf<TorrentStream?>(null) }
     var progress by remember { mutableStateOf(TorrentProgress()) }
@@ -89,6 +93,8 @@ internal fun MagnetPlayer(
                 onOpenExternal = ExternalPlayer.name?.let {
                     { message = ExternalPlayer.play(opened.stream, title) ?: "Opening in $it…" }
                 },
+                target = target,
+                subdl = subdl,
             )
             message?.let { MessageChip(it, Modifier.align(Alignment.BottomCenter).padding(bottom = 96.dp)) }
         }

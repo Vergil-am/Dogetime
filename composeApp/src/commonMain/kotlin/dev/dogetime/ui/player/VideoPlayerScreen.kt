@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
@@ -32,6 +33,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -45,6 +47,7 @@ import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -74,7 +77,14 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import dev.dogetime.core.CapturedStream
+import dev.dogetime.core.extractAndSaveSubtitle
+import dev.dogetime.data.SubdlApi
+import dev.dogetime.domain.Subtitle
+import dev.dogetime.domain.SubtitleGroup
+import dev.dogetime.domain.WatchTarget
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 private const val CONTROLS_HIDE_DELAY_MS = 3_500L
 private const val FEEDBACK_DURATION_MS = 700L
@@ -97,6 +107,8 @@ fun VideoPlayerScreen(
     onBack: () -> Unit,
     onOpenExternal: (() -> Unit)?,
     modifier: Modifier = Modifier,
+    target: WatchTarget? = null,
+    subdl: SubdlApi? = null,
 ) {
     PlayerSystemUiEffect()
     // "Try again" starts a fresh player.
@@ -109,6 +121,8 @@ fun VideoPlayerScreen(
             onOpenExternal = onOpenExternal,
             onRetry = { attempt++ },
             modifier = modifier,
+            target = target,
+            subdl = subdl,
         )
     }
 }
@@ -124,6 +138,8 @@ private fun PlayerContent(
     onOpenExternal: (() -> Unit)?,
     onRetry: () -> Unit,
     modifier: Modifier,
+    target: WatchTarget? = null,
+    subdl: SubdlApi? = null,
 ) {
     val controller = rememberVideoPlayerController(stream, title)
     val fullscreen = rememberFullscreenController()
@@ -151,6 +167,62 @@ private fun PlayerContent(
             delay(FEEDBACK_DURATION_MS)
             feedback = null
         }
+    }
+
+    var activeSubtitleLanguage by remember { mutableStateOf<String?>(null) }
+    var subtitleGroups by remember { mutableStateOf<List<SubtitleGroup>>(emptyList()) }
+    var isLoadingSubtitles by remember { mutableStateOf(false) }
+    var hasSearchedSubdl by remember { mutableStateOf(false) }
+    var subtitleError by remember { mutableStateOf<String?>(null) }
+    var downloadingSubtitleUrl by remember { mutableStateOf<String?>(null) }
+    val scope = rememberCoroutineScope()
+
+    fun onSearchSubdl() {
+        if (target != null && subdl != null && !isLoadingSubtitles) {
+            hasSearchedSubdl = true
+            scope.launch {
+                isLoadingSubtitles = true
+                subtitleError = null
+                try {
+                    subtitleGroups = subdl.search(target)
+                } catch (e: CancellationException) {
+                    throw e
+                } catch (e: Exception) {
+                    subtitleError = e.message ?: "Failed to find subtitles."
+                } finally {
+                    isLoadingSubtitles = false
+                }
+            }
+        }
+    }
+
+    fun onPickSubtitle(subtitle: Subtitle) {
+        if (subdl == null) return
+        scope.launch {
+            downloadingSubtitleUrl = subtitle.downloadUrl
+            try {
+                val bytes = subdl.download(subtitle.downloadUrl)
+                val path = extractAndSaveSubtitle(bytes, subtitle.releaseName)
+                if (path != null) {
+                    controller.addExternalSubtitle(path, subtitle.language, subtitle.language)
+                    activeSubtitleLanguage = subtitle.language
+                    feedback = Feedback(subtitle.language, Alignment.Center, (feedback?.id ?: 0) + 1)
+                } else {
+                    subtitleError = "Could not extract subtitle file."
+                }
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                subtitleError = e.message ?: "Failed to download subtitle."
+            } finally {
+                downloadingSubtitleUrl = null
+            }
+        }
+    }
+
+    fun onTurnOffSubtitles() {
+        controller.selectSubtitleTrack(null)
+        activeSubtitleLanguage = null
     }
     fun seekWithFeedback(deltaMs: Long) {
         val previous = feedback
@@ -265,6 +337,15 @@ private fun PlayerContent(
                 TopBar(
                     title = title,
                     controller = controller,
+                    activeLanguage = activeSubtitleLanguage,
+                    subtitleGroups = subtitleGroups,
+                    isLoadingSubtitles = isLoadingSubtitles,
+                    hasSearchedSubdl = hasSearchedSubdl,
+                    canSearchSubdl = target != null && subdl != null,
+                    downloadingSubtitleUrl = downloadingSubtitleUrl,
+                    onSearchSubdl = ::onSearchSubdl,
+                    onPickSubtitle = ::onPickSubtitle,
+                    onTurnOffSubtitles = ::onTurnOffSubtitles,
                     onMenuOpenChange = { menuOpen = it; showControls() },
                     onBack = onBack,
                     onOpenExternal = onOpenExternal?.let { open -> { controller.pause(); open() } },
@@ -346,6 +427,15 @@ private fun handleKey(
 private fun TopBar(
     title: String,
     controller: VideoPlayerController,
+    activeLanguage: String?,
+    subtitleGroups: List<SubtitleGroup>,
+    isLoadingSubtitles: Boolean,
+    hasSearchedSubdl: Boolean,
+    canSearchSubdl: Boolean,
+    downloadingSubtitleUrl: String?,
+    onSearchSubdl: () -> Unit,
+    onPickSubtitle: (Subtitle) -> Unit,
+    onTurnOffSubtitles: () -> Unit,
     onMenuOpenChange: (Boolean) -> Unit,
     onBack: () -> Unit,
     onOpenExternal: (() -> Unit)?,
@@ -379,15 +469,19 @@ private fun TopBar(
                 onOpenChange = onMenuOpenChange,
             )
         }
-        if (controller.subtitleTracks.isNotEmpty()) {
-            val selected = controller.selectedSubtitleTrack
-            PillMenu(
-                icon = PlayerIcons.Subtitles,
-                label = selected?.label ?: "Subtitles Off",
-                options = listOf<SubtitleTrack?>(null) + controller.subtitleTracks,
-                optionLabel = { it?.label ?: "Off" },
-                isSelected = { it == selected },
-                onSelect = controller::selectSubtitleTrack,
+        val hasSubs = controller.subtitleTracks.isNotEmpty() || canSearchSubdl || subtitleGroups.isNotEmpty() || isLoadingSubtitles
+        if (hasSubs) {
+            SubtitlesMenu(
+                controller = controller,
+                activeLanguage = activeLanguage,
+                subtitleGroups = subtitleGroups,
+                isLoadingSubtitles = isLoadingSubtitles,
+                hasSearchedSubdl = hasSearchedSubdl,
+                canSearchSubdl = canSearchSubdl,
+                downloadingSubtitleUrl = downloadingSubtitleUrl,
+                onSearchSubdl = onSearchSubdl,
+                onPickSubtitle = onPickSubtitle,
+                onTurnOffSubtitles = onTurnOffSubtitles,
                 onOpenChange = onMenuOpenChange,
             )
         }
@@ -402,6 +496,254 @@ private fun TopBar(
         )
         if (onOpenExternal != null) {
             PlayerIconButton(PlayerIcons.OpenExternal, "Open in another player", onClick = onOpenExternal)
+        }
+    }
+}
+
+@Composable
+private fun SubtitlesMenu(
+    controller: VideoPlayerController,
+    activeLanguage: String?,
+    subtitleGroups: List<SubtitleGroup>,
+    isLoadingSubtitles: Boolean,
+    hasSearchedSubdl: Boolean,
+    canSearchSubdl: Boolean,
+    downloadingSubtitleUrl: String?,
+    onSearchSubdl: () -> Unit,
+    onPickSubtitle: (Subtitle) -> Unit,
+    onTurnOffSubtitles: () -> Unit,
+    onOpenChange: (Boolean) -> Unit,
+) {
+    var open by remember { mutableStateOf(false) }
+    var selectedLanguageGroup by remember { mutableStateOf<SubtitleGroup?>(null) }
+
+    fun setOpen(value: Boolean) {
+        open = value
+        if (!value) {
+            selectedLanguageGroup = null
+        }
+        onOpenChange(value)
+    }
+
+    val selectedTrack = controller.selectedSubtitleTrack
+    // Show only the language on top, never the full subtitle release name
+    val topLabel = when {
+        selectedTrack == null -> "Subtitles Off"
+        !activeLanguage.isNullOrBlank() -> activeLanguage
+        !selectedTrack.language.isNullOrBlank() -> selectedTrack.language
+        else -> "Subtitles On"
+    }
+
+    Box {
+        Pill(onClick = { setOpen(true) }) {
+            Icon(PlayerIcons.Subtitles, contentDescription = "Subtitles", tint = ControlTint, modifier = Modifier.size(16.dp))
+            Text(topLabel, color = ControlTint, style = MaterialTheme.typography.labelLarge)
+        }
+
+        DropdownMenu(
+            expanded = open,
+            onDismissRequest = { setOpen(false) },
+            modifier = Modifier.widthIn(min = 220.dp, max = 340.dp).heightIn(max = 380.dp),
+        ) {
+            val currentGroup = selectedLanguageGroup
+            if (currentGroup == null) {
+                // Top-level menu: shows "Off", then available stream tracks
+                DropdownMenuItem(
+                    text = {
+                        Text(
+                            text = "Off",
+                            fontWeight = if (selectedTrack == null) FontWeight.Bold else FontWeight.Normal,
+                            color = if (selectedTrack == null) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
+                        )
+                    },
+                    onClick = {
+                        onTurnOffSubtitles()
+                        setOpen(false)
+                    },
+                )
+
+                // Available track subtitles (embedded in the media/stream)
+                val otherTracks = controller.subtitleTracks.filter { track ->
+                    subtitleGroups.none { group -> group.language.equals(track.language, ignoreCase = true) }
+                }
+                if (otherTracks.isNotEmpty()) {
+                    HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
+                    otherTracks.forEach { track ->
+                        val isTrackSelected = track == selectedTrack
+                        val trackLabel = track.language?.takeIf { it.isNotBlank() } ?: track.label
+                        DropdownMenuItem(
+                            text = {
+                                Text(
+                                    text = trackLabel,
+                                    fontWeight = if (isTrackSelected) FontWeight.Bold else FontWeight.Normal,
+                                    color = if (isTrackSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
+                                )
+                            },
+                            onClick = {
+                                controller.selectSubtitleTrack(track)
+                                setOpen(false)
+                            },
+                        )
+                    }
+                }
+
+                // If SubDL has NOT been searched yet: display option to search SubDL below available tracks
+                if (!hasSearchedSubdl && canSearchSubdl) {
+                    HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
+                    DropdownMenuItem(
+                        text = {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            ) {
+                                Icon(PlayerIcons.Subtitles, contentDescription = null, modifier = Modifier.size(18.dp))
+                                Text("Search SubDL", fontWeight = FontWeight.SemiBold)
+                            }
+                        },
+                        onClick = {
+                            onSearchSubdl()
+                        },
+                    )
+                } else if (hasSearchedSubdl) {
+                    // SubDL has been searched: give the exact same language menu
+                    if (isLoadingSubtitles) {
+                        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
+                        DropdownMenuItem(
+                            text = {
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(10.dp),
+                                ) {
+                                    CircularProgressIndicator(modifier = Modifier.size(16.dp), strokeWidth = 2.dp)
+                                    Text("Searching SubDL...", style = MaterialTheme.typography.bodyMedium)
+                                }
+                            },
+                            enabled = false,
+                            onClick = {},
+                        )
+                    } else if (subtitleGroups.isNotEmpty()) {
+                        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
+                        subtitleGroups.forEach { group ->
+                            val isLangActive = activeLanguage.equals(group.language, ignoreCase = true)
+                            DropdownMenuItem(
+                                text = {
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalArrangement = Arrangement.SpaceBetween,
+                                        verticalAlignment = Alignment.CenterVertically,
+                                    ) {
+                                        Text(
+                                            text = group.language,
+                                            fontWeight = if (isLangActive) FontWeight.Bold else FontWeight.Normal,
+                                            color = if (isLangActive) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
+                                        )
+                                        Row(
+                                            verticalAlignment = Alignment.CenterVertically,
+                                            horizontalArrangement = Arrangement.spacedBy(6.dp),
+                                        ) {
+                                            Text(
+                                                text = "${group.subtitles.size}",
+                                                style = MaterialTheme.typography.labelSmall,
+                                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                            )
+                                            Text(
+                                                text = "›",
+                                                style = MaterialTheme.typography.titleMedium,
+                                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                            )
+                                        }
+                                    }
+                                },
+                                onClick = {
+                                    selectedLanguageGroup = group
+                                },
+                            )
+                        }
+                    } else {
+                        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
+                        DropdownMenuItem(
+                            text = {
+                                Text(
+                                    text = "No SubDL subtitles found",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                )
+                            },
+                            enabled = false,
+                            onClick = {},
+                        )
+                    }
+                }
+            } else {
+                // Submenu: shows the subtitles for the chosen language
+                DropdownMenuItem(
+                    text = {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        ) {
+                            Icon(PlayerIcons.Back, contentDescription = "Back", modifier = Modifier.size(16.dp))
+                            Text(
+                                text = currentGroup.language,
+                                style = MaterialTheme.typography.titleSmall,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.primary,
+                            )
+                        }
+                    },
+                    onClick = {
+                        selectedLanguageGroup = null
+                    },
+                )
+                HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
+
+                currentGroup.subtitles.forEach { subtitle ->
+                    val isDownloading = subtitle.downloadUrl == downloadingSubtitleUrl
+                    DropdownMenuItem(
+                        text = {
+                            Column(modifier = Modifier.fillMaxWidth().padding(vertical = 2.dp)) {
+                                Text(
+                                    text = subtitle.releaseName,
+                                    style = MaterialTheme.typography.bodySmall,
+                                    maxLines = 2,
+                                    overflow = TextOverflow.Ellipsis,
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                )
+                                Row(
+                                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                ) {
+                                    if (subtitle.author.isNotBlank()) {
+                                        Text(
+                                            text = subtitle.author,
+                                            style = MaterialTheme.typography.labelSmall,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        )
+                                    }
+                                    if (subtitle.hearingImpaired) {
+                                        Text(
+                                            text = "HI",
+                                            style = MaterialTheme.typography.labelSmall,
+                                            fontWeight = FontWeight.Bold,
+                                            color = Color(0xFFFFA726),
+                                        )
+                                    }
+                                }
+                            }
+                        },
+                        trailingIcon = {
+                            if (isDownloading) {
+                                CircularProgressIndicator(modifier = Modifier.size(16.dp), strokeWidth = 2.dp)
+                            }
+                        },
+                        enabled = !isDownloading,
+                        onClick = {
+                            onPickSubtitle(subtitle)
+                            setOpen(false)
+                        },
+                    )
+                }
+            }
         }
     }
 }

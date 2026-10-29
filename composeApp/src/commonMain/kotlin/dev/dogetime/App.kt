@@ -210,6 +210,7 @@ fun App() {
                             target = current.target,
                             title = current.title,
                             torrentio = container.torrentio,
+                            subdl = container.subdl,
                             backdropUrl = current.backdropUrl,
                             onBack = { navigator.back() },
                             modifier = modifier,

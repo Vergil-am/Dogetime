@@ -118,6 +118,13 @@ abstract class VideoPlayerController {
         selectedSubtitleTrack = track
     }
 
+    /**
+     * Loads an external subtitle file (e.g. .srt) from [path] on disk, adds it to the track list,
+     * and selects it. The default does nothing; platform players that support side-loaded subs
+     * override this.
+     */
+    open fun addExternalSubtitle(path: String, title: String, language: String? = null) {}
+
     fun togglePlay() = if (isPlaying && !isEnded) pause() else play()
 
     fun seekBy(deltaMs: Long) {

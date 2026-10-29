@@ -225,11 +225,23 @@ internal class MpvAndroidPlayerController(
         try {
             if (track == null) {
                 mpv.command("set", "sid", "no")
+                mpv.command("set", "sub-visibility", "no")
             } else {
                 mpv.command("set", "sid", track.id.toString())
                 mpv.command("set", "sub-visibility", "yes")
             }
             selectedSubtitleTrack = track
+        } catch (_: Exception) {}
+    }
+
+    override fun addExternalSubtitle(path: String, title: String, language: String?) {
+        try {
+            // sub-add <url> [<flags> [<title> [<lang>]]]
+            val args = mutableListOf("sub-add", path, "select", title)
+            language?.let { args += it }
+            mpv.command(*args.toTypedArray())
+            mpv.command("set", "sub-visibility", "yes")
+            updateTracks()
         } catch (_: Exception) {}
     }
 

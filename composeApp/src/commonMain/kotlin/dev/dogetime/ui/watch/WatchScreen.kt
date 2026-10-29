@@ -41,6 +41,7 @@ import com.multiplatform.webview.web.rememberWebViewState
 import dev.dogetime.core.CapturedStream
 import dev.dogetime.core.ExternalPlayer
 import dev.dogetime.core.Torrents
+import dev.dogetime.data.SubdlApi
 import dev.dogetime.data.TorrentioApi
 import dev.dogetime.core.WebEngineGate
 import dev.dogetime.domain.VideoSource
@@ -62,6 +63,7 @@ fun WatchScreen(
     target: WatchTarget,
     title: String,
     torrentio: TorrentioApi,
+    subdl: SubdlApi? = null,
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
     backdropUrl: String? = null,
@@ -80,6 +82,8 @@ fun WatchScreen(
                 onChangeSource = { torrent = null },
                 modifier = modifier,
                 backdropUrl = backdropUrl,
+                target = target,
+                subdl = subdl,
             )
         }
         return
@@ -123,6 +127,8 @@ fun WatchScreen(
             onChangeSource = { source = null },
             modifier = modifier,
             backdropUrl = backdropUrl,
+            target = target,
+            subdl = subdl,
         )
     }
 }
@@ -180,6 +186,8 @@ private fun SourcePlayer(
     onChangeSource: () -> Unit,
     modifier: Modifier = Modifier,
     backdropUrl: String? = null,
+    target: WatchTarget? = null,
+    subdl: SubdlApi? = null,
 ) {
     val allowedHost = remember(url) { hostOf(url) }
     val webState = rememberWebViewState(url)
@@ -216,6 +224,8 @@ private fun SourcePlayer(
                 onOpenExternal = ExternalPlayer.name?.let {
                     { message = ExternalPlayer.play(found, title) ?: "Opening in $it…" }
                 },
+                target = target,
+                subdl = subdl,
             )
             message?.let { MessageChip(it, Modifier.align(Alignment.BottomCenter).padding(bottom = 96.dp)) }
         }
