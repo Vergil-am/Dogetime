@@ -41,6 +41,7 @@ import com.multiplatform.webview.web.rememberWebViewState
 import dev.dogetime.core.CapturedStream
 import dev.dogetime.core.ExternalPlayer
 import dev.dogetime.core.Torrents
+import dev.dogetime.data.OpenSubtitlesApi
 import dev.dogetime.data.SubdlApi
 import dev.dogetime.data.TorrentioApi
 import dev.dogetime.core.WebEngineGate
@@ -64,6 +65,7 @@ fun WatchScreen(
     title: String,
     torrentio: TorrentioApi,
     subdl: SubdlApi? = null,
+    openSubtitles: OpenSubtitlesApi? = null,
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
     backdropUrl: String? = null,
@@ -84,6 +86,7 @@ fun WatchScreen(
                 backdropUrl = backdropUrl,
                 target = target,
                 subdl = subdl,
+                openSubtitles = openSubtitles,
             )
         }
         return
@@ -129,6 +132,7 @@ fun WatchScreen(
             backdropUrl = backdropUrl,
             target = target,
             subdl = subdl,
+            openSubtitles = openSubtitles,
         )
     }
 }
@@ -188,6 +192,7 @@ private fun SourcePlayer(
     backdropUrl: String? = null,
     target: WatchTarget? = null,
     subdl: SubdlApi? = null,
+    openSubtitles: OpenSubtitlesApi? = null,
 ) {
     val allowedHost = remember(url) { hostOf(url) }
     val webState = rememberWebViewState(url)
@@ -226,6 +231,7 @@ private fun SourcePlayer(
                 },
                 target = target,
                 subdl = subdl,
+                openSubtitles = openSubtitles,
             )
             message?.let { MessageChip(it, Modifier.align(Alignment.BottomCenter).padding(bottom = 96.dp)) }
         }

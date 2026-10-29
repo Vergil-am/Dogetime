@@ -2,8 +2,9 @@ package dev.dogetime.di
 
 import dev.dogetime.data.FavoritesRepository
 import dev.dogetime.data.MediaRepository
-import dev.dogetime.data.TmdbApi
+import dev.dogetime.data.OpenSubtitlesApi
 import dev.dogetime.data.SubdlApi
+import dev.dogetime.data.TmdbApi
 import dev.dogetime.data.TorrentioApi
 import dev.dogetime.data.createHttpClient
 import dev.dogetime.data.local.createDatabase
@@ -14,5 +15,6 @@ class AppContainer {
     val repository: MediaRepository = MediaRepository(TmdbApi(httpClient))
     val torrentio: TorrentioApi = TorrentioApi(httpClient)
     val subdl: SubdlApi = SubdlApi(httpClient)
+    val openSubtitles: OpenSubtitlesApi = OpenSubtitlesApi(httpClient)
     val favorites: FavoritesRepository = FavoritesRepository(createDatabase().favoriteDao())
 }

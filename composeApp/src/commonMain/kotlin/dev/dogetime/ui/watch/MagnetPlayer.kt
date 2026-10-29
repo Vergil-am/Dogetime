@@ -27,6 +27,7 @@ import dev.dogetime.core.ExternalPlayer
 import dev.dogetime.core.TorrentProgress
 import dev.dogetime.core.TorrentStream
 import dev.dogetime.core.Torrents
+import dev.dogetime.data.OpenSubtitlesApi
 import dev.dogetime.data.SubdlApi
 import dev.dogetime.domain.WatchTarget
 import dev.dogetime.ui.player.VideoPlayerScreen
@@ -52,6 +53,7 @@ internal fun MagnetPlayer(
     backdropUrl: String? = null,
     target: WatchTarget? = null,
     subdl: SubdlApi? = null,
+    openSubtitles: OpenSubtitlesApi? = null,
 ) {
     var torrent by remember { mutableStateOf<TorrentStream?>(null) }
     var progress by remember { mutableStateOf(TorrentProgress()) }
@@ -95,6 +97,7 @@ internal fun MagnetPlayer(
                 },
                 target = target,
                 subdl = subdl,
+                openSubtitles = openSubtitles,
             )
             message?.let { MessageChip(it, Modifier.align(Alignment.BottomCenter).padding(bottom = 96.dp)) }
         }
