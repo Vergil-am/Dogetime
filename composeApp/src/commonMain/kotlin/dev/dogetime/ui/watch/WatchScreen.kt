@@ -118,11 +118,12 @@ fun WatchScreen(
     if (chosen == null) {
         SourcePicker(
             title = title,
+            target = target,
             backdropUrl = backdropUrl,
             onBack = onBack,
             onPick = { source = it },
-            // Torrents look titles up by IMDb id, which a few TMDB titles don't have.
-            onPickTorrents = if (Torrents.isSupported && target.imdbId != null) {
+            // Torrents look titles up by IMDb id or Kitsu id.
+            onPickTorrents = if (Torrents.isSupported && (target.imdbId != null || target.kitsuId != null)) {
                 { provider ->
                     torrentProvider = provider
                     browsingTorrents = true
@@ -155,6 +156,7 @@ fun WatchScreen(
 @Composable
 private fun SourcePicker(
     title: String,
+    target: WatchTarget,
     backdropUrl: String?,
     onBack: () -> Unit,
     onPick: (VideoSource) -> Unit,
@@ -172,18 +174,25 @@ private fun SourcePicker(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(12.dp, Alignment.CenterVertically),
             ) {
-                Text("Choose a source", style = MaterialTheme.typography.titleMedium)
-                VideoSource.entries.forEach { source ->
-                    Button(
-                        onClick = { onPick(source) },
-                        modifier = Modifier.widthIn(max = 320.dp).fillMaxWidth(),
-                    ) {
-                        Text(source.label)
+                if (target.kitsuId == null) {
+                    Text("Choose a source", style = MaterialTheme.typography.titleMedium)
+                    VideoSource.entries.forEach { source ->
+                        Button(
+                            onClick = { onPick(source) },
+                            modifier = Modifier.widthIn(max = 320.dp).fillMaxWidth(),
+                        ) {
+                            Text(source.label)
+                        }
                     }
                 }
                 if (onPickTorrents != null) {
-                    Spacer(Modifier.height(8.dp))
-                    Text("Torrent providers", style = MaterialTheme.typography.titleSmall)
+                    if (target.kitsuId == null) {
+                        Spacer(Modifier.height(8.dp))
+                    }
+                    Text(
+                        if (target.kitsuId != null) "Choose a torrent provider" else "Torrent providers",
+                        style = MaterialTheme.typography.titleMedium,
+                    )
                     TorrentProvider.entries.forEach { provider ->
                         Button(
                             onClick = { onPickTorrents(provider) },

@@ -22,6 +22,8 @@ data class HomeContent(
     val popularTv: List<MediaItem>,
     val trendingMovies: List<MediaItem>,
     val trendingTv: List<MediaItem>,
+    val trendingAnime: List<MediaItem>,
+    val popularAnime: List<MediaItem>,
 )
 
 class HomeViewModel(
@@ -49,11 +51,15 @@ class HomeViewModel(
                     val popularTv = async { repository.browse(MediaType.Tv, popularCategory, 1).items }
                     val trendingMovies = async { repository.trending(MediaType.Movie) }
                     val trendingTv = async { repository.trending(MediaType.Tv) }
+                    val trendingAnime = async { repository.trending(MediaType.Anime) }
+                    val popularAnime = async { repository.browse(MediaType.Anime, popularCategory, 1).items }
                     HomeContent(
                         popularMovies = popularMovies.await(),
                         popularTv = popularTv.await(),
                         trendingMovies = trendingMovies.await(),
                         trendingTv = trendingTv.await(),
+                        trendingAnime = trendingAnime.await(),
+                        popularAnime = popularAnime.await(),
                     )
                 }
             }

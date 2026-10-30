@@ -42,11 +42,19 @@ class SearchViewModel(private val repository: MediaRepository) : ViewModel() {
         job = scope.launch {
             delay(SEARCH_DEBOUNCE_MS)
             _state.update { it.copy(isLoading = true, error = null) }
-            val result = runForUiState { repository.search(trimmed, page = 1) }
+            val result = runForUiState {
+                val tmdb = repository.search(trimmed, page = 1).items
+                val anime = try {
+                    repository.searchAnime(trimmed, page = 1, pageSize = 10).items
+                } catch (_: Exception) {
+                    emptyList()
+                }
+                tmdb + anime
+            }
             _state.update { state ->
                 when (result) {
                     is UiState.Success -> state.copy(
-                        results = result.data.items,
+                        results = result.data,
                         isLoading = false,
                         hasSearched = true,
                     )

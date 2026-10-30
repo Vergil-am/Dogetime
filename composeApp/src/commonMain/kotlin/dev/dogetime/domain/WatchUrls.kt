@@ -6,15 +6,30 @@ package dev.dogetime.domain
  */
 sealed interface WatchTarget {
     val imdbId: String?
+    val kitsuId: Int?
+        get() = null
 
-    data class Movie(val id: Int, override val imdbId: String? = null) : WatchTarget
-    data class Episode(val showId: Int, val season: Int, val episode: Int, override val imdbId: String? = null) : WatchTarget
+    data class Movie(
+        val id: Int,
+        override val imdbId: String? = null,
+        override val kitsuId: Int? = null,
+    ) : WatchTarget
+
+    data class Episode(
+        val showId: Int,
+        val season: Int,
+        val episode: Int,
+        override val imdbId: String? = null,
+        override val kitsuId: Int? = null,
+    ) : WatchTarget
 }
 
-fun WatchTarget.withImdbId(imdbId: String?): WatchTarget = when (this) {
-    is WatchTarget.Movie -> copy(imdbId = imdbId)
-    is WatchTarget.Episode -> copy(imdbId = imdbId)
+fun WatchTarget.withMetadata(imdbId: String? = this.imdbId, kitsuId: Int? = this.kitsuId): WatchTarget = when (this) {
+    is WatchTarget.Movie -> copy(imdbId = imdbId, kitsuId = kitsuId)
+    is WatchTarget.Episode -> copy(imdbId = imdbId, kitsuId = kitsuId)
 }
+
+fun WatchTarget.withImdbId(imdbId: String?): WatchTarget = withMetadata(imdbId = imdbId)
 
 /**
  * Embed sites that can play a [WatchTarget]. Each one's page is loaded hidden, and the HLS stream

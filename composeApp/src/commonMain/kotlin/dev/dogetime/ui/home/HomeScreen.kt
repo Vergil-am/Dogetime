@@ -99,6 +99,16 @@ fun HomeScreen(
             item {
                 MediaRow("Popular TV Shows", current.data.popularTv, onOpen)
             }
+            if (current.data.trendingAnime.isNotEmpty()) {
+                item {
+                    BackdropRow("Trending Anime", current.data.trendingAnime, onOpen)
+                }
+            }
+            if (current.data.popularAnime.isNotEmpty()) {
+                item {
+                    MediaRow("Popular Anime", current.data.popularAnime, onOpen)
+                }
+            }
             item { Spacer(Modifier.height(8.dp)) }
         }
     }

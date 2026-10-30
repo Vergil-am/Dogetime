@@ -26,18 +26,27 @@ private val TRACKERS = listOf(
     "udp://tracker.openbittorrent.com:6969/announce",
 )
 
-/** Lists torrents for a movie or episode by its IMDb id using Stremio add-on providers. */
+/** Lists torrents for a movie or episode by its IMDb or Kitsu id using Stremio add-on providers. */
 class TorrentioApi(private val client: HttpClient) {
 
-    /** Torrents for [target] from [provider], best quality first. Throws if [target] has no IMDb id. */
+    /** Torrents for [target] from [provider], best quality first. Supports IMDb id and Kitsu anime id. */
     suspend fun streams(
         target: WatchTarget,
         provider: TorrentProvider = TorrentProvider.Torrentio,
     ): List<TorrentOption> {
-        val imdbId = requireNotNull(target.imdbId) { "This title has no IMDb id, which torrents are looked up by." }
-        val path = when (target) {
-            is WatchTarget.Movie -> "movie/$imdbId.json"
-            is WatchTarget.Episode -> "series/$imdbId:${target.season}:${target.episode}.json"
+        val kitsuId = target.kitsuId
+        val imdbId = target.imdbId
+
+        val path = when {
+            kitsuId != null -> when (target) {
+                is WatchTarget.Movie -> "movie/kitsu:$kitsuId.json"
+                is WatchTarget.Episode -> "series/kitsu:$kitsuId:${target.episode}.json"
+            }
+            imdbId != null -> when (target) {
+                is WatchTarget.Movie -> "movie/$imdbId.json"
+                is WatchTarget.Episode -> "series/$imdbId:${target.season}:${target.episode}.json"
+            }
+            else -> throw IllegalArgumentException("This title has neither an IMDb id nor a Kitsu id.")
         }
         val response: TorrentioResponse = client.get("${provider.streamBaseUrl}/$path").body()
         return response.streams.mapNotNull { it.toDomain() }

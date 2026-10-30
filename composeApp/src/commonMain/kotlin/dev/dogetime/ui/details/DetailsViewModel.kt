@@ -62,14 +62,14 @@ class DetailsViewModel(
     }
 
     fun selectSeason(seasonNumber: Int) {
-        if (type != MediaType.Tv) return
+        if (type != MediaType.Tv && type != MediaType.Anime) return
         val current = _episodes.value
         if (current.seasonNumber == seasonNumber && current.content is UiState.Success) return
 
         episodesJob?.cancel()
         _episodes.value = EpisodesState(seasonNumber, UiState.Loading)
         episodesJob = scope.launch {
-            val content = runForUiState { repository.episodes(id, seasonNumber) }
+            val content = runForUiState { repository.episodes(id, seasonNumber, type) }
             _episodes.value = EpisodesState(seasonNumber, content)
         }
     }

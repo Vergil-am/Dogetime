@@ -9,20 +9,35 @@ import dev.dogetime.domain.MediaType
 import dev.dogetime.domain.Page
 import dev.dogetime.domain.Season
 
-/** Single entry point for the ViewModels. Turns TMDB DTOs into domain models. */
-class MediaRepository(private val api: TmdbApi) {
+/** Single entry point for the ViewModels. Turns TMDB and Kitsu DTOs into domain models. */
+class MediaRepository(
+    private val api: TmdbApi,
+    private val kitsuApi: KitsuApi? = null,
+) {
 
     suspend fun browse(type: MediaType, category: BrowseCategory, page: Int): Page<MediaItem> =
-        api.list(type, category.path, page).toPage { it.toMediaItem(type) }
+        when (type) {
+            MediaType.Anime -> browseAnime(category, page)
+            MediaType.Movie, MediaType.Tv -> api.list(type, category.path, page).toPage { it.toMediaItem(type) }
+        }
 
     suspend fun trending(type: MediaType): List<MediaItem> =
-        api.trending(type, page = 1).results.map { it.toMediaItem(type) }
+        when (type) {
+            MediaType.Anime -> trendingAnime()
+            MediaType.Movie, MediaType.Tv -> api.trending(type, page = 1).results.map { it.toMediaItem(type) }
+        }
 
     suspend fun details(type: MediaType, id: Int): MediaDetails =
-        api.details(type, id).toDomain(type)
+        when (type) {
+            MediaType.Anime -> detailsAnime(id)
+            MediaType.Movie, MediaType.Tv -> api.details(type, id).toDomain(type)
+        }
 
-    suspend fun episodes(tvId: Int, seasonNumber: Int): List<Episode> =
-        api.season(tvId, seasonNumber).episodes.map { it.toDomain() }
+    suspend fun episodes(id: Int, seasonNumber: Int, type: MediaType = MediaType.Tv): List<Episode> =
+        when (type) {
+            MediaType.Anime -> episodesAnime(id)
+            MediaType.Movie, MediaType.Tv -> api.season(id, seasonNumber).episodes.map { it.toDomain() }
+        }
 
     /** Multi-search also returns people; only movies and TV shows are kept. */
     suspend fun search(query: String, page: Int): Page<MediaItem> =
@@ -33,6 +48,164 @@ class MediaRepository(private val api: TmdbApi) {
                 else -> null
             }
         }
+
+    suspend fun searchAnime(query: String, page: Int = 1, pageSize: Int = 20): Page<MediaItem> {
+        val kitsu = requireNotNull(kitsuApi) { "KitsuApi is required for anime." }
+        val offset = (page - 1) * pageSize
+        val res = kitsu.search(query, limit = pageSize, offset = offset)
+        val items = res.data.mapNotNull { it.toMediaItem() }
+        val total = res.meta?.count ?: items.size
+        val totalPages = (total + pageSize - 1) / pageSize
+        return Page(items = items, page = page, totalPages = maxOf(1, totalPages))
+    }
+
+    private suspend fun browseAnime(category: BrowseCategory, page: Int, pageSize: Int = 20): Page<MediaItem> {
+        val kitsu = requireNotNull(kitsuApi) { "KitsuApi is required for anime." }
+        val offset = (page - 1) * pageSize
+        val res = when (category.path) {
+            "top_rated" -> kitsu.topRated(limit = pageSize, offset = offset)
+            "current" -> kitsu.currentlyAiring(limit = pageSize, offset = offset)
+            "upcoming" -> kitsu.upcoming(limit = pageSize, offset = offset)
+            else -> kitsu.popular(limit = pageSize, offset = offset)
+        }
+        val items = res.data.mapNotNull { it.toMediaItem() }
+        val total = res.meta?.count ?: items.size
+        val totalPages = (total + pageSize - 1) / pageSize
+        return Page(items = items, page = page, totalPages = maxOf(1, totalPages))
+    }
+
+    private suspend fun trendingAnime(limit: Int = 20): List<MediaItem> {
+        val kitsu = requireNotNull(kitsuApi) { "KitsuApi is required for anime." }
+        return kitsu.trending(limit).data.mapNotNull { it.toMediaItem() }
+    }
+
+    private suspend fun detailsAnime(kitsuId: Int): MediaDetails {
+        val kitsu = requireNotNull(kitsuApi) { "KitsuApi is required for anime." }
+        val res = kitsu.details(kitsuId).data
+        val attrs = res.attributes
+
+        val genres = try {
+            val genreRes = kitsu.genres(kitsuId).data.map { it.attributes.name }
+            if (genreRes.isNotEmpty()) genreRes else kitsu.categories(kitsuId).data.map { it.attributes.title }.take(6)
+        } catch (_: Exception) {
+            emptyList()
+        }
+
+        val title = attrs.canonicalTitle ?: attrs.titles.values.firstOrNull { !it.isNullOrBlank() } ?: "Anime"
+        val poster = attrs.posterImage?.large ?: attrs.posterImage?.original ?: attrs.posterImage?.medium
+        val backdrop = attrs.coverImage?.large ?: attrs.coverImage?.original ?: poster
+
+        val rawRating = attrs.averageRating?.toDoubleOrNull() ?: 0.0
+        val rating10 = if (rawRating > 0) rawRating / 10.0 else 0.0
+
+        val isMovie = attrs.subtype.equals("movie", ignoreCase = true) || (attrs.episodeCount == 1 && (attrs.episodeLength ?: 0) > 40)
+        val episodeCount = attrs.episodeCount?.takeIf { it > 0 }
+        val seasons = if (isMovie) {
+            emptyList()
+        } else {
+            listOf(
+                Season(
+                    number = 1,
+                    name = "Episodes",
+                    episodeCount = episodeCount ?: 0,
+                    airDate = attrs.startDate,
+                )
+            )
+        }
+
+        val item = MediaItem(
+            id = kitsuId,
+            type = MediaType.Anime,
+            title = title,
+            overview = attrs.synopsis ?: attrs.description.orEmpty(),
+            posterUrl = poster,
+            backdropUrl = backdrop,
+            rating = rating10,
+            year = attrs.startDate?.take(4),
+        )
+
+        val runtime = if (isMovie) {
+            attrs.episodeLength?.let { "$it min" }
+        } else {
+            attrs.episodeLength?.let { "$it min per episode" }
+        }
+
+        return MediaDetails(
+            item = item,
+            tagline = attrs.ageRatingGuide,
+            status = attrs.status?.replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() },
+            genres = genres,
+            runtime = runtime,
+            voteCount = attrs.userCount ?: 0,
+            seasonCount = if (isMovie) null else 1,
+            episodeCount = if (isMovie) null else episodeCount,
+            seasons = seasons,
+            cast = emptyList(),
+            recommendations = emptyList(),
+            similar = emptyList(),
+            imdbId = null,
+            kitsuId = kitsuId,
+            logoUrl = null,
+        )
+    }
+
+    private suspend fun episodesAnime(kitsuId: Int): List<Episode> {
+        val kitsu = requireNotNull(kitsuApi) { "KitsuApi is required for anime." }
+        val list = mutableListOf<Episode>()
+        var offset = 0
+        val pageSize = 20
+        while (true) {
+            val batch = try {
+                kitsu.episodes(kitsuId, limit = pageSize, offset = offset).data
+            } catch (e: Exception) {
+                println("Failed to fetch anime episodes at offset $offset: ${e.message}")
+                emptyList()
+            }
+            if (batch.isEmpty()) break
+            batch.forEach { epRes ->
+                val epAttrs = epRes.attributes
+                val epNum = epAttrs.number ?: (list.size + 1)
+                val epTitle = epAttrs.canonicalTitle ?: "Episode $epNum"
+                list.add(
+                    Episode(
+                        number = epNum,
+                        seasonNumber = epAttrs.seasonNumber ?: 1,
+                        name = epTitle,
+                        overview = epAttrs.synopsis ?: epAttrs.description.orEmpty(),
+                        airDate = epAttrs.airdate,
+                        stillUrl = epAttrs.thumbnail?.original ?: epAttrs.thumbnail?.medium,
+                        rating = 0.0,
+                        runtime = epAttrs.length?.let { "$it min" },
+                    )
+                )
+            }
+            if (batch.size < pageSize) break
+            offset += pageSize
+            // Cap at 500 episodes safety net
+            if (offset >= 500) break
+        }
+        return list
+    }
+}
+
+private fun KitsuAnimeResource.toMediaItem(): MediaItem? {
+    val kitsuId = id.toIntOrNull() ?: return null
+    val attrs = attributes
+    val title = attrs.canonicalTitle ?: attrs.titles.values.firstOrNull { !it.isNullOrBlank() } ?: return null
+    val poster = attrs.posterImage?.large ?: attrs.posterImage?.original ?: attrs.posterImage?.medium
+    val backdrop = attrs.coverImage?.large ?: attrs.coverImage?.original ?: poster
+    val rawRating = attrs.averageRating?.toDoubleOrNull() ?: 0.0
+    val rating10 = if (rawRating > 0) rawRating / 10.0 else 0.0
+    return MediaItem(
+        id = kitsuId,
+        type = MediaType.Anime,
+        title = title,
+        overview = attrs.synopsis ?: attrs.description.orEmpty(),
+        posterUrl = poster,
+        backdropUrl = backdrop,
+        rating = rating10,
+        year = attrs.startDate?.take(4),
+    )
 }
 
 private const val POSTER_SIZE = "w342"

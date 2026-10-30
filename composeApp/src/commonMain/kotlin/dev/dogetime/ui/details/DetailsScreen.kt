@@ -90,7 +90,7 @@ import dev.dogetime.domain.MediaItem
 import dev.dogetime.domain.MediaType
 import dev.dogetime.domain.Season
 import dev.dogetime.domain.WatchTarget
-import dev.dogetime.domain.withImdbId
+import dev.dogetime.domain.withMetadata
 import dev.dogetime.ui.components.ErrorBox
 import dev.dogetime.ui.components.GenrePill
 import dev.dogetime.ui.components.MediaPoster
@@ -129,7 +129,13 @@ fun DetailsScreen(
                 episodes = episodes,
                 onSeasonSelected = viewModel::selectSeason,
                 // The watch screen shows the title's backdrop while the video loads.
-                onWatch = { target, title -> onWatch(target.withImdbId(current.data.imdbId), title, current.data.item.backdropUrl) },
+                onWatch = { target, title ->
+                    onWatch(
+                        target.withMetadata(imdbId = current.data.imdbId, kitsuId = current.data.kitsuId),
+                        title,
+                        current.data.item.backdropUrl,
+                    )
+                },
                 isFavorite = isFavorite,
                 onToggleFavorite = viewModel::toggleFavorite,
                 onOpen = onOpen,
@@ -509,9 +515,9 @@ private fun LazyListScope.detailsSection(
                     horizontalArrangement = Arrangement.spacedBy(12.dp),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    if (media.type == MediaType.Movie) {
+                    if (media.type == MediaType.Movie || (media.type == MediaType.Anime && details.seasons.isEmpty())) {
                         Button(
-                            onClick = { onWatch(WatchTarget.Movie(media.id), media.title) },
+                            onClick = { onWatch(WatchTarget.Movie(media.id, kitsuId = details.kitsuId), media.title) },
                             shape = RoundedCornerShape(50),
                             contentPadding = PaddingValues(horizontal = 28.dp, vertical = 12.dp),
                         ) {

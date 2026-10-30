@@ -3,6 +3,7 @@ package dev.dogetime.domain
 enum class MediaType(val label: String) {
     Movie("Movies"),
     Tv("TV Shows"),
+    Anime("Anime"),
 }
 
 /** A movie or TV show as shown in lists, rows and search results. */
@@ -41,6 +42,8 @@ data class MediaDetails(
     val similar: List<MediaItem>,
     /** The title's IMDb id ("tt…"), which torrent sources look titles up by. */
     val imdbId: String? = null,
+    /** The title's Kitsu id, for anime torrent sources (e.g. kitsu:12). */
+    val kitsuId: Int? = null,
     /** URL of a transparent logo for the title (from TMDB images API). */
     val logoUrl: String? = null,
 )
@@ -90,5 +93,11 @@ fun browseCategories(type: MediaType): List<BrowseCategory> = when (type) {
         BrowseCategory("Top Rated", "top_rated"),
         BrowseCategory("On The Air", "on_the_air"),
         BrowseCategory("Airing Today", "airing_today"),
+    )
+    MediaType.Anime -> listOf(
+        popularCategory,
+        BrowseCategory("Top Rated", "top_rated"),
+        BrowseCategory("Currently Airing", "current"),
+        BrowseCategory("Upcoming", "upcoming"),
     )
 }
