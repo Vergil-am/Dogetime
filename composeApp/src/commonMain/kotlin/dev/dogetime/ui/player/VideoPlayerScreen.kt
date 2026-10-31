@@ -78,7 +78,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import dev.dogetime.core.CapturedStream
 import dev.dogetime.core.extractAndSaveSubtitle
+import dev.dogetime.data.KitsuMappingRepository
 import dev.dogetime.data.OpenSubtitlesApi
+import dev.dogetime.data.StremioSubtitlesApi
 import dev.dogetime.data.SubdlApi
 import dev.dogetime.data.YtsSubsApi
 import dev.dogetime.domain.Subtitle
@@ -113,6 +115,8 @@ fun VideoPlayerScreen(
     subdl: SubdlApi? = null,
     openSubtitles: OpenSubtitlesApi? = null,
     ytsSubs: YtsSubsApi? = null,
+    stremioSubtitles: StremioSubtitlesApi? = null,
+    kitsuMapping: KitsuMappingRepository? = null,
 ) {
     PlayerSystemUiEffect()
     // "Try again" starts a fresh player.
@@ -129,6 +133,8 @@ fun VideoPlayerScreen(
             subdl = subdl,
             openSubtitles = openSubtitles,
             ytsSubs = ytsSubs,
+            stremioSubtitles = stremioSubtitles,
+            kitsuMapping = kitsuMapping,
         )
     }
 }
@@ -148,6 +154,8 @@ private fun PlayerContent(
     subdl: SubdlApi? = null,
     openSubtitles: OpenSubtitlesApi? = null,
     ytsSubs: YtsSubsApi? = null,
+    stremioSubtitles: StremioSubtitlesApi? = null,
+    kitsuMapping: KitsuMappingRepository? = null,
 ) {
     val controller = rememberVideoPlayerController(stream, title)
     val fullscreen = rememberFullscreenController()
@@ -178,11 +186,13 @@ private fun PlayerContent(
     }
 
     var activeSubtitleLanguage by remember { mutableStateOf<String?>(null) }
+    var stremioSubtitlesGroups by remember { mutableStateOf<List<SubtitleGroup>>(emptyList()) }
     var subdlGroups by remember { mutableStateOf<List<SubtitleGroup>>(emptyList()) }
     var openSubtitlesGroups by remember { mutableStateOf<List<SubtitleGroup>>(emptyList()) }
     var ytsSubsGroups by remember { mutableStateOf<List<SubtitleGroup>>(emptyList()) }
-    val subtitleGroups = remember(subdlGroups, openSubtitlesGroups, ytsSubsGroups) {
-        (subdlGroups + openSubtitlesGroups + ytsSubsGroups)
+    var isLoadingStremioSubtitles by remember { mutableStateOf(false) }
+    val subtitleGroups = remember(stremioSubtitlesGroups, subdlGroups, openSubtitlesGroups, ytsSubsGroups) {
+        (stremioSubtitlesGroups + subdlGroups + openSubtitlesGroups + ytsSubsGroups)
             .groupBy { it.language }
             .map { (lang, groups) ->
                 SubtitleGroup(
@@ -202,14 +212,57 @@ private fun PlayerContent(
     var downloadingSubtitleUrl by remember { mutableStateOf<String?>(null) }
     val scope = rememberCoroutineScope()
 
+    var effectiveTarget by remember(target) { mutableStateOf(target) }
+
+    suspend fun resolveTarget(t: WatchTarget): WatchTarget {
+        if (t.imdbId != null) return t
+        val kitsuId = t.kitsuId ?: return t
+        val kitsuEp = (t as? WatchTarget.Episode)?.episode
+        val resolved = kitsuMapping?.resolve(kitsuId, kitsuEp) ?: return t
+        return when (t) {
+            is WatchTarget.Movie -> t.copy(imdbId = resolved.imdbId)
+            is WatchTarget.Episode -> t.copy(
+                imdbId = resolved.imdbId,
+                season = resolved.season ?: t.season,
+                episode = resolved.episode ?: t.episode,
+            )
+        }
+    }
+
+    LaunchedEffect(target, kitsuMapping) {
+        if (target != null && target.kitsuId != null && kitsuMapping != null) {
+            effectiveTarget = resolveTarget(target)
+        } else {
+            effectiveTarget = target
+        }
+    }
+
+    // Automatically fetch subtitles from Stremio add-ons (OpenSubtitles v3 / Anime Kitsu) when playing
+    LaunchedEffect(target, stremioSubtitles) {
+        if (target != null && stremioSubtitles != null) {
+            isLoadingStremioSubtitles = true
+            try {
+                stremioSubtitlesGroups = stremioSubtitles.search(target)
+            } catch (e: CancellationException) {
+                throw e
+            } catch (_: Exception) {
+                // Auto-fetch in background fails gracefully
+            } finally {
+                isLoadingStremioSubtitles = false
+            }
+        }
+    }
+
     fun onSearchSubdl() {
-        if (target != null && subdl != null && !isLoadingSubdl) {
+        val currentTarget = effectiveTarget ?: target
+        if (currentTarget != null && subdl != null && !isLoadingSubdl) {
             hasSearchedSubdl = true
             scope.launch {
                 isLoadingSubdl = true
                 subtitleError = null
                 try {
-                    subdlGroups = subdl.search(target)
+                    val resolved = resolveTarget(currentTarget)
+                    subdlGroups = subdl.search(resolved)
                 } catch (e: CancellationException) {
                     throw e
                 } catch (e: Exception) {
@@ -222,13 +275,15 @@ private fun PlayerContent(
     }
 
     fun onSearchOpenSubtitles() {
-        if (target != null && openSubtitles != null && !isLoadingOpenSubtitles) {
+        val currentTarget = effectiveTarget ?: target
+        if (currentTarget != null && openSubtitles != null && !isLoadingOpenSubtitles) {
             hasSearchedOpenSubtitles = true
             scope.launch {
                 isLoadingOpenSubtitles = true
                 subtitleError = null
                 try {
-                    openSubtitlesGroups = openSubtitles.search(target)
+                    val resolved = resolveTarget(currentTarget)
+                    openSubtitlesGroups = openSubtitles.search(resolved)
                 } catch (e: CancellationException) {
                     throw e
                 } catch (e: Exception) {
@@ -241,13 +296,15 @@ private fun PlayerContent(
     }
 
     fun onSearchYtsSubs() {
-        if (target is WatchTarget.Movie && ytsSubs != null && target.imdbId != null && !isLoadingYtsSubs) {
+        val currentTarget = effectiveTarget ?: target
+        if (currentTarget is WatchTarget.Movie && ytsSubs != null && !isLoadingYtsSubs) {
             hasSearchedYtsSubs = true
             scope.launch {
                 isLoadingYtsSubs = true
                 subtitleError = null
                 try {
-                    ytsSubsGroups = ytsSubs.search(target)
+                    val resolved = resolveTarget(currentTarget)
+                    ytsSubsGroups = ytsSubs.search(resolved)
                 } catch (e: CancellationException) {
                     throw e
                 } catch (e: Exception) {
@@ -260,13 +317,16 @@ private fun PlayerContent(
     }
 
     fun onPickSubtitle(subtitle: Subtitle) {
-        if (openSubtitles == null && subdl == null && ytsSubs == null) return
+        if (openSubtitles == null && subdl == null && ytsSubs == null && stremioSubtitles == null) return
         scope.launch {
             downloadingSubtitleUrl = subtitle.downloadUrl
             try {
                 val bytes = if (subtitle.downloadUrl.contains("yts-subs.com")) {
                     ytsSubs?.download(subtitle.downloadUrl)
                         ?: throw IllegalStateException("YTS Subs provider not available")
+                } else if (subtitle.downloadUrl.contains("strem.io") || subtitle.downloadUrl.contains("strem.fun") || (stremioSubtitles != null && subtitle.downloadUrl.startsWith("http"))) {
+                    stremioSubtitles?.download(subtitle.downloadUrl)
+                        ?: throw IllegalStateException("Stremio subtitles provider not available")
                 } else if (openSubtitles != null && (subtitle.downloadUrl.toLongOrNull() != null || subdl == null)) {
                     openSubtitles.download(subtitle.downloadUrl)
                 } else if (subdl != null) {
@@ -417,12 +477,13 @@ private fun PlayerContent(
                     isLoadingSubdl = isLoadingSubdl,
                     isLoadingOpenSubtitles = isLoadingOpenSubtitles,
                     isLoadingYtsSubs = isLoadingYtsSubs,
+                    isLoadingStremioSubtitles = isLoadingStremioSubtitles,
                     hasSearchedSubdl = hasSearchedSubdl,
                     hasSearchedOpenSubtitles = hasSearchedOpenSubtitles,
                     hasSearchedYtsSubs = hasSearchedYtsSubs,
-                    canSearchSubdl = target != null && subdl != null,
-                    canSearchOpenSubtitles = target != null && openSubtitles != null,
-                    canSearchYtsSubs = target is WatchTarget.Movie && ytsSubs != null && target.imdbId != null,
+                    canSearchSubdl = (effectiveTarget ?: target) != null && subdl != null,
+                    canSearchOpenSubtitles = (effectiveTarget ?: target) != null && openSubtitles != null,
+                    canSearchYtsSubs = (effectiveTarget ?: target) is WatchTarget.Movie && ytsSubs != null && ((effectiveTarget ?: target)?.imdbId != null || (effectiveTarget ?: target)?.kitsuId != null),
                     downloadingSubtitleUrl = downloadingSubtitleUrl,
                     onSearchSubdl = ::onSearchSubdl,
                     onSearchOpenSubtitles = ::onSearchOpenSubtitles,
@@ -518,6 +579,7 @@ private fun TopBar(
     isLoadingSubdl: Boolean,
     isLoadingOpenSubtitles: Boolean,
     isLoadingYtsSubs: Boolean,
+    isLoadingStremioSubtitles: Boolean = false,
     hasSearchedSubdl: Boolean,
     hasSearchedOpenSubtitles: Boolean,
     hasSearchedYtsSubs: Boolean,
@@ -565,7 +627,7 @@ private fun TopBar(
         }
         val hasSubs = controller.subtitleTracks.isNotEmpty() ||
             canSearchSubdl || canSearchOpenSubtitles || canSearchYtsSubs ||
-            subtitleGroups.isNotEmpty() || isLoadingSubdl || isLoadingOpenSubtitles || isLoadingYtsSubs
+            subtitleGroups.isNotEmpty() || isLoadingSubdl || isLoadingOpenSubtitles || isLoadingYtsSubs || isLoadingStremioSubtitles
         if (hasSubs) {
             SubtitlesMenu(
                 controller = controller,
@@ -577,6 +639,7 @@ private fun TopBar(
                 isLoadingSubdl = isLoadingSubdl,
                 isLoadingOpenSubtitles = isLoadingOpenSubtitles,
                 isLoadingYtsSubs = isLoadingYtsSubs,
+                isLoadingStremioSubtitles = isLoadingStremioSubtitles,
                 hasSearchedSubdl = hasSearchedSubdl,
                 hasSearchedOpenSubtitles = hasSearchedOpenSubtitles,
                 hasSearchedYtsSubs = hasSearchedYtsSubs,
@@ -618,6 +681,7 @@ private fun SubtitlesMenu(
     isLoadingSubdl: Boolean,
     isLoadingOpenSubtitles: Boolean,
     isLoadingYtsSubs: Boolean,
+    isLoadingStremioSubtitles: Boolean = false,
     hasSearchedSubdl: Boolean,
     hasSearchedOpenSubtitles: Boolean,
     hasSearchedYtsSubs: Boolean,
@@ -703,6 +767,24 @@ private fun SubtitlesMenu(
                             },
                         )
                     }
+                }
+
+                // If subtitles are currently being auto-fetched from Stremio add-ons
+                if (isLoadingStremioSubtitles) {
+                    HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
+                    DropdownMenuItem(
+                        text = {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(10.dp),
+                            ) {
+                                CircularProgressIndicator(modifier = Modifier.size(16.dp), strokeWidth = 2.dp)
+                                Text("Fetching subtitles...", style = MaterialTheme.typography.bodyMedium)
+                            }
+                        },
+                        enabled = false,
+                        onClick = {},
+                    )
                 }
 
                 // If any subtitles have been found, display language groups

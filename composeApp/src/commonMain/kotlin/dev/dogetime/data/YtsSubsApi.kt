@@ -12,10 +12,14 @@ private const val BASE_URL = "https://yts-subs.com"
 private const val USER_AGENT = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
 
 /** Scrapes yts-subs.com for subtitles matching a movie's IMDb id using Jsoup. */
-class YtsSubsApi(private val client: HttpClient) {
+class YtsSubsApi(
+    private val client: HttpClient,
+    private val kitsuMapping: KitsuMappingRepository? = null,
+) {
 
     /**
      * Searches YTS Subs for subtitles matching [target] and returns them grouped by language.
+     * Automatically resolves Kitsu anime ids to IMDb ids via [kitsuMapping].
      *
      * @param languages optional comma-separated language names (e.g. `"English,Spanish"`).
      *                  When `null`, subtitles in all available languages are returned.
@@ -25,7 +29,9 @@ class YtsSubsApi(private val client: HttpClient) {
         languages: String? = null,
     ): List<SubtitleGroup> {
         if (target !is WatchTarget.Movie) return emptyList()
-        val rawImdbId = target.imdbId ?: return emptyList()
+        val rawImdbId = target.imdbId
+            ?: (target.kitsuId?.let { kitsuMapping?.resolve(it)?.imdbId })
+            ?: return emptyList()
         val imdbId = if (rawImdbId.startsWith("tt", ignoreCase = true)) rawImdbId else "tt$rawImdbId"
         val scrapeUrl = "$BASE_URL/movie-imdb/$imdbId"
 

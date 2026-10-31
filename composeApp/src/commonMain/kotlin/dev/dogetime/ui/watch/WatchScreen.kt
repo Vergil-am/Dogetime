@@ -45,7 +45,9 @@ import com.multiplatform.webview.web.rememberWebViewState
 import dev.dogetime.core.CapturedStream
 import dev.dogetime.core.ExternalPlayer
 import dev.dogetime.core.Torrents
+import dev.dogetime.data.KitsuMappingRepository
 import dev.dogetime.data.OpenSubtitlesApi
+import dev.dogetime.data.StremioSubtitlesApi
 import dev.dogetime.data.SubdlApi
 import dev.dogetime.data.TorrentProvider
 import dev.dogetime.data.TorrentioApi
@@ -73,6 +75,8 @@ fun WatchScreen(
     subdl: SubdlApi? = null,
     openSubtitles: OpenSubtitlesApi? = null,
     ytsSubs: YtsSubsApi? = null,
+    stremioSubtitles: StremioSubtitlesApi? = null,
+    kitsuMapping: KitsuMappingRepository? = null,
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
     backdropUrl: String? = null,
@@ -96,6 +100,8 @@ fun WatchScreen(
                 subdl = subdl,
                 openSubtitles = openSubtitles,
                 ytsSubs = ytsSubs,
+                stremioSubtitles = stremioSubtitles,
+                kitsuMapping = kitsuMapping,
             )
         }
         return
@@ -148,6 +154,8 @@ fun WatchScreen(
             subdl = subdl,
             openSubtitles = openSubtitles,
             ytsSubs = ytsSubs,
+            stremioSubtitles = stremioSubtitles,
+            kitsuMapping = kitsuMapping,
         )
     }
 }
@@ -223,6 +231,8 @@ private fun SourcePlayer(
     subdl: SubdlApi? = null,
     openSubtitles: OpenSubtitlesApi? = null,
     ytsSubs: YtsSubsApi? = null,
+    stremioSubtitles: StremioSubtitlesApi? = null,
+    kitsuMapping: KitsuMappingRepository? = null,
 ) {
     val allowedHost = remember(url) { hostOf(url) }
     val webState = rememberWebViewState(url)
@@ -263,6 +273,8 @@ private fun SourcePlayer(
                 subdl = subdl,
                 openSubtitles = openSubtitles,
                 ytsSubs = ytsSubs,
+                stremioSubtitles = stremioSubtitles,
+                kitsuMapping = kitsuMapping,
             )
             message?.let { MessageChip(it, Modifier.align(Alignment.BottomCenter).padding(bottom = 96.dp)) }
         }

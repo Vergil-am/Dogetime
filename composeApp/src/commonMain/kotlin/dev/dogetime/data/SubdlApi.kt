@@ -17,10 +17,14 @@ private const val API_BASE_URL = "https://api.subdl.com/api/v1/subtitles"
 private const val DOWNLOAD_BASE_URL = "https://api.subdl.com"
 
 /** Thin wrapper over the SubDL REST API. Returns domain models grouped by language. */
-class SubdlApi(private val client: HttpClient) {
+class SubdlApi(
+    private val client: HttpClient,
+    private val kitsuMapping: KitsuMappingRepository? = null,
+) {
 
     /**
      * Searches SubDL for subtitles matching [target] and returns them grouped by language.
+     * Automatically resolves Kitsu anime ids to IMDb ids and season/episode numbers via [kitsuMapping].
      *
      * @param languages optional comma-separated ISO codes (e.g. `"EN,FR,AR"`).
      *                  When `null`, subtitles in every available language are returned.
@@ -29,25 +33,35 @@ class SubdlApi(private val client: HttpClient) {
         target: WatchTarget,
         languages: String? = null,
     ): List<SubtitleGroup> {
+        val resolved = if (target.imdbId == null && target.kitsuId != null && kitsuMapping != null) {
+            val kitsuEp = (target as? WatchTarget.Episode)?.episode
+            kitsuMapping.resolve(target.kitsuId!!, kitsuEp)
+        } else null
+
+        val effectiveImdbId = resolved?.imdbId ?: target.imdbId
+        val effectiveSeason = resolved?.season ?: (target as? WatchTarget.Episode)?.season
+        val effectiveEpisode = resolved?.episode ?: (target as? WatchTarget.Episode)?.episode
+        val isMovie = target is WatchTarget.Movie && effectiveEpisode == null
+
         val response: SubdlSearchResponse = client.get(API_BASE_URL) {
             parameter("api_key", Secrets.SUBDL_API_KEY)
 
             // Identify the title – prefer IMDb id, fall back to TMDB id.
-            val imdbId = target.imdbId
-            if (imdbId != null) {
-                parameter("imdb_id", imdbId)
+            if (effectiveImdbId != null) {
+                parameter("imdb_id", effectiveImdbId)
             } else {
                 val tmdbId = when (target) {
                     is WatchTarget.Movie -> target.id
                     is WatchTarget.Episode -> target.showId
                 }
                 parameter("tmdb_id", tmdbId)
-                parameter("type", if (target is WatchTarget.Movie) "movie" else "tv")
             }
 
-            if (target is WatchTarget.Episode) {
-                parameter("season_number", target.season)
-                parameter("episode_number", target.episode)
+            parameter("type", if (isMovie) "movie" else "tv")
+
+            if (!isMovie) {
+                effectiveSeason?.let { parameter("season_number", it) }
+                effectiveEpisode?.let { parameter("episode_number", it) }
             }
 
             languages?.let { parameter("languages", it) }

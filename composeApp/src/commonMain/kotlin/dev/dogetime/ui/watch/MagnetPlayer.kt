@@ -27,7 +27,9 @@ import dev.dogetime.core.ExternalPlayer
 import dev.dogetime.core.TorrentProgress
 import dev.dogetime.core.TorrentStream
 import dev.dogetime.core.Torrents
+import dev.dogetime.data.KitsuMappingRepository
 import dev.dogetime.data.OpenSubtitlesApi
+import dev.dogetime.data.StremioSubtitlesApi
 import dev.dogetime.data.SubdlApi
 import dev.dogetime.data.YtsSubsApi
 import dev.dogetime.domain.WatchTarget
@@ -56,6 +58,8 @@ internal fun MagnetPlayer(
     subdl: SubdlApi? = null,
     openSubtitles: OpenSubtitlesApi? = null,
     ytsSubs: YtsSubsApi? = null,
+    stremioSubtitles: StremioSubtitlesApi? = null,
+    kitsuMapping: KitsuMappingRepository? = null,
 ) {
     var torrent by remember { mutableStateOf<TorrentStream?>(null) }
     var progress by remember { mutableStateOf(TorrentProgress()) }
@@ -101,6 +105,8 @@ internal fun MagnetPlayer(
                 subdl = subdl,
                 openSubtitles = openSubtitles,
                 ytsSubs = ytsSubs,
+                stremioSubtitles = stremioSubtitles,
+                kitsuMapping = kitsuMapping,
             )
             message?.let { MessageChip(it, Modifier.align(Alignment.BottomCenter).padding(bottom = 96.dp)) }
         }

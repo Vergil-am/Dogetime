@@ -213,6 +213,8 @@ fun App() {
                             subdl = container.subdl,
                             openSubtitles = container.openSubtitles,
                             ytsSubs = container.ytsSubs,
+                            stremioSubtitles = container.stremioSubtitles,
+                            kitsuMapping = container.kitsuMapping,
                             backdropUrl = current.backdropUrl,
                             onBack = { navigator.back() },
                             modifier = modifier,

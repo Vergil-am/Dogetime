@@ -21,10 +21,14 @@ private const val DOWNLOAD_URL = "$API_BASE_URL/download"
 private const val USER_AGENT = "dogetime v1.0.0"
 
 /** Thin wrapper over the OpenSubtitles.com REST API. Returns domain models grouped by language. */
-class OpenSubtitlesApi(private val client: HttpClient) {
+class OpenSubtitlesApi(
+    private val client: HttpClient,
+    private val kitsuMapping: KitsuMappingRepository? = null,
+) {
 
     /**
      * Searches OpenSubtitles for subtitles matching [target] and returns them grouped by language.
+     * Automatically resolves Kitsu anime ids to IMDb ids and season/episode numbers via [kitsuMapping].
      *
      * @param languages optional comma-separated ISO 639-1 codes (e.g. `"en,fr,ar"`).
      *                  When `null`, subtitles in every available language are returned.
@@ -33,14 +37,47 @@ class OpenSubtitlesApi(private val client: HttpClient) {
         target: WatchTarget,
         languages: String? = null,
     ): List<SubtitleGroup> {
+        val resolved = if (target.imdbId == null && target.kitsuId != null && kitsuMapping != null) {
+            val kitsuEp = (target as? WatchTarget.Episode)?.episode
+            kitsuMapping.resolve(target.kitsuId!!, kitsuEp)
+        } else null
+
+        val effectiveImdbId = resolved?.imdbId ?: target.imdbId
+        val effectiveSeason = resolved?.season ?: (target as? WatchTarget.Episode)?.season
+        val effectiveEpisode = resolved?.episode ?: (target as? WatchTarget.Episode)?.episode
+        val isMovie = target is WatchTarget.Movie && effectiveEpisode == null
+
         val response: OpenSubtitlesSearchResponse = client.get(SEARCH_URL) {
             header("Api-Key", Secrets.OPEN_SUBTITLES_API_KEY)
             header("User-Agent", USER_AGENT)
 
-            val imdbId = target.imdbId
-            if (imdbId != null) {
-                parameter("imdb_id", imdbId.removePrefix("tt"))
-            } else {
+            // CRITICAL: Parameters MUST be in strict alphabetical order to satisfy
+            // OpenSubtitles Cloudflare canonical url rule (avoids 301 redirect which drops auth headers).
+            // Alphabetical order:
+            // 1. episode_number
+            // 2. imdb_id
+            // 3. languages
+            // 4. season_number
+            // 5. tmdb_id
+            // 6. type
+
+            if (!isMovie && effectiveEpisode != null) {
+                parameter("episode_number", effectiveEpisode)
+            }
+
+            if (effectiveImdbId != null) {
+                // OpenSubtitles requires leading zeros removed (e.g. "0111161" -> "111161")
+                val cleanImdbNumber = effectiveImdbId.removePrefix("tt").trimStart('0').ifEmpty { "0" }
+                parameter("imdb_id", cleanImdbNumber)
+            }
+
+            languages?.let { parameter("languages", it) }
+
+            if (!isMovie && effectiveSeason != null) {
+                parameter("season_number", effectiveSeason)
+            }
+
+            if (effectiveImdbId == null) {
                 val tmdbId = when (target) {
                     is WatchTarget.Movie -> target.id
                     is WatchTarget.Episode -> target.showId
@@ -48,14 +85,7 @@ class OpenSubtitlesApi(private val client: HttpClient) {
                 parameter("tmdb_id", tmdbId)
             }
 
-            parameter("type", if (target is WatchTarget.Movie) "movie" else "episode")
-
-            if (target is WatchTarget.Episode) {
-                parameter("season_number", target.season)
-                parameter("episode_number", target.episode)
-            }
-
-            languages?.let { parameter("languages", it) }
+            parameter("type", if (isMovie) "movie" else "episode")
         }.body()
 
         return response.data
