@@ -9,6 +9,7 @@ import dev.dogetime.data.StremioSubtitlesApi
 import dev.dogetime.data.SubdlApi
 import dev.dogetime.data.TmdbApi
 import dev.dogetime.data.TorrentioApi
+import dev.dogetime.data.WatchHistoryRepository
 import dev.dogetime.data.YtsSubsApi
 import dev.dogetime.data.createHttpClient
 import dev.dogetime.data.local.createDatabase
@@ -16,6 +17,8 @@ import dev.dogetime.data.local.createDatabase
 /** Manual dependency container. Created once in App() and passed down to the screens. */
 class AppContainer {
     private val httpClient = createHttpClient()
+    private val database = createDatabase()
+
     val kitsuMapping: KitsuMappingRepository = KitsuMappingRepository(httpClient).apply { warmUp() }
     val kitsuApi: KitsuApi = KitsuApi(httpClient)
     val repository: MediaRepository = MediaRepository(TmdbApi(httpClient), kitsuApi)
@@ -24,5 +27,6 @@ class AppContainer {
     val openSubtitles: OpenSubtitlesApi = OpenSubtitlesApi(httpClient, kitsuMapping)
     val ytsSubs: YtsSubsApi = YtsSubsApi(httpClient, kitsuMapping)
     val stremioSubtitles: StremioSubtitlesApi = StremioSubtitlesApi(httpClient, kitsuMapping)
-    val favorites: FavoritesRepository = FavoritesRepository(createDatabase().favoriteDao())
+    val favorites: FavoritesRepository = FavoritesRepository(database.favoriteDao())
+    val watchHistory: WatchHistoryRepository = WatchHistoryRepository(database.watchHistoryDao())
 }

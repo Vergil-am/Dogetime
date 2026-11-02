@@ -56,6 +56,8 @@ import dev.dogetime.ui.components.RatingRing
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
+import dev.dogetime.ui.components.ContinueWatchingRow
+
 @Composable
 fun HomeScreen(
     viewModel: HomeViewModel,
@@ -63,22 +65,31 @@ fun HomeScreen(
     modifier: Modifier = Modifier,
     bottomInset: Dp = 0.dp,
 ) {
-    val state by viewModel.state.collectAsState()
+    val content by viewModel.state.collectAsState()
     val favorites by viewModel.favorites.collectAsState()
+    val watchHistory by viewModel.watchHistory.collectAsState()
 
-    when (val current = state) {
-        UiState.Loading -> LoadingBox(modifier)
-        is UiState.Error -> ErrorBox(current.message, onRetry = viewModel::load, modifier = modifier)
-        is UiState.Success -> LazyColumn(
+    if (!content.hasAnyContent && content.isAnyLoading) {
+        LoadingBox(modifier)
+    } else if (!content.hasAnyContent && content.globalError != null) {
+        ErrorBox(content.globalError ?: "Failed to load content", onRetry = viewModel::load, modifier = modifier)
+    } else {
+        LazyColumn(
             modifier = modifier,
             contentPadding = PaddingValues(bottom = 24.dp + bottomInset),
             verticalArrangement = Arrangement.spacedBy(28.dp),
         ) {
-            // Featured hero banner — cycles through trending movies.
-            val featured = current.data.trendingMovies.take(5)
+            // Featured hero banner — cycles through trending movies if available, else popular movies
+            val featured = (content.trendingMovies.ifEmpty { content.popularMovies }).take(5)
             if (featured.isNotEmpty()) {
                 item {
                     FeaturedBanner(featured, onOpen)
+                }
+            }
+
+            if (watchHistory.isNotEmpty()) {
+                item {
+                    ContinueWatchingRow("Continue Watching", watchHistory, onOpen)
                 }
             }
 
@@ -87,26 +98,34 @@ fun HomeScreen(
                     MediaRow("Your Favorites", favorites, onOpen)
                 }
             }
-            item {
-                BackdropRow("Trending Movies This Week", current.data.trendingMovies, onOpen)
-            }
-            item {
-                BackdropRow("Trending TV Shows This Week", current.data.trendingTv, onOpen)
-            }
-            item {
-                MediaRow("Popular Movies", current.data.popularMovies, onOpen)
-            }
-            item {
-                MediaRow("Popular TV Shows", current.data.popularTv, onOpen)
-            }
-            if (current.data.trendingAnime.isNotEmpty()) {
+            if (content.trendingMovies.isNotEmpty()) {
                 item {
-                    BackdropRow("Trending Anime", current.data.trendingAnime, onOpen)
+                    BackdropRow("Trending Movies This Week", content.trendingMovies, onOpen)
                 }
             }
-            if (current.data.popularAnime.isNotEmpty()) {
+            if (content.trendingTv.isNotEmpty()) {
                 item {
-                    MediaRow("Popular Anime", current.data.popularAnime, onOpen)
+                    BackdropRow("Trending TV Shows This Week", content.trendingTv, onOpen)
+                }
+            }
+            if (content.popularMovies.isNotEmpty()) {
+                item {
+                    MediaRow("Popular Movies", content.popularMovies, onOpen)
+                }
+            }
+            if (content.popularTv.isNotEmpty()) {
+                item {
+                    MediaRow("Popular TV Shows", content.popularTv, onOpen)
+                }
+            }
+            if (content.trendingAnime.isNotEmpty()) {
+                item {
+                    BackdropRow("Trending Anime", content.trendingAnime, onOpen)
+                }
+            }
+            if (content.popularAnime.isNotEmpty()) {
+                item {
+                    MediaRow("Popular Anime", content.popularAnime, onOpen)
                 }
             }
             item { Spacer(Modifier.height(8.dp)) }

@@ -8,10 +8,11 @@ import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 
-@Database(entities = [FavoriteEntity::class], version = 1)
+@Database(entities = [FavoriteEntity::class, WatchHistoryEntity::class], version = 3)
 @ConstructedBy(AppDatabaseConstructor::class)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun favoriteDao(): FavoriteDao
+    abstract fun watchHistoryDao(): WatchHistoryDao
 }
 
 // Room's compiler generates the actual implementation for each platform.
@@ -27,6 +28,7 @@ internal expect fun databaseBuilder(): RoomDatabase.Builder<AppDatabase>
 
 internal fun createDatabase(): AppDatabase =
     databaseBuilder()
+        .fallbackToDestructiveMigration(true)
         .setDriver(BundledSQLiteDriver())
         .setQueryCoroutineContext(Dispatchers.IO)
         .build()

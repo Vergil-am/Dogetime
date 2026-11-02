@@ -30,6 +30,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -318,6 +319,126 @@ fun BackdropRow(
                 BackdropCard(item = item, onClick = onItemClick)
             }
         }
+    }
+}
+
+/** Row of recently watched titles with episode coordinates and progress indicators. */
+@Composable
+fun ContinueWatchingRow(
+    title: String,
+    historyItems: List<dev.dogetime.domain.WatchHistoryItem>,
+    onItemClick: (MediaItem) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Column(modifier = modifier) {
+        Text(
+            text = title,
+            style = MaterialTheme.typography.titleLarge,
+            fontWeight = FontWeight.SemiBold,
+            modifier = Modifier.padding(horizontal = 16.dp),
+        )
+        Spacer(Modifier.height(12.dp))
+        val rowState = rememberLazyListState()
+        LazyRow(
+            state = rowState,
+            modifier = Modifier.dragToScroll(rowState),
+            contentPadding = PaddingValues(horizontal = 16.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            items(historyItems, key = { "${it.mediaItem.type}-${it.mediaItem.id}" }) { item ->
+                ContinueWatchingCard(item = item, onClick = { onItemClick(item.mediaItem) })
+            }
+        }
+    }
+}
+
+@Composable
+fun ContinueWatchingCard(
+    item: dev.dogetime.domain.WatchHistoryItem,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val background = MaterialTheme.colorScheme.background
+    Column(
+        modifier = modifier
+            .width(220.dp)
+            .clip(RoundedCornerShape(14.dp))
+            .clickable(onClick = onClick),
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .aspectRatio(16f / 9f)
+                .background(MaterialTheme.colorScheme.surfaceVariant),
+        ) {
+            val url = item.mediaItem.backdropUrl ?: item.mediaItem.posterUrl
+            if (url != null) {
+                AsyncImage(
+                    model = url,
+                    contentDescription = item.mediaItem.title,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier.fillMaxSize(),
+                )
+            }
+            Box(
+                Modifier
+                    .fillMaxSize()
+                    .background(
+                        Brush.verticalGradient(
+                            0f to Color.Transparent,
+                            0.5f to Color.Transparent,
+                            1f to background.copy(alpha = 0.9f),
+                        ),
+                    ),
+            )
+            // Episode badge for series / anime
+            if (item.season != null && item.episode != null) {
+                Text(
+                    text = "S${item.season} E${item.episode}",
+                    style = MaterialTheme.typography.labelSmall,
+                    fontWeight = FontWeight.Bold,
+                    color = Mocha.Crust,
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .padding(8.dp)
+                        .clip(RoundedCornerShape(6.dp))
+                        .background(Mocha.Mauve)
+                        .padding(horizontal = 6.dp, vertical = 2.dp),
+                )
+            }
+            // Progress bar at the bottom of the card
+            if (item.progress > 0f) {
+                LinearProgressIndicator(
+                    progress = { item.progress },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(3.dp)
+                        .align(Alignment.BottomCenter),
+                    color = Mocha.Mauve,
+                    trackColor = Color.White.copy(alpha = 0.2f),
+                )
+            }
+        }
+        Spacer(Modifier.height(6.dp))
+        Text(
+            text = item.mediaItem.title,
+            style = MaterialTheme.typography.bodyMedium,
+            fontWeight = FontWeight.SemiBold,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            color = Mocha.Text,
+        )
+        val subtitle = if (item.season != null && item.episode != null) {
+            "Episode ${item.episode}"
+        } else {
+            val mins = (item.positionMs / 60_000L).coerceAtLeast(1)
+            "$mins min watched"
+        }
+        Text(
+            text = subtitle,
+            style = MaterialTheme.typography.labelSmall,
+            color = Mocha.Subtext0,
+        )
     }
 }
 

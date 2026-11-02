@@ -1,6 +1,7 @@
 package dev.dogetime.navigation
 
 import androidx.compose.runtime.mutableStateListOf
+import dev.dogetime.domain.MediaItem
 import dev.dogetime.domain.MediaType
 import dev.dogetime.domain.WatchTarget
 
@@ -9,7 +10,12 @@ sealed interface Destination {
     data object Browse : Destination
     data object Search : Destination
     data class Details(val type: MediaType, val id: Int) : Destination
-    data class Watch(val target: WatchTarget, val title: String, val backdropUrl: String? = null) : Destination
+    data class Watch(
+        val target: WatchTarget,
+        val title: String,
+        val backdropUrl: String? = null,
+        val mediaItem: MediaItem? = null,
+    ) : Destination
 }
 
 /**

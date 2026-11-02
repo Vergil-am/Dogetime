@@ -51,8 +51,10 @@ import dev.dogetime.data.StremioSubtitlesApi
 import dev.dogetime.data.SubdlApi
 import dev.dogetime.data.TorrentProvider
 import dev.dogetime.data.TorrentioApi
+import dev.dogetime.data.WatchHistoryRepository
 import dev.dogetime.data.YtsSubsApi
 import dev.dogetime.core.WebEngineGate
+import dev.dogetime.domain.MediaItem
 import dev.dogetime.domain.VideoSource
 import dev.dogetime.domain.WatchTarget
 import dev.dogetime.ui.player.VideoPlayerScreen
@@ -77,9 +79,11 @@ fun WatchScreen(
     ytsSubs: YtsSubsApi? = null,
     stremioSubtitles: StremioSubtitlesApi? = null,
     kitsuMapping: KitsuMappingRepository? = null,
+    watchHistory: WatchHistoryRepository? = null,
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
     backdropUrl: String? = null,
+    mediaItem: MediaItem? = null,
 ) {
     var source by remember(target) { mutableStateOf<VideoSource?>(null) }
     var browsingTorrents by remember(target) { mutableStateOf(false) }
@@ -97,11 +101,13 @@ fun WatchScreen(
                 modifier = modifier,
                 backdropUrl = backdropUrl,
                 target = target,
+                mediaItem = mediaItem,
                 subdl = subdl,
                 openSubtitles = openSubtitles,
                 ytsSubs = ytsSubs,
                 stremioSubtitles = stremioSubtitles,
                 kitsuMapping = kitsuMapping,
+                watchHistory = watchHistory,
             )
         }
         return
@@ -151,11 +157,13 @@ fun WatchScreen(
             modifier = modifier,
             backdropUrl = backdropUrl,
             target = target,
+            mediaItem = mediaItem,
             subdl = subdl,
             openSubtitles = openSubtitles,
             ytsSubs = ytsSubs,
             stremioSubtitles = stremioSubtitles,
             kitsuMapping = kitsuMapping,
+            watchHistory = watchHistory,
         )
     }
 }
@@ -228,11 +236,13 @@ private fun SourcePlayer(
     modifier: Modifier = Modifier,
     backdropUrl: String? = null,
     target: WatchTarget? = null,
+    mediaItem: MediaItem? = null,
     subdl: SubdlApi? = null,
     openSubtitles: OpenSubtitlesApi? = null,
     ytsSubs: YtsSubsApi? = null,
     stremioSubtitles: StremioSubtitlesApi? = null,
     kitsuMapping: KitsuMappingRepository? = null,
+    watchHistory: WatchHistoryRepository? = null,
 ) {
     val allowedHost = remember(url) { hostOf(url) }
     val webState = rememberWebViewState(url)
@@ -270,11 +280,13 @@ private fun SourcePlayer(
                     { message = ExternalPlayer.play(found, title) ?: "Opening in $it…" }
                 },
                 target = target,
+                mediaItem = mediaItem,
                 subdl = subdl,
                 openSubtitles = openSubtitles,
                 ytsSubs = ytsSubs,
                 stremioSubtitles = stremioSubtitles,
                 kitsuMapping = kitsuMapping,
+                watchHistory = watchHistory,
             )
             message?.let { MessageChip(it, Modifier.align(Alignment.BottomCenter).padding(bottom = 96.dp)) }
         }

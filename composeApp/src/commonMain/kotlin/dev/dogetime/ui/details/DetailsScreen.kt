@@ -40,6 +40,7 @@ import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -83,6 +84,7 @@ import dev.dogetime.Mocha
 import dev.dogetime.core.UiState
 import dev.dogetime.data.FavoritesRepository
 import dev.dogetime.data.MediaRepository
+import dev.dogetime.data.WatchHistoryRepository
 import dev.dogetime.domain.CastMember
 import dev.dogetime.domain.Episode
 import dev.dogetime.domain.MediaDetails
@@ -107,18 +109,20 @@ fun DetailsScreen(
     repository: MediaRepository,
     favorites: FavoritesRepository,
     onBack: () -> Unit,
-    onWatch: (target: WatchTarget, title: String, backdropUrl: String?) -> Unit,
+    onWatch: (target: WatchTarget, title: String, backdropUrl: String?, mediaItem: MediaItem?) -> Unit,
     onOpen: (MediaItem) -> Unit,
     modifier: Modifier = Modifier,
+    watchHistory: WatchHistoryRepository? = null,
 ) {
     // Keyed by type and id, so opening a different title gets a fresh ViewModel.
-    val viewModel = remember(type, id) { DetailsViewModel(repository, favorites, type, id) }
+    val viewModel = remember(type, id) { DetailsViewModel(repository, favorites, type, id, watchHistory) }
     DisposableEffect(viewModel) {
         onDispose { viewModel.clear() }
     }
     val state by viewModel.state.collectAsState()
     val episodes by viewModel.episodes.collectAsState()
     val isFavorite by viewModel.isFavorite.collectAsState()
+    val episodeProgress by viewModel.episodeProgress.collectAsState()
 
     Box(modifier = modifier.fillMaxSize()) {
         when (val current = state) {
@@ -127,6 +131,7 @@ fun DetailsScreen(
             is UiState.Success -> DetailsContent(
                 details = current.data,
                 episodes = episodes,
+                episodeProgress = episodeProgress,
                 onSeasonSelected = viewModel::selectSeason,
                 // The watch screen shows the title's backdrop while the video loads.
                 onWatch = { target, title ->
@@ -134,6 +139,7 @@ fun DetailsScreen(
                         target.withMetadata(imdbId = current.data.imdbId, kitsuId = current.data.kitsuId),
                         title,
                         current.data.item.backdropUrl,
+                        current.data.item,
                     )
                 },
                 isFavorite = isFavorite,
@@ -251,6 +257,7 @@ private val MediumWidthBreakpoint = 600.dp
 private fun DetailsContent(
     details: MediaDetails,
     episodes: EpisodesState,
+    episodeProgress: Map<Pair<Int, Int>, Float>,
     onSeasonSelected: (Int) -> Unit,
     onWatch: (target: WatchTarget, title: String) -> Unit,
     isFavorite: Boolean,
@@ -264,11 +271,11 @@ private fun DetailsContent(
         val heroHeight = if (isMediumOrWider) maxHeight else maxHeight * 0.7f
 
         if (wide && details.seasons.isNotEmpty()) {
-            WideDetails(details, episodes, onSeasonSelected, onWatch, isFavorite, onToggleFavorite, onOpen, heroHeight)
+            WideDetails(details, episodes, episodeProgress, onSeasonSelected, onWatch, isFavorite, onToggleFavorite, onOpen, heroHeight)
         } else {
             LazyColumn(contentPadding = PaddingValues(bottom = 24.dp)) {
                 detailsSection(details, onWatch, isFavorite, onToggleFavorite, heroHeight = heroHeight, includeOverviewInHero = isMediumOrWider)
-                episodesSection(details, episodes, onSeasonSelected, onWatch)
+                episodesSection(details, episodes, episodeProgress, onSeasonSelected, onWatch)
                 castSection(details)
                 relatedSection(details, onOpen)
             }
@@ -294,6 +301,7 @@ private val EpisodesGlass = GlassStyle.regular.then {
 private fun WideDetails(
     details: MediaDetails,
     episodes: EpisodesState,
+    episodeProgress: Map<Pair<Int, Int>, Float>,
     onSeasonSelected: (Int) -> Unit,
     onWatch: (target: WatchTarget, title: String) -> Unit,
     isFavorite: Boolean,
@@ -361,7 +369,7 @@ private fun WideDetails(
                     .clip(EpisodesPanelShape)
                     .hazeGlass(input = HazeInput.Sources(hazeState), style = EpisodesGlass),
             ) {
-                episodesSection(details, episodes, onSeasonSelected, onWatch)
+                episodesSection(details, episodes, episodeProgress, onSeasonSelected, onWatch)
             }
         }
     }
@@ -651,6 +659,7 @@ private fun ExpandableOverview(text: String, modifier: Modifier = Modifier) {
 private fun LazyListScope.episodesSection(
     details: MediaDetails,
     episodes: EpisodesState,
+    episodeProgress: Map<Pair<Int, Int>, Float>,
     onSeasonSelected: (Int) -> Unit,
     onWatch: (target: WatchTarget, title: String) -> Unit,
 ) {
@@ -668,6 +677,7 @@ private fun LazyListScope.episodesSection(
             showTitle = details.item.title,
             showId = details.item.id,
             episodes = episodes,
+            episodeProgress = episodeProgress,
             onRetry = { episodes.seasonNumber?.let(onSeasonSelected) },
             onWatch = onWatch,
         )
@@ -735,6 +745,7 @@ private fun EpisodeList(
     showTitle: String,
     showId: Int,
     episodes: EpisodesState,
+    episodeProgress: Map<Pair<Int, Int>, Float>,
     onRetry: () -> Unit,
     onWatch: (target: WatchTarget, title: String) -> Unit,
 ) {
@@ -759,8 +770,10 @@ private fun EpisodeList(
         // Rows carry 8dp of padding themselves, so their press highlight has room around the content.
         is UiState.Success -> Column(modifier = Modifier.padding(horizontal = 8.dp)) {
             content.data.forEach { episode ->
+                val progress = episodeProgress[episode.seasonNumber to episode.number]
                 EpisodeRow(
                     episode = episode,
+                    progress = progress,
                     onWatch = {
                         val label = "$showTitle S${episode.seasonNumber}E${episode.number}"
                         onWatch(WatchTarget.Episode(showId, episode.seasonNumber, episode.number), label)
@@ -772,7 +785,11 @@ private fun EpisodeList(
 }
 
 @Composable
-private fun EpisodeRow(episode: Episode, onWatch: () -> Unit) {
+private fun EpisodeRow(
+    episode: Episode,
+    progress: Float? = null,
+    onWatch: () -> Unit,
+) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -781,14 +798,17 @@ private fun EpisodeRow(episode: Episode, onWatch: () -> Unit) {
             .padding(8.dp),
         horizontalArrangement = Arrangement.spacedBy(12.dp),
     ) {
-        // Thumbnail with play overlay.
-        Box {
+        // Thumbnail with play overlay and progress bar.
+        Box(
+            modifier = Modifier
+                .width(140.dp)
+                .aspectRatio(16f / 9f)
+                .clip(RoundedCornerShape(12.dp)),
+        ) {
             MediaPoster(
                 url = episode.stillUrl,
                 title = episode.name,
-                modifier = Modifier
-                    .width(140.dp)
-                    .aspectRatio(16f / 9f),
+                modifier = Modifier.fillMaxSize(),
             )
             Box(
                 modifier = Modifier
@@ -802,6 +822,17 @@ private fun EpisodeRow(episode: Episode, onWatch: () -> Unit) {
                     contentDescription = "Play",
                     tint = Mocha.Text,
                     modifier = Modifier.size(14.dp),
+                )
+            }
+            if (progress != null && progress > 0f) {
+                LinearProgressIndicator(
+                    progress = { progress.coerceIn(0f, 1f) },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(3.dp)
+                        .align(Alignment.BottomCenter),
+                    color = Mocha.Mauve,
+                    trackColor = Color.White.copy(alpha = 0.2f),
                 )
             }
         }

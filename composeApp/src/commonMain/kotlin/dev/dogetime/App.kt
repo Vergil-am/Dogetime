@@ -140,7 +140,7 @@ fun App() {
         val navigator = remember { Navigator() }
 
         // Tab ViewModels live here so switching tabs keeps their state.
-        val homeViewModel = remember { HomeViewModel(container.repository, container.favorites) }
+        val homeViewModel = remember { HomeViewModel(container.repository, container.favorites, container.watchHistory) }
         val browseViewModel = remember { BrowseViewModel(container.repository) }
         val searchViewModel = remember { SearchViewModel(container.repository) }
         DisposableEffect(Unit) {
@@ -201,8 +201,11 @@ fun App() {
                             id = current.id,
                             repository = container.repository,
                             favorites = container.favorites,
+                            watchHistory = container.watchHistory,
                             onBack = { navigator.back() },
-                            onWatch = { target, title, backdropUrl -> navigator.open(Destination.Watch(target, title, backdropUrl)) },
+                            onWatch = { target, title, backdropUrl, mediaItem ->
+                                navigator.open(Destination.Watch(target, title, backdropUrl, mediaItem))
+                            },
                             onOpen = { openDetails(it.type, it.id) },
                             modifier = modifier,
                         )
@@ -215,7 +218,9 @@ fun App() {
                             ytsSubs = container.ytsSubs,
                             stremioSubtitles = container.stremioSubtitles,
                             kitsuMapping = container.kitsuMapping,
+                            watchHistory = container.watchHistory,
                             backdropUrl = current.backdropUrl,
+                            mediaItem = current.mediaItem,
                             onBack = { navigator.back() },
                             modifier = modifier,
                         )

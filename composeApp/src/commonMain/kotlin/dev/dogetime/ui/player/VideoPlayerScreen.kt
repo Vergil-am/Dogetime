@@ -40,6 +40,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
@@ -82,7 +83,9 @@ import dev.dogetime.data.KitsuMappingRepository
 import dev.dogetime.data.OpenSubtitlesApi
 import dev.dogetime.data.StremioSubtitlesApi
 import dev.dogetime.data.SubdlApi
+import dev.dogetime.data.WatchHistoryRepository
 import dev.dogetime.data.YtsSubsApi
+import dev.dogetime.domain.MediaItem
 import dev.dogetime.domain.Subtitle
 import dev.dogetime.domain.SubtitleGroup
 import dev.dogetime.domain.WatchTarget
@@ -112,11 +115,13 @@ fun VideoPlayerScreen(
     onOpenExternal: (() -> Unit)?,
     modifier: Modifier = Modifier,
     target: WatchTarget? = null,
+    mediaItem: MediaItem? = null,
     subdl: SubdlApi? = null,
     openSubtitles: OpenSubtitlesApi? = null,
     ytsSubs: YtsSubsApi? = null,
     stremioSubtitles: StremioSubtitlesApi? = null,
     kitsuMapping: KitsuMappingRepository? = null,
+    watchHistory: WatchHistoryRepository? = null,
 ) {
     PlayerSystemUiEffect()
     // "Try again" starts a fresh player.
@@ -130,11 +135,13 @@ fun VideoPlayerScreen(
             onRetry = { attempt++ },
             modifier = modifier,
             target = target,
+            mediaItem = mediaItem,
             subdl = subdl,
             openSubtitles = openSubtitles,
             ytsSubs = ytsSubs,
             stremioSubtitles = stremioSubtitles,
             kitsuMapping = kitsuMapping,
+            watchHistory = watchHistory,
         )
     }
 }
@@ -151,11 +158,13 @@ private fun PlayerContent(
     onRetry: () -> Unit,
     modifier: Modifier,
     target: WatchTarget? = null,
+    mediaItem: MediaItem? = null,
     subdl: SubdlApi? = null,
     openSubtitles: OpenSubtitlesApi? = null,
     ytsSubs: YtsSubsApi? = null,
     stremioSubtitles: StremioSubtitlesApi? = null,
     kitsuMapping: KitsuMappingRepository? = null,
+    watchHistory: WatchHistoryRepository? = null,
 ) {
     val controller = rememberVideoPlayerController(stream, title)
     val fullscreen = rememberFullscreenController()
@@ -234,6 +243,66 @@ private fun PlayerContent(
             effectiveTarget = resolveTarget(target)
         } else {
             effectiveTarget = target
+        }
+    }
+
+    // Auto-resume from saved watch history position once duration is known.
+    var hasResumed by remember { mutableStateOf(false) }
+    LaunchedEffect(target, mediaItem, watchHistory, controller.durationMs) {
+        if (!hasResumed && controller.durationMs > 0 && target != null && mediaItem != null && watchHistory != null) {
+            hasResumed = true
+            try {
+                val season = (target as? WatchTarget.Episode)?.season
+                val episode = (target as? WatchTarget.Episode)?.episode
+                val saved = watchHistory.getHistory(mediaItem.type, mediaItem.id, season, episode)
+                if (saved != null && saved.positionMs > 5_000L && saved.positionMs < (controller.durationMs * 0.95f)) {
+                    controller.seekTo(saved.positionMs)
+                }
+            } catch (_: Exception) {}
+        }
+    }
+
+    // Periodically save playback position and episode to Room watch history while playing.
+    LaunchedEffect(target, mediaItem, watchHistory, controller) {
+        if (target == null || mediaItem == null || watchHistory == null) return@LaunchedEffect
+        while (true) {
+            delay(5_000L)
+            val pos = controller.positionMs
+            val dur = controller.durationMs
+            if (pos > 0) {
+                try {
+                    watchHistory.saveProgress(
+                        target = target,
+                        mediaItem = mediaItem,
+                        positionMs = pos,
+                        durationMs = dur,
+                    )
+                } catch (_: Exception) {
+                    // Non-fatal if saving progress fails
+                }
+            }
+        }
+    }
+
+    // Save final progress on exit.
+    DisposableEffect(target, mediaItem, watchHistory, controller) {
+        onDispose {
+            if (target != null && mediaItem != null && watchHistory != null) {
+                val pos = controller.positionMs
+                val dur = controller.durationMs
+                if (pos > 0) {
+                    scope.launch {
+                        try {
+                            watchHistory.saveProgress(
+                                target = target,
+                                mediaItem = mediaItem,
+                                positionMs = pos,
+                                durationMs = dur,
+                            )
+                        } catch (_: Exception) {}
+                    }
+                }
+            }
         }
     }
 

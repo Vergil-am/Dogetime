@@ -5,6 +5,7 @@ import dev.dogetime.core.ViewModel
 import dev.dogetime.core.runForUiState
 import dev.dogetime.data.FavoritesRepository
 import dev.dogetime.data.MediaRepository
+import dev.dogetime.data.WatchHistoryRepository
 import dev.dogetime.domain.Episode
 import dev.dogetime.domain.MediaDetails
 import dev.dogetime.domain.MediaType
@@ -13,6 +14,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
@@ -27,6 +30,7 @@ class DetailsViewModel(
     private val favorites: FavoritesRepository,
     private val type: MediaType,
     private val id: Int,
+    watchHistory: WatchHistoryRepository? = null,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow<UiState<MediaDetails>>(UiState.Loading)
@@ -39,6 +43,18 @@ class DetailsViewModel(
 
     val isFavorite: StateFlow<Boolean> = favorites.observeIsFavorite(type, id)
         .stateIn(scope, SharingStarted.Eagerly, initialValue = false)
+
+    val episodeProgress: StateFlow<Map<Pair<Int, Int>, Float>> = (watchHistory?.observeByMedia(type, id) ?: emptyFlow())
+        .map { list ->
+            list.mapNotNull { item ->
+                val s = item.season
+                val e = item.episode
+                if (s != null && e != null && item.progress > 0f) {
+                    (s to e) to item.progress
+                } else null
+            }.toMap()
+        }
+        .stateIn(scope, SharingStarted.WhileSubscribed(5_000), emptyMap())
 
     init {
         load()
