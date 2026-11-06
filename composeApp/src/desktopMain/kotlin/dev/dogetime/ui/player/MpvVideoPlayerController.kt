@@ -97,7 +97,7 @@ internal class MpvVideoPlayerController(stream: CapturedStream, title: String) :
 
     private fun start(stream: CapturedStream, title: String) {
         val lib = Mpv.library.getOrElse {
-            throw IllegalStateException("Couldn't load libmpv. Install mpv, which includes it, then restart DogeTime.", it)
+            throw IllegalStateException("Couldn't load libmpv. Install mpv, which includes it, then restart Chofo.", it)
         }
         mpv = lib
         val h = lib.mpv_create() ?: throw IllegalStateException("mpv couldn't be created.")

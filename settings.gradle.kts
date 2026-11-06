@@ -16,5 +16,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "DogeTime"
+rootProject.name = "chofo"
 include(":composeApp", ":androidApp")

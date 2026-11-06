@@ -51,6 +51,13 @@ class BrowseViewModel(private val repository: MediaRepository) : ViewModel() {
         reload()
     }
 
+    fun selectFilter(type: MediaType, category: BrowseCategory? = null) {
+        val targetCat = category ?: browseCategories(type).first()
+        if (_state.value.type == type && _state.value.category == targetCat) return
+        _state.update { it.copy(type = type, category = targetCat) }
+        reload()
+    }
+
     fun loadMore() {
         val current = _state.value
         if (current.canLoadMore) fetch(page = current.page + 1, append = true)

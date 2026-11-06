@@ -1,9 +1,16 @@
 package dev.dogetime.ui.components
 
+import androidx.compose.animation.AnimatedVisibilityScope
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionScope
+import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.hoverable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsHoveredAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -30,6 +37,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -45,15 +53,22 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.zIndex
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.graphics.vector.path
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
+import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
@@ -61,10 +76,38 @@ import dev.dogetime.Mocha
 import dev.dogetime.domain.MediaItem
 import kotlin.math.roundToInt
 
+@OptIn(ExperimentalSharedTransitionApi::class)
+val LocalSharedTransitionScope = compositionLocalOf<SharedTransitionScope?> { null }
+
+@OptIn(ExperimentalSharedTransitionApi::class)
+val LocalNavAnimatedVisibilityScope = compositionLocalOf<AnimatedVisibilityScope?> { null }
+
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-fun MediaPoster(url: String?, title: String, modifier: Modifier = Modifier) {
+fun MediaPoster(
+    url: String?,
+    title: String,
+    modifier: Modifier = Modifier,
+    sharedKey: String? = null,
+) {
+    val sharedScope = LocalSharedTransitionScope.current
+    val animScope = LocalNavAnimatedVisibilityScope.current
+
+    val sharedModifier = if (sharedScope != null && animScope != null && sharedKey != null) {
+        with(sharedScope) {
+            Modifier.sharedElement(
+                rememberSharedContentState(key = sharedKey),
+                animatedVisibilityScope = animScope,
+                clipInOverlayDuringTransition = OverlayClip(RoundedCornerShape(12.dp)),
+            )
+        }
+    } else {
+        Modifier
+    }
+
     Box(
         modifier = modifier
+            .then(sharedModifier)
             .clip(RoundedCornerShape(12.dp))
             .background(MaterialTheme.colorScheme.surfaceVariant),
         contentAlignment = Alignment.Center,
@@ -89,14 +132,31 @@ fun MediaPoster(url: String?, title: String, modifier: Modifier = Modifier) {
 
 @Composable
 fun MediaCard(item: MediaItem, onClick: (MediaItem) -> Unit, modifier: Modifier = Modifier) {
+    val interactionSource = remember { MutableInteractionSource() }
+    val isHovered by interactionSource.collectIsHoveredAsState()
+    val scale by animateFloatAsState(
+        targetValue = if (isHovered) 1.06f else 1f,
+        animationSpec = tween(durationMillis = 180, easing = FastOutSlowInEasing),
+    )
+
     Column(
         modifier = modifier
             .width(140.dp)
-            .clickable { onClick(item) },
+            .zIndex(if (isHovered) 1f else 0f)
+            .graphicsLayer {
+                scaleX = scale
+                scaleY = scale
+            }
+            .hoverable(interactionSource)
+            .clickable(
+                interactionSource = interactionSource,
+                indication = null,
+            ) { onClick(item) },
     ) {
         MediaPoster(
             url = item.posterUrl,
             title = item.title,
+            sharedKey = "poster-${item.type}-${item.id}",
             modifier = Modifier
                 .fillMaxWidth()
                 .aspectRatio(2f / 3f),
@@ -125,13 +185,29 @@ fun MediaCard(item: MediaItem, onClick: (MediaItem) -> Unit, modifier: Modifier 
 @Composable
 fun BackdropCard(item: MediaItem, onClick: (MediaItem) -> Unit, modifier: Modifier = Modifier) {
     val background = MaterialTheme.colorScheme.background
+    val interactionSource = remember { MutableInteractionSource() }
+    val isHovered by interactionSource.collectIsHoveredAsState()
+    val scale by animateFloatAsState(
+        targetValue = if (isHovered) 1.06f else 1f,
+        animationSpec = tween(durationMillis = 180, easing = FastOutSlowInEasing),
+    )
+
     Box(
         modifier = modifier
             .width(260.dp)
             .aspectRatio(16f / 9f)
+            .zIndex(if (isHovered) 1f else 0f)
+            .graphicsLayer {
+                scaleX = scale
+                scaleY = scale
+            }
             .clip(RoundedCornerShape(14.dp))
             .background(MaterialTheme.colorScheme.surfaceVariant)
-            .clickable { onClick(item) },
+            .hoverable(interactionSource)
+            .clickable(
+                interactionSource = interactionSource,
+                indication = null,
+            ) { onClick(item) },
     ) {
         val url = item.backdropUrl ?: item.posterUrl
         if (url != null) {
@@ -263,26 +339,81 @@ fun RatingRing(
     }
 }
 
+private val ChevronRightIcon = ImageVector.Builder(
+    name = "ChevronRight",
+    defaultWidth = 16.dp,
+    defaultHeight = 16.dp,
+    viewportWidth = 24f,
+    viewportHeight = 24f,
+).path(
+    stroke = SolidColor(Color.White),
+    strokeLineWidth = 2.4f,
+    strokeLineCap = StrokeCap.Round,
+    strokeLineJoin = StrokeJoin.Round,
+) {
+    moveTo(9f, 18f)
+    lineTo(15f, 12f)
+    lineTo(9f, 6f)
+}.build()
+
 @Composable
 fun MediaRow(
     title: String,
     mediaItems: List<MediaItem>,
     onItemClick: (MediaItem) -> Unit,
     modifier: Modifier = Modifier,
+    onViewAll: (() -> Unit)? = null,
 ) {
     Column(modifier = modifier) {
-        Text(
-            text = title,
-            style = MaterialTheme.typography.titleLarge,
-            fontWeight = FontWeight.SemiBold,
-            modifier = Modifier.padding(horizontal = 16.dp),
-        )
-        Spacer(Modifier.height(12.dp))
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.SemiBold,
+            )
+            if (onViewAll != null) {
+                val interactionSource = remember { MutableInteractionSource() }
+                val isHovered by interactionSource.collectIsHoveredAsState()
+                Row(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(8.dp))
+                        .hoverable(interactionSource)
+                        .clickable(
+                            interactionSource = interactionSource,
+                            indication = null,
+                            onClick = onViewAll,
+                        )
+                        .padding(horizontal = 8.dp, vertical = 4.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(4.dp),
+                ) {
+                    Text(
+                        text = "View all",
+                        style = MaterialTheme.typography.labelLarge,
+                        color = if (isHovered) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
+                        fontWeight = FontWeight.Medium,
+                    )
+                    Icon(
+                        imageVector = ChevronRightIcon,
+                        contentDescription = null,
+                        modifier = Modifier.size(16.dp),
+                        tint = if (isHovered) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+            }
+        }
+        Spacer(Modifier.height(8.dp))
         val rowState = rememberLazyListState()
         LazyRow(
             state = rowState,
             modifier = Modifier.dragToScroll(rowState),
-            contentPadding = PaddingValues(horizontal = 16.dp),
+            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
             horizontalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             items(mediaItems, key = { "${it.type}-${it.id}" }) { item ->
@@ -307,12 +438,12 @@ fun BackdropRow(
             fontWeight = FontWeight.SemiBold,
             modifier = Modifier.padding(horizontal = 16.dp),
         )
-        Spacer(Modifier.height(12.dp))
+        Spacer(Modifier.height(8.dp))
         val rowState = rememberLazyListState()
         LazyRow(
             state = rowState,
             modifier = Modifier.dragToScroll(rowState),
-            contentPadding = PaddingValues(horizontal = 16.dp),
+            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
             horizontalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             items(mediaItems, key = { "${it.type}-${it.id}" }) { item ->
@@ -337,12 +468,12 @@ fun ContinueWatchingRow(
             fontWeight = FontWeight.SemiBold,
             modifier = Modifier.padding(horizontal = 16.dp),
         )
-        Spacer(Modifier.height(12.dp))
+        Spacer(Modifier.height(8.dp))
         val rowState = rememberLazyListState()
         LazyRow(
             state = rowState,
             modifier = Modifier.dragToScroll(rowState),
-            contentPadding = PaddingValues(horizontal = 16.dp),
+            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
             horizontalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             items(historyItems, key = { "${it.mediaItem.type}-${it.mediaItem.id}" }) { item ->
@@ -358,38 +489,38 @@ fun ContinueWatchingCard(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val background = MaterialTheme.colorScheme.background
+    val interactionSource = remember { MutableInteractionSource() }
+    val isHovered by interactionSource.collectIsHoveredAsState()
+    val scale by animateFloatAsState(
+        targetValue = if (isHovered) 1.06f else 1f,
+        animationSpec = tween(durationMillis = 180, easing = FastOutSlowInEasing),
+    )
+
     Column(
         modifier = modifier
-            .width(220.dp)
-            .clip(RoundedCornerShape(14.dp))
-            .clickable(onClick = onClick),
+            .width(140.dp)
+            .zIndex(if (isHovered) 1f else 0f)
+            .graphicsLayer {
+                scaleX = scale
+                scaleY = scale
+            }
+            .hoverable(interactionSource)
+            .clickable(
+                interactionSource = interactionSource,
+                indication = null,
+                onClick = onClick,
+            ),
     ) {
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .aspectRatio(16f / 9f)
-                .background(MaterialTheme.colorScheme.surfaceVariant),
+                .aspectRatio(2f / 3f),
         ) {
-            val url = item.mediaItem.backdropUrl ?: item.mediaItem.posterUrl
-            if (url != null) {
-                AsyncImage(
-                    model = url,
-                    contentDescription = item.mediaItem.title,
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier.fillMaxSize(),
-                )
-            }
-            Box(
-                Modifier
-                    .fillMaxSize()
-                    .background(
-                        Brush.verticalGradient(
-                            0f to Color.Transparent,
-                            0.5f to Color.Transparent,
-                            1f to background.copy(alpha = 0.9f),
-                        ),
-                    ),
+            MediaPoster(
+                url = item.mediaItem.posterUrl ?: item.mediaItem.backdropUrl,
+                title = item.mediaItem.title,
+                sharedKey = "poster-${item.mediaItem.type}-${item.mediaItem.id}",
+                modifier = Modifier.fillMaxSize(),
             )
             // Episode badge for series / anime
             if (item.season != null && item.episode != null) {
@@ -400,7 +531,7 @@ fun ContinueWatchingCard(
                     color = Mocha.Crust,
                     modifier = Modifier
                         .align(Alignment.TopEnd)
-                        .padding(8.dp)
+                        .padding(6.dp)
                         .clip(RoundedCornerShape(6.dp))
                         .background(Mocha.Mauve)
                         .padding(horizontal = 6.dp, vertical = 2.dp),
@@ -413,13 +544,14 @@ fun ContinueWatchingCard(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(3.dp)
-                        .align(Alignment.BottomCenter),
+                        .align(Alignment.BottomCenter)
+                        .clip(RoundedCornerShape(bottomStart = 12.dp, bottomEnd = 12.dp)),
                     color = Mocha.Mauve,
                     trackColor = Color.White.copy(alpha = 0.2f),
                 )
             }
         }
-        Spacer(Modifier.height(6.dp))
+        Spacer(Modifier.height(8.dp))
         Text(
             text = item.mediaItem.title,
             style = MaterialTheme.typography.bodyMedium,
@@ -438,6 +570,8 @@ fun ContinueWatchingCard(
             text = subtitle,
             style = MaterialTheme.typography.labelSmall,
             color = Mocha.Subtext0,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
         )
     }
 }

@@ -58,7 +58,7 @@ actual fun WebEngineGate(content: @Composable () -> Unit) {
                     )
                 }
                 WebEngineState.RestartRequired -> Text(
-                    text = "Restart DogeTime to finish installing the web player.",
+                    text = "Restart Chofo to finish installing the web player.",
                     textAlign = TextAlign.Center,
                 )
                 is WebEngineState.Failed -> Text(

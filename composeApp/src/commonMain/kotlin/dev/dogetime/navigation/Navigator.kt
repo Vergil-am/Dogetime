@@ -9,7 +9,12 @@ sealed interface Destination {
     data object Home : Destination
     data object Browse : Destination
     data object Search : Destination
-    data class Details(val type: MediaType, val id: Int) : Destination
+    data object Settings : Destination
+    data class Details(
+        val type: MediaType,
+        val id: Int,
+        val initialItem: MediaItem? = null,
+    ) : Destination
     data class Watch(
         val target: WatchTarget,
         val title: String,

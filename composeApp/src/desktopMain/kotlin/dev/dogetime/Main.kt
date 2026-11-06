@@ -16,7 +16,7 @@ fun main() = application {
             DesktopWebEngine.dispose()
             exitApplication()
         },
-        title = "DogeTime",
+        title = "Chofo",
         state = windowState,
     ) {
         CompositionLocalProvider(LocalWindowState provides windowState) {

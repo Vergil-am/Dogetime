@@ -1,4 +1,4 @@
-# DogeTime 🐕
+# Chofo
 
 A Kotlin Multiplatform + Compose Multiplatform app for browsing movies and TV shows with [TMDB](https://www.themoviedb.org/), targeting **Android**, **iOS** and **Desktop** (Linux / macOS / Windows).
 

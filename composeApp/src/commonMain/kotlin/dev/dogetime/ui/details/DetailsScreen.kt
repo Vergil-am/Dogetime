@@ -113,6 +113,7 @@ fun DetailsScreen(
     onOpen: (MediaItem) -> Unit,
     modifier: Modifier = Modifier,
     watchHistory: WatchHistoryRepository? = null,
+    initialItem: MediaItem? = null,
 ) {
     // Keyed by type and id, so opening a different title gets a fresh ViewModel.
     val viewModel = remember(type, id) { DetailsViewModel(repository, favorites, type, id, watchHistory) }
@@ -124,28 +125,46 @@ fun DetailsScreen(
     val isFavorite by viewModel.isFavorite.collectAsState()
     val episodeProgress by viewModel.episodeProgress.collectAsState()
 
+    val detailsData = (state as? UiState.Success)?.data ?: initialItem?.let {
+        MediaDetails(
+            item = it,
+            tagline = null,
+            status = null,
+            genres = emptyList(),
+            runtime = null,
+            voteCount = 0,
+            seasonCount = null,
+            episodeCount = null,
+            seasons = emptyList(),
+            cast = emptyList(),
+            recommendations = emptyList(),
+            similar = emptyList(),
+        )
+    }
+
     Box(modifier = modifier.fillMaxSize()) {
-        when (val current = state) {
-            UiState.Loading -> CircularProgressIndicator(Modifier.align(Alignment.Center))
-            is UiState.Error -> ErrorBox(current.message, onRetry = viewModel::load)
-            is UiState.Success -> DetailsContent(
-                details = current.data,
+        when {
+            detailsData != null -> DetailsContent(
+                details = detailsData,
                 episodes = episodes,
                 episodeProgress = episodeProgress,
                 onSeasonSelected = viewModel::selectSeason,
                 // The watch screen shows the title's backdrop while the video loads.
                 onWatch = { target, title ->
                     onWatch(
-                        target.withMetadata(imdbId = current.data.imdbId, kitsuId = current.data.kitsuId),
+                        target.withMetadata(imdbId = detailsData.imdbId, kitsuId = detailsData.kitsuId),
                         title,
-                        current.data.item.backdropUrl,
-                        current.data.item,
+                        detailsData.item.backdropUrl,
+                        detailsData.item,
                     )
                 },
                 isFavorite = isFavorite,
                 onToggleFavorite = viewModel::toggleFavorite,
                 onOpen = onOpen,
+                isLoading = state is UiState.Loading,
             )
+            state is UiState.Error -> ErrorBox((state as UiState.Error).message, onRetry = viewModel::load)
+            else -> CircularProgressIndicator(Modifier.align(Alignment.Center))
         }
 
         // Floats over the backdrop; the scrim keeps it readable on bright images.
@@ -263,6 +282,7 @@ private fun DetailsContent(
     isFavorite: Boolean,
     onToggleFavorite: () -> Unit,
     onOpen: (MediaItem) -> Unit,
+    isLoading: Boolean = false,
 ) {
     BoxWithConstraints {
         val wide = maxWidth >= TwoPaneMinWidth || (maxWidth > maxHeight && maxWidth >= TwoPaneLandscapeMinWidth)
@@ -275,6 +295,18 @@ private fun DetailsContent(
         } else {
             LazyColumn(contentPadding = PaddingValues(bottom = 24.dp)) {
                 detailsSection(details, onWatch, isFavorite, onToggleFavorite, heroHeight = heroHeight, includeOverviewInHero = isMediumOrWider)
+                if (isLoading) {
+                    item {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(32.dp),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            CircularProgressIndicator(color = Mocha.Mauve)
+                        }
+                    }
+                }
                 episodesSection(details, episodes, episodeProgress, onSeasonSelected, onWatch)
                 castSection(details)
                 relatedSection(details, onOpen)
@@ -286,9 +318,15 @@ private fun DetailsContent(
 private val EpisodesPanelShape = RoundedCornerShape(24.dp)
 
 @OptIn(ExperimentalHazeApi::class)
-private val EpisodesGlass = GlassStyle.regular.then {
-    shape(EpisodesPanelShape)
-    tint(Mocha.Base.copy(alpha = 0.35f))
+@Composable
+private fun rememberEpisodesGlass(): GlassStyle {
+    val bg = MaterialTheme.colorScheme.surface
+    return remember(bg) {
+        GlassStyle.regular.then {
+            shape(EpisodesPanelShape)
+            tint(bg.copy(alpha = 0.35f))
+        }
+    }
 }
 
 /**
@@ -367,7 +405,7 @@ private fun WideDetails(
                     .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Vertical + WindowInsetsSides.End))
                     .padding(16.dp)
                     .clip(EpisodesPanelShape)
-                    .hazeGlass(input = HazeInput.Sources(hazeState), style = EpisodesGlass),
+                    .hazeGlass(input = HazeInput.Sources(hazeState), style = rememberEpisodesGlass()),
             ) {
                 episodesSection(details, episodes, episodeProgress, onSeasonSelected, onWatch)
             }
@@ -448,6 +486,7 @@ private fun LazyListScope.detailsSection(
                     MediaPoster(
                         url = media.posterUrl,
                         title = media.title,
+                        sharedKey = "poster-${media.type}-${media.id}",
                         modifier = Modifier
                             .width(130.dp)
                             .aspectRatio(2f / 3f)

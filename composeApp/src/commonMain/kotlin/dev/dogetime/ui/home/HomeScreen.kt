@@ -1,12 +1,23 @@
 package dev.dogetime.ui.home
 
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.StrokeJoin
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.graphics.vector.path
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -31,6 +42,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -47,8 +59,11 @@ import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import dev.dogetime.Mocha
 import dev.dogetime.core.UiState
+import dev.dogetime.domain.BrowseCategory
 import dev.dogetime.domain.MediaItem
-import dev.dogetime.ui.components.BackdropRow
+import dev.dogetime.domain.MediaType
+import dev.dogetime.domain.browseCategories
+import dev.dogetime.domain.popularCategory
 import dev.dogetime.ui.components.ErrorBox
 import dev.dogetime.ui.components.LoadingBox
 import dev.dogetime.ui.components.MediaRow
@@ -64,6 +79,8 @@ fun HomeScreen(
     onOpen: (MediaItem) -> Unit,
     modifier: Modifier = Modifier,
     bottomInset: Dp = 0.dp,
+    isWide: Boolean? = null,
+    onNavigateToBrowse: (MediaType, BrowseCategory?) -> Unit = { _, _ -> },
 ) {
     val content by viewModel.state.collectAsState()
     val favorites by viewModel.favorites.collectAsState()
@@ -74,18 +91,28 @@ fun HomeScreen(
     } else if (!content.hasAnyContent && content.globalError != null) {
         ErrorBox(content.globalError ?: "Failed to load content", onRetry = viewModel::load, modifier = modifier)
     } else {
-        LazyColumn(
-            modifier = modifier,
-            contentPadding = PaddingValues(bottom = 24.dp + bottomInset),
-            verticalArrangement = Arrangement.spacedBy(28.dp),
-        ) {
-            // Featured hero banner — cycles through trending movies if available, else popular movies
-            val featured = (content.trendingMovies.ifEmpty { content.popularMovies }).take(5)
-            if (featured.isNotEmpty()) {
-                item {
-                    FeaturedBanner(featured, onOpen)
+        BoxWithConstraints(modifier = modifier.fillMaxSize()) {
+            val wide = isWide ?: (maxWidth > 839.dp)
+            val bannerHeight = if (wide) maxHeight * 0.8f else 420.dp
+
+            LazyColumn(
+                modifier = Modifier.fillMaxSize(),
+                contentPadding = PaddingValues(bottom = 24.dp + bottomInset),
+                verticalArrangement = Arrangement.spacedBy(28.dp),
+            ) {
+                // Featured hero banner — cycles through trending movies if available, else popular movies
+                val featured = (content.trendingMovies.ifEmpty { content.popularMovies }).take(5)
+                if (featured.isNotEmpty()) {
+                    item {
+                        FeaturedBanner(
+                            items = featured,
+                            onOpen = onOpen,
+                            bannerHeight = bannerHeight,
+                            bottomInset = bottomInset,
+                            isWide = wide,
+                        )
+                    }
                 }
-            }
 
             if (watchHistory.isNotEmpty()) {
                 item {
@@ -100,35 +127,69 @@ fun HomeScreen(
             }
             if (content.trendingMovies.isNotEmpty()) {
                 item {
-                    BackdropRow("Trending Movies This Week", content.trendingMovies, onOpen)
+                    val cat = remember { browseCategories(MediaType.Movie).firstOrNull { it.path == "now_playing" } ?: popularCategory }
+                    MediaRow(
+                        title = "Trending Movies",
+                        mediaItems = content.trendingMovies,
+                        onItemClick = onOpen,
+                        onViewAll = { onNavigateToBrowse(MediaType.Movie, cat) },
+                    )
                 }
             }
             if (content.trendingTv.isNotEmpty()) {
                 item {
-                    BackdropRow("Trending TV Shows This Week", content.trendingTv, onOpen)
+                    val cat = remember { browseCategories(MediaType.Tv).firstOrNull { it.path == "on_the_air" } ?: popularCategory }
+                    MediaRow(
+                        title = "Trending TV Shows",
+                        mediaItems = content.trendingTv,
+                        onItemClick = onOpen,
+                        onViewAll = { onNavigateToBrowse(MediaType.Tv, cat) },
+                    )
                 }
             }
             if (content.popularMovies.isNotEmpty()) {
                 item {
-                    MediaRow("Popular Movies", content.popularMovies, onOpen)
+                    MediaRow(
+                        title = "Popular Movies",
+                        mediaItems = content.popularMovies,
+                        onItemClick = onOpen,
+                        onViewAll = { onNavigateToBrowse(MediaType.Movie, popularCategory) },
+                    )
                 }
             }
             if (content.popularTv.isNotEmpty()) {
                 item {
-                    MediaRow("Popular TV Shows", content.popularTv, onOpen)
+                    MediaRow(
+                        title = "Popular TV Shows",
+                        mediaItems = content.popularTv,
+                        onItemClick = onOpen,
+                        onViewAll = { onNavigateToBrowse(MediaType.Tv, popularCategory) },
+                    )
                 }
             }
             if (content.trendingAnime.isNotEmpty()) {
                 item {
-                    BackdropRow("Trending Anime", content.trendingAnime, onOpen)
+                    val cat = remember { browseCategories(MediaType.Anime).firstOrNull { it.path == "current" } ?: popularCategory }
+                    MediaRow(
+                        title = "Trending Anime",
+                        mediaItems = content.trendingAnime,
+                        onItemClick = onOpen,
+                        onViewAll = { onNavigateToBrowse(MediaType.Anime, cat) },
+                    )
                 }
             }
             if (content.popularAnime.isNotEmpty()) {
                 item {
-                    MediaRow("Popular Anime", content.popularAnime, onOpen)
+                    MediaRow(
+                        title = "Popular Anime",
+                        mediaItems = content.popularAnime,
+                        onItemClick = onOpen,
+                        onViewAll = { onNavigateToBrowse(MediaType.Anime, popularCategory) },
+                    )
                 }
             }
             item { Spacer(Modifier.height(8.dp)) }
+            }
         }
     }
 }
@@ -138,10 +199,47 @@ fun HomeScreen(
  * a gradient scrim, the title, rating ring, year, overview snippet, and dot indicators.
  * Supports mouse drag and scroll-wheel on desktop.
  */
+private val ChevronLeftIcon = ImageVector.Builder(
+    name = "ChevronLeft",
+    defaultWidth = 24.dp,
+    defaultHeight = 24.dp,
+    viewportWidth = 24f,
+    viewportHeight = 24f,
+).path(
+    stroke = SolidColor(Color.White),
+    strokeLineWidth = 2.2f,
+    strokeLineCap = StrokeCap.Round,
+    strokeLineJoin = StrokeJoin.Round,
+) {
+    moveTo(15f, 18f)
+    lineTo(9f, 12f)
+    lineTo(15f, 6f)
+}.build()
+
+private val ChevronRightIcon = ImageVector.Builder(
+    name = "ChevronRight",
+    defaultWidth = 24.dp,
+    defaultHeight = 24.dp,
+    viewportWidth = 24f,
+    viewportHeight = 24f,
+).path(
+    stroke = SolidColor(Color.White),
+    strokeLineWidth = 2.2f,
+    strokeLineCap = StrokeCap.Round,
+    strokeLineJoin = StrokeJoin.Round,
+) {
+    moveTo(9f, 18f)
+    lineTo(15f, 12f)
+    lineTo(9f, 6f)
+}.build()
+
 @Composable
 private fun FeaturedBanner(
     items: List<MediaItem>,
     onOpen: (MediaItem) -> Unit,
+    bannerHeight: Dp = 420.dp,
+    bottomInset: Dp = 0.dp,
+    isWide: Boolean = false,
 ) {
     val pagerState = rememberPagerState(pageCount = { items.size })
     val background = MaterialTheme.colorScheme.background
@@ -159,7 +257,7 @@ private fun FeaturedBanner(
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .height(420.dp),
+            .height(bannerHeight),
     ) {
         HorizontalPager(
             state = pagerState,
@@ -222,7 +320,10 @@ private fun FeaturedBanner(
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .clickable { onOpen(item) },
+                    .clickable(
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = null,
+                    ) { onOpen(item) },
             ) {
                 // Backdrop image.
                 val url = item.backdropUrl ?: item.posterUrl
@@ -248,23 +349,42 @@ private fun FeaturedBanner(
                             ),
                         ),
                 )
+                if (isWide) {
+                    Box(
+                        Modifier
+                            .fillMaxSize()
+                            .background(
+                                Brush.horizontalGradient(
+                                    0f to background.copy(alpha = 0.85f),
+                                    0.4f to background.copy(alpha = 0.5f),
+                                    0.7f to Color.Transparent,
+                                    1f to Color.Transparent,
+                                ),
+                            ),
+                    )
+                }
 
                 // Content: title, rating, year, overview.
+                val textBottomPadding = if (isWide) 48.dp else 40.dp
                 Column(
                     modifier = Modifier
                         .align(Alignment.BottomStart)
-                        .statusBarsPadding()
-                        .padding(start = 20.dp, end = 20.dp, bottom = 40.dp),
+                        .padding(
+                            start = if (isWide) 48.dp else 20.dp,
+                            end = 20.dp,
+                            bottom = textBottomPadding,
+                        )
+                        .widthIn(max = if (isWide) 640.dp else Dp.Unspecified),
                 ) {
                     Text(
                         text = item.title,
-                        style = MaterialTheme.typography.headlineMedium,
+                        style = if (isWide) MaterialTheme.typography.displaySmall else MaterialTheme.typography.headlineMedium,
                         fontWeight = FontWeight.Bold,
                         maxLines = 2,
                         overflow = TextOverflow.Ellipsis,
                         color = Mocha.Text,
                     )
-                    Spacer(Modifier.height(8.dp))
+                    Spacer(Modifier.height(10.dp))
 
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
@@ -281,12 +401,12 @@ private fun FeaturedBanner(
                     }
 
                     if (item.overview.isNotBlank()) {
-                        Spacer(Modifier.height(8.dp))
+                        Spacer(Modifier.height(10.dp))
                         Text(
                             text = item.overview,
-                            style = MaterialTheme.typography.bodySmall,
+                            style = if (isWide) MaterialTheme.typography.bodyMedium else MaterialTheme.typography.bodySmall,
                             color = Mocha.Subtext0,
-                            maxLines = 2,
+                            maxLines = if (isWide) 3 else 2,
                             overflow = TextOverflow.Ellipsis,
                         )
                     }
@@ -294,12 +414,50 @@ private fun FeaturedBanner(
             }
         }
 
-        // Dot indicators.
+        if (isWide && items.size > 1) {
+            IconButton(
+                onClick = {
+                    scope.launch {
+                        val prev = (pagerState.currentPage - 1 + items.size) % items.size
+                        pagerState.animateScrollToPage(prev, animationSpec = tween(400))
+                    }
+                },
+                modifier = Modifier
+                    .align(Alignment.CenterStart)
+                    .padding(start = 16.dp)
+                    .size(48.dp)
+                    .clip(CircleShape)
+                    .background(Mocha.Crust.copy(alpha = 0.55f)),
+            ) {
+                Icon(ChevronLeftIcon, contentDescription = "Previous", tint = Mocha.Text)
+            }
+
+            IconButton(
+                onClick = {
+                    scope.launch {
+                        val next = (pagerState.currentPage + 1) % items.size
+                        pagerState.animateScrollToPage(next, animationSpec = tween(400))
+                    }
+                },
+                modifier = Modifier
+                    .align(Alignment.CenterEnd)
+                    .padding(end = 16.dp)
+                    .size(48.dp)
+                    .clip(CircleShape)
+                    .background(Mocha.Crust.copy(alpha = 0.55f)),
+            ) {
+                Icon(ChevronRightIcon, contentDescription = "Next", tint = Mocha.Text)
+            }
+        }
+
+        // Indicators: selected as pill, unselected as dots.
+        val dotsBottomPadding = if (isWide) 16.dp else 12.dp
         Row(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
-                .padding(bottom = 12.dp),
+                .padding(bottom = dotsBottomPadding),
             horizontalArrangement = Arrangement.spacedBy(6.dp),
+            verticalAlignment = Alignment.CenterVertically,
         ) {
             repeat(items.size) { index ->
                 val isSelected = pagerState.currentPage == index
@@ -307,9 +465,14 @@ private fun FeaturedBanner(
                     targetValue = if (isSelected) Mocha.Mauve else Mocha.Surface2,
                     animationSpec = tween(300),
                 )
+                val width by animateDpAsState(
+                    targetValue = if (isSelected) 24.dp else 6.dp,
+                    animationSpec = tween(300),
+                )
                 Box(
                     modifier = Modifier
-                        .size(if (isSelected) 8.dp else 6.dp)
+                        .height(6.dp)
+                        .width(width)
                         .clip(CircleShape)
                         .background(color),
                 )
